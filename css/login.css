@@ -1,0 +1,415 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --red-dark: #210403;
+    --red-card: #4d0b08;
+    --red-input: #7d1511;
+    --red-button: #5e0906;
+    --red-highlight: #a9211b;
+
+    --background: #f1eeee;
+
+    --text: #ffffff;
+    --text-secondary: #b9a9a9;
+}
+
+body {
+     min-height: 100vh;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    background: #f1eeee;
+
+    color: var(--text);
+
+    overflow: auto;
+}
+
+/*AREA PRINCIPAL*/
+
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+/*EFEITO ESCURO SOBRE O BACKGROUND*/
+
+.login-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(
+            circle at center,
+            transparent 10%,
+            rgba(35, 10, 0, 0.35) 100%
+        );
+
+    pointer-events: none;
+}
+
+/*CARD DE LOGIN*/
+
+.login-card {
+     width: 410px;
+    padding: 48px 42px 40px;
+
+    border-radius: 26px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #210403,
+            #70150f
+        );
+
+    box-shadow:
+        0 25px 60px rgba(0, 0, 0, 0.35);
+
+    animation: cardAppear 0.7s ease;
+}
+
+/*LOGO*/
+
+.logo {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.logo span {
+    font-size: 52px;
+    font-weight: 500;
+    letter-spacing: -3px;
+    color: white;
+}
+
+/*TITULOS*/
+
+h1 {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 400;
+    margin-top: 12px; 
+}
+
+.subtitle {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 32px;
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+.input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.65);
+    opacity: 1;
+}
+
+.sr-only {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    padding: 0;
+    margin: -1px;
+
+    overflow: hidden;
+
+    clip: rect(0, 0, 0, 0);
+
+    white-space: nowrap;
+
+    border: 0;
+}
+
+/*INPUT*/
+
+.input-group {
+    position: relative;
+    margin-top: 24px;
+}
+
+/*CAMPO*/
+
+.input-group input {
+    width: 100%;
+    height: 58px;
+
+    padding: 0 18px;
+
+    border: none;
+    border-radius: 14px;
+
+    outline: none;
+
+    background: #7d1511;
+
+    color: white;
+
+    font-size: 16px;
+}
+
+/*FOCO*/
+
+.input-group input:focus {
+    border-color: #ff8a00;
+    box-shadow: 0 0 0 2px rgba(255, 130, 0, 0.18);
+}
+
+/*SENHA*/
+
+.password-group {
+    margin-top: 28px;
+}
+
+.show-password {
+    position: absolute;
+    right: 17px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 21px;
+    cursor: pointer;
+}
+
+.show-password:hover {
+    color: white;
+}
+
+/*LINKS*/
+
+.forgot-button {
+    margin-top: 10px;
+    border: none;
+    background: transparent;
+    color: #ff8b22;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.forgot-button:hover {
+    color: #ffb066;
+}
+
+/*ERRO*/
+
+.error-message {
+    min-height: 20px;
+    margin-top: 15px;
+    color: #ff9b78;
+    font-size: 14px;
+}
+
+/*BOTÂO PRÒXIMA*/
+
+.next-button {
+     width: 100%;
+    height: 58px;
+
+    border: none;
+    border-radius: 30px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #6f0c08,
+            #3d0503
+        );
+
+    color: white;
+
+    font-size: 17px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+.next-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(255, 105, 0, 0.4);
+}
+
+.next-button:active {
+    transform: translateY(0);
+}
+
+.arrow {
+    font-size: 25px;
+}
+
+/*CRIAR CONTA*/
+
+.create-account {
+    display: block;
+    margin: 30px auto 0;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.create-account:hover {
+    color: #ff9b45;
+}
+
+.account-question {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 6px;
+
+    margin-top: 28px;
+
+    font-size: 14px;
+
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.account-question a {
+    color: #ff8b7f;
+
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition: 0.2s ease;
+}
+
+.account-question a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+/*ANIMAÇÃ0*/
+
+@keyframes cardAppear {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/*RESPONSIVIDADE*/
+
+@media (max-width: 600px) {
+    body {
+        overflow: auto;
+    }
+    .login-page {
+        padding: 20px;
+    }
+    .login-card {
+        width: 100%;
+        padding: 35px 25px 32px;
+    }
+    .logo span {
+        font-size: 42px;
+    }
+    h1 {
+        font-size: 26px;
+    }
+}
+
+/* =========================
+   CADASTRO
+========================= */
+
+.terms {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 10px;
+
+    margin-top: 22px;
+
+    color: rgba(255, 255, 255, 0.75);
+
+    font-size: 14px;
+
+    line-height: 1.4;
+}
+
+.terms input {
+    margin-top: 2px;
+
+    accent-color: #b52a20;
+
+    cursor: pointer;
+}
+
+.terms label {
+    cursor: pointer;
+}
+
+
+/* LINK LOGIN */
+
+.login-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    margin-top: 25px;
+
+    font-size: 14px;
+
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.login-link a {
+    color: #ff8174;
+
+    font-weight: bold;
+
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+
+/* VOLTAR */
+
+.back-home {
+    display: block;
+
+    width: max-content;
+
+    margin: 20px auto 0;
+
+    color: rgba(255, 255, 255, 0.65);
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    transition: 0.2s ease;
+}
+
+.back-home:hover {
+    color: white;
+}

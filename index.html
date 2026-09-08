@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BREAKTEC</title>
+
+    <link rel="stylesheet" href="css/inicio.css">
+</head>
+
+<body>
+
+    <!-- CABEÇALHO -->
+    <header class="header">
+
+        <div class="logo">
+            <div class="logo-icon">
+            <img
+           src="assets/logotipo.jpg"
+           alt="Logotipo Break Tec"
+    >
+            </div>
+
+            <span>BREAKTEC</span>
+        </div>
+
+        <nav class="nav" id="nav">
+
+    <a href="#inicio" class="active">
+        Início
+    </a>
+
+    <a href="#projetos">
+        Projetos
+    </a>
+
+    <a href="#avaliacoes">
+        Avaliações
+    </a>
+
+    <a href="#comunidade">
+        Comunidade
+    </a>
+
+    <a href="#conteudos">
+        Conteúdos
+    </a>
+
+    <a href="#sobre">
+        Sobre
+    </a>
+
+    <span
+        class="nav-indicator"
+        id="navIndicator"
+        aria-hidden="true"
+    ></span>
+
+</nav>
+
+      <div class="header-actions">
+        <!--AREA DE PESQUISA-->
+        <div class="search-container">
+
+    <input
+        type="search"
+        class="search-input"
+        id="searchInput"
+        placeholder="Pesquisar..."
+        aria-label="Pesquisar no site"
+    >
+
+    <button
+        class="search-button"
+        id="searchButton"
+        aria-label="Pesquisar"
+        type="button"
+    >
+        <img
+            src="assets/lupa.png"
+            alt=""
+            aria-hidden="true"
+        >
+    </button>
+
+</div>
+
+      <!-- ÁREA DO USUÁRIO -->
+
+<div class="area-usuario" id="areaUsuario">
+
+    <!-- Aparece quando NÃO estiver logado -->
+    <div id="usuarioDeslogado">
+
+        <a
+            href="pages/login.html"
+            id="botaoLogin"
+            class="login-button"
+        >
+            Entrar
+        </a>
+
+        <a
+            href="pages/cadastro.html"
+            class="register-button"
+        >
+            Cadastre-se
+        </a>
+
+    </div>
+
+
+    <!-- Aparece quando estiver LOGADO -->
+    <div
+        id="usuarioLogado"
+        class="usuario-logado"
+        hidden
+    >
+
+        <a
+            href="pages/perfil.html"
+            id="nomeUsuario"
+            class="nome-usuario"
+        ></a>
+
+        <button
+            type="button"
+            id="botaoSair"
+            class="botao-sair"
+        >
+            Sair
+        </button>
+
+    </div>
+
+</div>
+        </div>
+
+        <button class="menu-button" id="menuButton">
+            ☰
+        </button>
+
+    </header>
+
+
+    <!-- ÁREA PRINCIPAL -->
+    <main>
+
+        <section class="hero" id="inicio">
+
+            <div class="hero-content">
+
+                <span class="small-title">
+                    BREAKTEC
+                </span>
+
+                <h1>
+                Toda grande ideia<br>
+                começa com o<br>
+                <span>apoio certo.</span>
+                </h1>
+
+                <p class="description">
+                    Desenvolvedores mostram seus projetos.<br>
+                    Jogadores encontram novos jogos.<br>
+                    Juntos, fortalecemos o futuro da tecnologia.
+                </p>
+
+
+                <!-- BENEFÍCIOS -->
+                <div class="benefits">
+
+                    <div class="benefit">
+                        <div class="benefit-icon">
+                            🎮
+                        </div>
+
+                        <p>
+                            Descubra novos jogos e projetos incríveis
+                        </p>
+                    </div>
+
+
+                    <div class="benefit">
+                        <div class="benefit-icon">
+                            👥
+                        </div>
+
+                        <p>
+                            Avalie, comente e apoie desenvolvedores
+                        </p>
+                    </div>
+
+
+                    <div class="benefit">
+                        <div class="benefit-icon">
+                            📊
+                        </div>
+
+                        <p>
+                            Conteúdos, dicas e oportunidades para sua jornada
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <!-- BOTÃO -->
+                <button class="explore-button" id="exploreButton">
+                    Explorar agora
+                    <span>→</span>
+                </button>
+
+            </div>
+
+
+            <!-- IMAGEM PRINCIPAL -->
+            <div class="hero-image">
+
+                <div class="glow"></div>
+
+                <img
+                    src="assets/hero.png"
+                    alt="Mascote da Break Tec"
+                >
+
+            </div>
+
+        </section>
+
+    <!-- SEÇÕES TEMPORÁRIAS -->
+    <section class="placeholder" id="projetos">
+        <h2>Projetos</h2>
+        <p>Área de projetos da Break Tec.</p>
+    </section>
+
+    <section class="placeholder" id="avaliacoes">
+        <h2>Avaliações</h2>
+        <p>Área de avaliações.</p>
+    </section>
+
+    <section class="placeholder" id="comunidade">
+        <h2>Comunidade</h2>
+        <p>Área da comunidade.</p>
+    </section>
+
+    <section class="placeholder" id="conteudos">
+        <h2>Conteúdos</h2>
+        <p>Conteúdos da Break Tec.</p>
+    </section>
+
+    <section class="placeholder" id="sobre">
+        <h2>Sobre</h2>
+        <p>Conheça a Break Tec.</p>
+    </section>
+
+
+    <script src="js/inicio.js"></script>
+
+</body>
+
+</html>

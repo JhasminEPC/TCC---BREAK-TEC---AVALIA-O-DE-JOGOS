@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+    
+    <main class="login-page">
+        <section class="login-card">
+            <div class="logo">
+                <span>Break Tec</span>
+            </div>
+
+            <h1>Fazer login</h1>
+            <p class="subtitle">
+                Use sua conta do Google
+            </p>
+
+            <form id="loginForm">
+                <div class="input-group">
+                    
+                    <label for="email" class="sr-only">
+                     E-mail ou telefone
+                    </label>
+
+                    <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="E-mail ou telefone"
+                    autocomplete="username"
+                    required
+                    >
+                        
+                </div>
+
+                <button
+                    type="button"
+                    class="forgot-button"
+                    id="forgotEmail">
+                    Esqueceu seu e-mail?
+                </button>
+
+                <div class="input-group password-group">
+                    <input
+                     type="password"
+                     id="password"
+                     name="password"
+                     placeholder="Senha"
+                     autocomplete="current-password"
+                    required
+                    >
+
+                        <button
+                            type="button"
+                            class="show-password"
+                            id="showPassword"
+                            aria-label="Mostrar senha"> ˙𐃷˙
+                        </button>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="forgot-button"
+                            id="forgotPassword">
+                            Esqueceu sua senha?
+                        </button>
+
+                        <p id="errorMessage"
+                           class="error-message"></p>
+
+                           <button
+                               type="submit"
+                               class="next-button">
+
+                               <span>Próxima</span>
+                               <span class="arrow"> ⟶ </span>
+                            </button>
+            </form>
+
+            <div class="account-question">
+            <span>Ainda não tem uma conta?</span>
+
+                 <a href="cadastro.html">
+                    Criar conta
+                 </a>
+        </section>
+    
+    </main>
+
+    <a href="../index.html">
+    Voltar para o início
+</a>
+
+    <script src="../js/login.js"></script>
+
+</body>
+</html>

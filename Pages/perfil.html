@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Meu Perfil | Break Tec</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/perfil.css"
+    >
+
+</head>
+
+<body>
+
+
+    <!-- =========================
+         CABEÇALHO
+    ========================== -->
+
+    <header class="header">
+
+        <a
+            href="../index.html"
+            class="logo"
+        >
+
+            <div class="logo-icon">
+
+                <img
+                    src="../assets/logo-breaktec.png"
+                    alt="Logo Break Tec"
+                >
+
+            </div>
+
+            <span>BREAKTEC</span>
+
+        </a>
+
+
+        <nav class="nav">
+
+            <a href="../index.html">
+                Início
+            </a>
+
+            <a href="../index.html#projetos">
+                Projetos
+            </a>
+
+            <a href="../index.html#avaliacoes">
+                Avaliações
+            </a>
+
+            <a href="../index.html#comunidade">
+                Comunidade
+            </a>
+
+        </nav>
+
+
+        <button
+            type="button"
+            id="botaoSair"
+            class="botao-sair"
+        >
+            Sair
+        </button>
+
+    </header>
+
+
+
+    <!-- =========================
+         PERFIL
+    ========================== -->
+
+    <main class="perfil-container">
+
+
+        <!-- APRESENTAÇÃO DO USUÁRIO -->
+
+        <section class="perfil-cabecalho">
+
+            <div class="perfil-avatar">
+
+                <span id="perfilInicial">
+                    U
+                </span>
+
+            </div>
+
+
+            <div class="perfil-identidade">
+
+                <p class="perfil-label">
+                    PERFIL
+                </p>
+
+                <h1 id="perfilNome">
+                    Usuário
+                </h1>
+
+                <p id="perfilEmail">
+                    email@exemplo.com
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ESTATÍSTICAS -->
+
+        <section class="perfil-estatisticas">
+
+            <div class="estatistica">
+
+                <strong id="totalProjetos">
+                    0
+                </strong>
+
+                <span>
+                    Projetos
+                </span>
+
+            </div>
+
+
+            <div class="estatistica">
+
+                <strong id="totalAvaliacoes">
+                    0
+                </strong>
+
+                <span>
+                    Avaliações
+                </span>
+
+            </div>
+
+
+            <div class="estatistica">
+
+                <strong id="totalFavoritos">
+                    0
+                </strong>
+
+                <span>
+                    Favoritos
+                </span>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- MEUS PROJETOS -->
+
+        <section class="perfil-secao">
+
+            <div class="secao-titulo">
+
+                <div>
+
+                    <span>
+                        CRIAÇÕES
+                    </span>
+
+                    <h2>
+                        Meus projetos
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="novo-projeto"
+                    id="novoProjeto"
+                >
+                    + Novo projeto
+                </button>
+
+            </div>
+
+            <section
+    class="form-projeto"
+    id="formProjetoArea"
+    hidden
+>
+
+    <h2>Novo projeto</h2>
+
+    <form id="formProjeto">
+
+        <label for="tituloProjeto">
+            Título
+        </label>
+
+        <input
+            type="text"
+            id="tituloProjeto"
+            required
+        >
+
+        <label for="descricaoProjeto">
+            Descrição
+        </label>
+
+        <textarea
+            id="descricaoProjeto"
+            rows="5"
+        ></textarea>
+
+        <label for="categoriaProjeto">
+            Categoria
+        </label>
+
+        <input
+            type="text"
+            id="categoriaProjeto"
+            placeholder="Ex.: RPG, Ação, Indie"
+        >
+
+        <div class="form-projeto-acoes">
+
+            <button
+                type="submit"
+                class="novo-projeto"
+            >
+                Publicar
+            </button>
+
+            <button
+                type="button"
+                id="cancelarProjeto"
+                class="botao-sair"
+            >
+                Cancelar
+            </button>
+
+        </div>
+
+        <p id="mensagemProjeto"></p>
+
+    </form>
+
+</section>
+
+            <div
+                class="projetos-grid"
+                id="meusProjetos"
+            >
+
+                <div class="estado-vazio">
+
+                    <h3>
+                        Nenhum projeto ainda
+                    </h3>
+
+                    <p>
+                        Seus projetos publicados
+                        aparecerão aqui.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- FAVORITOS -->
+
+        <section class="perfil-secao">
+
+            <div class="secao-titulo">
+
+                <div>
+
+                    <span>
+                        BIBLIOTECA
+                    </span>
+
+                    <h2>
+                        Meus favoritos
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="projetos-grid"
+                id="meusFavoritos"
+            >
+
+                <div class="estado-vazio">
+
+                    <h3>
+                        Nenhum favorito ainda
+                    </h3>
+
+                    <p>
+                        Os projetos que você
+                        favoritar aparecerão aqui.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <script src="../js/perfil.js"></script>
+
+</body>
+
+</html>

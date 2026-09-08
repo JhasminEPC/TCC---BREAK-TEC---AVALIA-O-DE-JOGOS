@@ -1,0 +1,434 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #080808;
+    color: #ffffff;
+    min-height: 100vh;
+}
+
+
+/* =========================
+   CABEÇALHO
+========================= */
+
+.header {
+    min-height: 90px;
+    padding: 0 4%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #8f160d;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.logo-icon {
+    width: 58px;
+    height: 58px;
+
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.nav a {
+    color: white;
+    text-decoration: none;
+}
+
+.nav a:hover {
+    color: #ff3825;
+}
+
+.botao-sair {
+    padding: 10px 18px;
+
+    color: white;
+    background: transparent;
+
+    border: 1px solid #ff3825;
+    border-radius: 8px;
+
+    cursor: pointer;
+}
+
+.botao-sair:hover {
+    background: #ff3825;
+}
+
+
+/* =========================
+   CONTEÚDO DO PERFIL
+========================= */
+
+.perfil-container {
+    width: min(1100px, 92%);
+    margin: 0 auto;
+    padding: 70px 0;
+}
+
+
+/* APRESENTAÇÃO */
+
+.perfil-cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+
+    padding-bottom: 40px;
+
+    border-bottom: 1px solid #292929;
+}
+
+.perfil-avatar {
+    width: 120px;
+    height: 120px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff3825,
+            #8f160d
+        );
+
+    font-size: 42px;
+    font-weight: bold;
+}
+
+.perfil-label {
+    color: #ff3825;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    letter-spacing: 2px;
+}
+
+.perfil-identidade h1 {
+    margin-top: 7px;
+
+    font-size: 42px;
+}
+
+.perfil-identidade > p:last-child {
+    margin-top: 7px;
+    color: #a8a8a8;
+}
+
+
+/* ESTATÍSTICAS */
+
+.perfil-estatisticas {
+    display: flex;
+    gap: 60px;
+
+    padding: 35px 0;
+
+    border-bottom: 1px solid #292929;
+}
+
+.estatistica {
+    display: flex;
+    flex-direction: column;
+}
+
+.estatistica strong {
+    color: #ff3825;
+    font-size: 30px;
+}
+
+.estatistica span {
+    margin-top: 4px;
+
+    color: #999999;
+    font-size: 14px;
+}
+
+
+/* SEÇÕES */
+
+.perfil-secao {
+    padding: 55px 0;
+
+    border-bottom: 1px solid #292929;
+}
+
+.secao-titulo {
+    margin-bottom: 30px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.secao-titulo span {
+    color: #ff3825;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    letter-spacing: 2px;
+}
+
+.secao-titulo h2 {
+    margin-top: 5px;
+
+    font-size: 28px;
+}
+
+
+/* NOVO PROJETO */
+
+.novo-projeto {
+    padding: 12px 18px;
+
+    background: #ff3825;
+    color: white;
+
+    border: none;
+    border-radius: 7px;
+
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.novo-projeto:hover {
+    filter: brightness(1.1);
+}
+
+
+/* PROJETOS */
+
+.projetos-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fill, minmax(230px, 1fr));
+
+    gap: 20px;
+}
+
+
+/* QUANDO NÃO EXISTEM PROJETOS */
+
+.estado-vazio {
+    min-height: 170px;
+
+    padding: 30px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    border: 1px dashed #3a3a3a;
+    border-radius: 10px;
+
+    background: #101010;
+}
+
+.estado-vazio h3 {
+    font-size: 17px;
+}
+
+.estado-vazio p {
+    margin-top: 8px;
+
+    color: #888888;
+
+    line-height: 1.5;
+}
+
+.form-projeto {
+    margin: 35px 0;
+    padding: 30px;
+
+    background: #101010;
+
+    border: 1px solid #292929;
+    border-radius: 10px;
+}
+
+.form-projeto form {
+    margin-top: 20px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+.form-projeto input,
+.form-projeto textarea {
+    width: 100%;
+    padding: 12px;
+
+    color: white;
+    background: #181818;
+
+    border: 1px solid #353535;
+    border-radius: 6px;
+}
+
+.form-projeto-acoes {
+    margin-top: 10px;
+
+    display: flex;
+    gap: 10px;
+}
+
+.form-projeto[hidden] {
+    display: none !important;
+}
+
+/* =========================
+   CARDS DOS PROJETOS
+========================= */
+
+.projeto-card {
+    min-height: 190px;
+
+    padding: 24px;
+
+    background: #101010;
+
+    border: 1px solid #292929;
+    border-radius: 10px;
+}
+
+.projeto-card:hover {
+    border-color: #ff3825;
+}
+
+.projeto-categoria {
+    color: #ff3825;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.projeto-card h3 {
+    margin-top: 12px;
+
+    font-size: 21px;
+}
+
+.projeto-card p {
+    margin-top: 10px;
+
+    color: #999999;
+
+    line-height: 1.5;
+}
+
+.acoes-projeto {
+    margin-top: 20px;
+
+    display: flex;
+    gap: 10px;
+}
+
+.editar-projeto,
+.excluir-projeto {
+    padding: 8px 12px;
+
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.editar-projeto {
+    color: white;
+    background: transparent;
+    border: 1px solid #666666;
+}
+
+.excluir-projeto {
+    color: white;
+    background: transparent;
+    border: 1px solid #ff3825;
+}
+
+.excluir-projeto:hover {
+    background: #ff3825;
+}
+
+.remover-favorito {
+    margin-top: 18px;
+    padding: 8px 12px;
+
+    color: white;
+    background: transparent;
+
+    border: 1px solid #ff3825;
+    border-radius: 6px;
+
+    cursor: pointer;
+}
+
+.remover-favorito:hover {
+    background: #ff3825;
+}
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 750px) {
+
+    .nav {
+        display: none;
+    }
+
+    .perfil-cabecalho {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .perfil-estatisticas {
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
+    .secao-titulo {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+}
