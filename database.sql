@@ -28,22 +28,18 @@ CREATE TABLE `avaliacoes` (
   `usuario_id` int NOT NULL,
   `projeto_id` int NOT NULL,
   `criado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `jogabilidade` tinyint NOT NULL DEFAULT '1',
+  `historia` tinyint NOT NULL DEFAULT '1',
+  `visual` tinyint NOT NULL DEFAULT '1',
+  `som` tinyint NOT NULL DEFAULT '1',
+  `originalidade` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
-  KEY `fk_avaliacao_usuario` (`usuario_id`),
+  UNIQUE KEY `unique_avaliacao` (`usuario_id`,`projeto_id`),
   KEY `fk_avaliacao_projeto` (`projeto_id`),
   CONSTRAINT `fk_avaliacao_projeto` FOREIGN KEY (`projeto_id`) REFERENCES `projetos` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_avaliacao_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `avaliacoes`
---
-
-LOCK TABLES `avaliacoes` WRITE;
-/*!40000 ALTER TABLE `avaliacoes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `avaliacoes` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `comentarios`
@@ -67,15 +63,6 @@ CREATE TABLE `comentarios` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `comentarios`
---
-
-LOCK TABLES `comentarios` WRITE;
-/*!40000 ALTER TABLE `comentarios` DISABLE KEYS */;
-/*!40000 ALTER TABLE `comentarios` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `favoritos`
 --
 
@@ -94,16 +81,6 @@ CREATE TABLE `favoritos` (
   CONSTRAINT `fk_favorito_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `favoritos`
---
-
-LOCK TABLES `favoritos` WRITE;
-/*!40000 ALTER TABLE `favoritos` DISABLE KEYS */;
-INSERT INTO `favoritos` VALUES (1,10,1,'2026-09-07 02:27:18');
-/*!40000 ALTER TABLE `favoritos` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `projetos`
@@ -127,16 +104,6 @@ CREATE TABLE `projetos` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `projetos`
---
-
-LOCK TABLES `projetos` WRITE;
-/*!40000 ALTER TABLE `projetos` DISABLE KEYS */;
-INSERT INTO `projetos` VALUES (1,'TESTE 1','Um novo projeto feito por Miyavi000000000000','Indie',NULL,10,'2026-09-07 01:08:21');
-/*!40000 ALTER TABLE `projetos` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `usuarios`
 --
 
@@ -153,16 +120,6 @@ CREATE TABLE `usuarios` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `usuarios`
---
-
-LOCK TABLES `usuarios` WRITE;
-/*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (10,'Miyavi','usuariobreaktec@gmail.com','$2b$10$6/dBCkGOBJ2oDYwckeBlduz3fhcLQ8dk6haFXF0Ydsju7/s5j16RG','2026-09-06 23:47:26');
-/*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -173,4 +130,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-26 23:38:02
+-- Dump completed on 2026-09-30 23:38:56
