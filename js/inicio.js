@@ -415,20 +415,6 @@ botaoSair.addEventListener(
                 return;
             }
 
-
-            localStorage.removeItem(
-                "breaktecLogado"
-            );
-
-            localStorage.removeItem(
-                "breaktecNomeUsuario"
-            );
-
-            localStorage.removeItem(
-                "breaktecUsuarioId"
-            );
-
-
             window.location.href =
                 "/index.html";
 

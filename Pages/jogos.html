@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Projeto | Break Tec</title>
+
+    <link rel="stylesheet" href="../css/jogos.css">
+</head>
+
+<body>
+
+    <header class="cabecalho">
+        <a href="../index.html" class="logo-link">
+            <span>BREAK TEC</span>
+        </a>
+
+        <nav>
+            <a href="../index.html">Início</a>
+            <a href="perfil.html">Perfil</a>
+        </nav>
+    </header>
+
+    <main class="pagina-jogo">
+
+        <a href="../index.html" class="voltar">
+            ← Voltar
+        </a>
+
+        <section class="jogo-principal">
+
+            <div class="jogo-imagem" id="jogoImagem">
+                <span>Imagem do projeto</span>
+            </div>
+
+            <div class="jogo-informacoes">
+
+                <span class="categoria" id="jogoCategoria">
+                    Carregando...
+                </span>
+
+                <h1 id="jogoTitulo">
+                    Carregando projeto...
+                </h1>
+
+                <p class="autor">
+                    Criado por
+                    <strong id="jogoAutor">...</strong>
+                </p>
+
+                <p class="descricao" id="jogoDescricao">
+                    Carregando descrição...
+                </p>
+
+                <div class="acoes-jogo">
+                    <button type="button" id="favoritarProjeto">
+                        ☆ Favoritar
+                    </button>
+
+                    <button type="button" id="avaliarProjeto">
+                        ★ Avaliar
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="dna-jogo">
+
+    <div class="dna-cabecalho">
+
+        <div>
+            <span class="secao-label">
+                AVALIAÇÕES DA COMUNIDADE
+            </span>
+
+            <h2>DNA do Jogo</h2>
+
+            <p id="totalAvaliacoes">
+                Carregando avaliações...
+            </p>
+        </div>
+
+        <div class="break-score">
+
+            <span>BREAK SCORE</span>
+
+            <strong id="breakScore">
+                --
+            </strong>
+
+            <small>/ 10</small>
+
+        </div>
+
+    </div>
+
+
+    <div class="dna-lista">
+
+        <!-- JOGABILIDADE -->
+
+        <div class="dna-item">
+
+            <div class="dna-info">
+                <span>Jogabilidade</span>
+                <strong id="notaJogabilidade">0.0</strong>
+            </div>
+
+            <div class="dna-barra">
+                <div
+                    class="dna-progresso"
+                    id="barraJogabilidade"
+                ></div>
+            </div>
+
+        </div>
+
+
+        <!-- HISTÓRIA -->
+
+        <div class="dna-item">
+
+            <div class="dna-info">
+                <span>História</span>
+                <strong id="notaHistoria">0.0</strong>
+            </div>
+
+            <div class="dna-barra">
+                <div
+                    class="dna-progresso"
+                    id="barraHistoria"
+                ></div>
+            </div>
+
+        </div>
+
+
+        <!-- VISUAL -->
+
+        <div class="dna-item">
+
+            <div class="dna-info">
+                <span>Visual</span>
+                <strong id="notaVisual">0.0</strong>
+            </div>
+
+            <div class="dna-barra">
+                <div
+                    class="dna-progresso"
+                    id="barraVisual"
+                ></div>
+            </div>
+
+        </div>
+
+
+        <!-- SOM -->
+
+        <div class="dna-item">
+
+            <div class="dna-info">
+                <span>Som</span>
+                <strong id="notaSom">0.0</strong>
+            </div>
+
+            <div class="dna-barra">
+                <div
+                    class="dna-progresso"
+                    id="barraSom"
+                ></div>
+            </div>
+
+        </div>
+
+
+        <!-- ORIGINALIDADE -->
+
+        <div class="dna-item">
+
+            <div class="dna-info">
+                <span>Originalidade</span>
+                <strong id="notaOriginalidade">0.0</strong>
+            </div>
+
+            <div class="dna-barra">
+                <div
+                    class="dna-progresso"
+                    id="barraOriginalidade"
+                ></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+        <section class="comentarios">
+
+            <span class="secao-label">COMUNIDADE</span>
+            <h2>Comentários</h2>
+
+            <p>
+                Os comentários deste projeto aparecerão aqui.
+            </p>
+
+        </section>
+
+        <!-- =========================
+     MODAL DE AVALIAÇÃO
+========================= -->
+
+<div class="modal-avaliacao" id="modalAvaliacao" hidden>
+
+    <div class="modal-conteudo">
+
+        <button
+            type="button"
+            class="fechar-modal"
+            id="fecharAvaliacao"
+            aria-label="Fechar avaliação"
+        >
+            ×
+        </button>
+
+        <span class="secao-label">
+            SUA AVALIAÇÃO
+        </span>
+
+        <h2 id="tituloModalAvaliacao">
+         Avalie este projeto</h2>
+
+        <p class="modal-descricao">
+            Dê uma nota de 1 a 5 para cada categoria.
+        </p>
+
+        <form id="formAvaliacao">
+
+            <div class="criterio-avaliacao">
+                <span>Jogabilidade</span>
+
+                <div
+                    class="estrelas"
+                    data-categoria="jogabilidade"
+                ></div>
+            </div>
+
+            <div class="criterio-avaliacao">
+                <span>História</span>
+
+                <div
+                    class="estrelas"
+                    data-categoria="historia"
+                ></div>
+            </div>
+
+            <div class="criterio-avaliacao">
+                <span>Visual</span>
+
+                <div
+                    class="estrelas"
+                    data-categoria="visual"
+                ></div>
+            </div>
+
+            <div class="criterio-avaliacao">
+                <span>Som</span>
+
+                <div
+                    class="estrelas"
+                    data-categoria="som"
+                ></div>
+            </div>
+
+            <div class="criterio-avaliacao">
+                <span>Originalidade</span>
+
+                <div
+                    class="estrelas"
+                    data-categoria="originalidade"
+                ></div>
+            </div>
+
+            <p
+                class="mensagem-avaliacao"
+                id="mensagemAvaliacao"
+            ></p>
+
+            <button
+               type="submit"
+               class="enviar-avaliacao"
+               id="enviarAvaliacao"
+            >  Enviar avaliação
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+    </main>
+
+    <script src="../js/jogos.js"></script>
+
+</body>
+</html>

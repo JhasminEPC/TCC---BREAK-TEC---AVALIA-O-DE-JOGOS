@@ -73,29 +73,11 @@ loginForm.addEventListener(
                 return;
             }
 
+// Login aprovado pelo servidor.
+// A sessão é controlada pelo backend.
 
-            // Login aprovado pelo servidor
-
-            localStorage.setItem(
-                "breaktecLogado",
-                "true"
-            );
-
-
-            localStorage.setItem(
-                "breaktecNomeUsuario",
-                dados.usuario.nome
-            );
-
-
-            localStorage.setItem(
-                "breaktecUsuarioId",
-                dados.usuario.id
-            );
-
-
-            window.location.href =
-                "../index.html";
+window.location.href =
+    "../index.html";
 
 
         } catch (erro) {

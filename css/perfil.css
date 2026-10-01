@@ -405,6 +405,33 @@ body {
     background: #ff3825;
 }
 
+.ver-projeto {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 10px 16px;
+
+    border-radius: 7px;
+
+    background: #ff3928;
+
+    color: white;
+
+    font-size: 0.9rem;
+    font-weight: bold;
+
+    text-decoration: none;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+.ver-projeto:hover {
+    background: #d9291b;
+    transform: translateY(-2px);
+}
+
 /* =========================
    RESPONSIVIDADE
 ========================= */

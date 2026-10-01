@@ -348,6 +348,13 @@ async function carregarMeusProjetos() {
 
         <div class="acoes-projeto">
 
+         <a
+        href="jogos.html?id=${projeto.id}"
+        class="ver-projeto"
+        >
+        Ver projeto →
+        </a>
+
         <button
             type="button"
             class="editar-projeto"
@@ -696,18 +703,6 @@ botaoSair.addEventListener(
 
                 return;
             }
-
-            localStorage.removeItem(
-                "breaktecLogado"
-            );
-
-            localStorage.removeItem(
-                "breaktecNomeUsuario"
-            );
-
-            localStorage.removeItem(
-                "breaktecUsuarioId"
-            );
 
             window.location.href =
                 "login.html";

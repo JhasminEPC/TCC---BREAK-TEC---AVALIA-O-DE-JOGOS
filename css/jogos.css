@@ -1,0 +1,656 @@
+/* =========================
+   CONFIGURAÇÕES GERAIS
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    color: #ffffff;
+
+    background:
+        radial-gradient(
+            circle at 85% 25%,
+            rgba(255, 48, 30, 0.16),
+            transparent 32%
+        ),
+        linear-gradient(
+            135deg,
+            #050505 0%,
+            #090505 55%,
+            #240704 100%
+        );
+}
+
+
+/* =========================
+   CABEÇALHO
+========================= */
+
+.cabecalho {
+    height: 95px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 7%;
+
+    background: linear-gradient(
+        90deg,
+        #a51d10,
+        #651009
+    );
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logo-link {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.cabecalho nav {
+    display: flex;
+    gap: 35px;
+}
+
+.cabecalho nav a {
+    color: #ffffff;
+    text-decoration: none;
+
+    transition: 0.2s;
+}
+
+.cabecalho nav a:hover {
+    color: #ff3928;
+}
+
+
+/* =========================
+   CONTEÚDO DA PÁGINA
+========================= */
+
+.pagina-jogo {
+    width: min(1150px, 88%);
+    margin: 0 auto;
+
+    padding: 45px 0 80px;
+}
+
+.voltar {
+    display: inline-block;
+
+    margin-bottom: 30px;
+
+    color: #aaaaaa;
+    text-decoration: none;
+
+    transition: 0.2s;
+}
+
+.voltar:hover {
+    color: #ff3928;
+}
+
+
+/* =========================
+   JOGO PRINCIPAL
+========================= */
+
+.jogo-principal {
+    display: grid;
+
+    grid-template-columns:
+        minmax(280px, 420px)
+        1fr;
+
+    gap: 60px;
+
+    align-items: center;
+
+    padding-bottom: 60px;
+}
+
+
+/* IMAGEM */
+
+.jogo-imagem {
+    min-height: 390px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #24100e,
+            #0d0d0d
+        );
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    color: #777777;
+
+    overflow: hidden;
+}
+
+
+/* =========================
+   INFORMAÇÕES
+========================= */
+
+.jogo-informacoes {
+    display: flex;
+    flex-direction: column;
+
+    align-items: flex-start;
+}
+
+.categoria {
+    color: #ff3928;
+
+    font-size: 0.8rem;
+    font-weight: bold;
+
+    text-transform: uppercase;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 14px;
+}
+
+.jogo-informacoes h1 {
+    font-size: clamp(2.8rem, 6vw, 5rem);
+
+    line-height: 0.95;
+
+    margin-bottom: 18px;
+}
+
+.autor {
+    color: #9c9c9c;
+
+    margin-bottom: 28px;
+}
+
+.autor strong {
+    color: #ffffff;
+}
+
+.descricao {
+    max-width: 620px;
+
+    color: #c8c8c8;
+
+    font-size: 1.05rem;
+    line-height: 1.7;
+
+    margin-bottom: 35px;
+}
+
+
+/* =========================
+   BOTÕES
+========================= */
+
+.acoes-jogo {
+    display: flex;
+    gap: 15px;
+}
+
+.acoes-jogo button {
+    padding: 13px 24px;
+
+    border-radius: 8px;
+
+    font-size: 0.95rem;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s,
+        background 0.2s,
+        border 0.2s;
+}
+
+#favoritarProjeto {
+    background: transparent;
+
+    color: #ffffff;
+
+    border: 1px solid #555555;
+}
+
+#favoritarProjeto:hover {
+    border-color: #ff3928;
+
+    transform: translateY(-2px);
+}
+
+#avaliarProjeto {
+    border: 1px solid #ff3928;
+
+    background: #ff3928;
+
+    color: #ffffff;
+}
+
+#avaliarProjeto:hover {
+    background: #d9291b;
+
+    transform: translateY(-2px);
+}
+
+
+/* =========================
+   SEÇÕES
+========================= */
+
+.dna-jogo,
+.comentarios {
+    margin-top: 30px;
+
+    padding: 45px;
+
+    border-radius: 18px;
+
+    background: rgba(18, 18, 18, 0.78);
+
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.secao-label {
+    display: block;
+
+    color: #ff3928;
+
+    font-size: 0.75rem;
+    font-weight: bold;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 8px;
+}
+
+.dna-jogo h2,
+.comentarios h2 {
+    font-size: 2rem;
+
+    margin-bottom: 25px;
+}
+
+.dna-jogo p,
+.comentarios p {
+    color: #999999;
+}
+
+/* =========================
+   MODAL DE AVALIAÇÃO
+========================= */
+
+.modal-avaliacao {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 25px;
+
+    background: rgba(0, 0, 0, 0.78);
+
+    backdrop-filter: blur(6px);
+}
+
+.modal-avaliacao[hidden] {
+    display: none;
+}
+
+.modal-conteudo {
+    position: relative;
+
+    width: min(520px, 100%);
+
+    padding: 40px;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #18100f,
+            #090909
+        );
+
+    border: 1px solid rgba(255, 57, 40, 0.25);
+
+    box-shadow:
+        0 25px 80px rgba(0, 0, 0, 0.55);
+}
+
+.modal-conteudo h2 {
+    margin: 5px 0 8px;
+
+    font-size: 2rem;
+}
+
+.modal-descricao {
+    color: #999;
+
+    margin-bottom: 30px;
+}
+
+.fechar-modal {
+    position: absolute;
+
+    top: 18px;
+    right: 20px;
+
+    border: none;
+    background: transparent;
+
+    color: #888;
+
+    font-size: 1.8rem;
+
+    cursor: pointer;
+}
+
+.fechar-modal:hover {
+    color: #ff3928;
+}
+
+
+/* CADA CRITÉRIO */
+
+.criterio-avaliacao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 15px 0;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.06);
+}
+
+.criterio-avaliacao > span {
+    font-weight: bold;
+}
+
+
+/* ESTRELAS */
+
+.estrelas {
+    display: flex;
+    gap: 3px;
+}
+
+.estrela {
+    border: none;
+    background: transparent;
+
+    color: #4a4a4a;
+
+    font-size: 1.55rem;
+
+    cursor: pointer;
+
+    transition:
+        color 0.15s,
+        transform 0.15s;
+}
+
+.estrela:hover {
+    transform: scale(1.15);
+}
+
+.estrela.selecionada {
+    color: #ff3928;
+}
+
+
+/* ENVIAR */
+
+.enviar-avaliacao {
+    width: 100%;
+
+    margin-top: 25px;
+    padding: 14px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #ff3928;
+
+    color: white;
+
+    font-weight: bold;
+    font-size: 0.95rem;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.enviar-avaliacao:hover {
+    background: #d9291b;
+}
+
+.mensagem-avaliacao {
+    min-height: 20px;
+
+    margin-top: 18px;
+
+    color: #ff5b4d;
+
+    font-size: 0.9rem;
+}
+
+body.modal-aberto {
+    overflow: hidden;
+}
+
+/* =========================
+   DNA DO JOGO
+========================= */
+
+.dna-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 40px;
+
+    margin-bottom: 40px;
+}
+
+.dna-cabecalho h2 {
+    margin-bottom: 8px;
+}
+
+#totalAvaliacoes {
+    color: #888;
+}
+
+
+/* BREAK SCORE */
+
+.break-score {
+    min-width: 150px;
+
+    padding: 22px;
+
+    text-align: center;
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 57, 40, 0.18),
+            rgba(255, 57, 40, 0.04)
+        );
+
+    border:
+        1px solid rgba(255, 57, 40, 0.35);
+}
+
+.break-score span {
+    display: block;
+
+    color: #ff3928;
+
+    font-size: 0.7rem;
+    font-weight: bold;
+
+    letter-spacing: 1.5px;
+
+    margin-bottom: 5px;
+}
+
+.break-score strong {
+    font-size: 3rem;
+
+    line-height: 1;
+
+    color: #ffffff;
+}
+
+.break-score small {
+    color: #777;
+}
+
+
+/* =========================
+   BARRAS DO DNA
+========================= */
+
+.dna-lista {
+    display: grid;
+    gap: 22px;
+}
+
+.dna-info {
+    display: flex;
+    justify-content: space-between;
+
+    margin-bottom: 9px;
+}
+
+.dna-info span {
+    color: #dddddd;
+
+    font-weight: bold;
+}
+
+.dna-info strong {
+    color: #ff3928;
+}
+
+
+/* FUNDO */
+
+.dna-barra {
+    width: 100%;
+    height: 9px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #292929;
+}
+
+
+/* PARTE PREENCHIDA */
+
+.dna-progresso {
+    width: 0;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #a51d10,
+            #ff3928
+        );
+
+    transition:
+        width 0.8s ease;
+}
+
+
+@media (max-width: 650px) {
+
+    .dna-cabecalho {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .break-score {
+        width: 100%;
+    }
+
+}
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 800px) {
+
+    .cabecalho {
+        height: auto;
+
+        padding: 25px 6%;
+    }
+
+    .cabecalho nav {
+        gap: 15px;
+    }
+
+    .pagina-jogo {
+        width: 90%;
+    }
+
+    .jogo-principal {
+        grid-template-columns: 1fr;
+
+        gap: 35px;
+    }
+
+    .jogo-imagem {
+        min-height: 300px;
+    }
+
+    .jogo-informacoes h1 {
+        font-size: 3rem;
+    }
+
+    .dna-jogo,
+    .comentarios {
+        padding: 30px;
+    }
+
+}

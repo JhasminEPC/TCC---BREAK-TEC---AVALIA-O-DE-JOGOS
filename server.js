@@ -17,10 +17,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
     session({
         secret: process.env.SESSION_SECRET,
+
         resave: false,
         saveUninitialized: false,
+
         cookie: {
-            maxAge: 1000 * 60 * 60
+            maxAge: 1000 * 60 * 60 * 24 * 7,
+            httpOnly: true,
+            sameSite: "lax"
         }
     })
 );
@@ -517,6 +521,54 @@ app.post("/api/projetos", (req, res) => {
 });
 
 // ==========================
+// CARREGAR UM PROJETO
+// ==========================
+
+app.get("/api/projetos/:id", (req, res) => {
+
+    const projetoId = req.params.id;
+
+    const sql = `
+        SELECT
+            p.id,
+            p.titulo,
+            p.descricao,
+            p.categoria,
+            p.imagem,
+            p.criado_em,
+            u.id AS autor_id,
+            u.nome AS autor_nome
+        FROM projetos p
+        LEFT JOIN usuarios u
+            ON p.usuario_id = u.id
+        WHERE p.id = ?
+    `;
+
+    conexao.query(sql, [projetoId], (erro, resultados) => {
+
+        if (erro) {
+            console.error("Erro ao buscar projeto:", erro);
+
+            return res.status(500).json({
+                mensagem: "Erro ao carregar projeto."
+            });
+        }
+
+        if (resultados.length === 0) {
+            return res.status(404).json({
+                mensagem: "Projeto não encontrado."
+            });
+        }
+
+        res.json({
+            projeto: resultados[0]
+        });
+
+    });
+
+});
+
+// ==========================
 // LISTAR PROJETOS DO USUÁRIO
 // ==========================
 
@@ -894,6 +946,259 @@ app.get("/api/meus-favoritos", (req, res) => {
             res.json(resultados);
         }
     );
+});
+
+// ==========================
+// AVALIAR PROJETO
+// ==========================
+
+app.post("/api/projetos/:id/avaliacoes", (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Faça login para avaliar este projeto."
+        });
+    }
+
+    const projetoId = req.params.id;
+    const usuarioId = req.session.usuario.id;
+
+    const {
+        jogabilidade,
+        historia,
+        visual,
+        som,
+        originalidade
+    } = req.body;
+
+    const notas = [
+        jogabilidade,
+        historia,
+        visual,
+        som,
+        originalidade
+    ].map(Number);
+
+    const notasValidas = notas.every(
+        nota =>
+            Number.isInteger(nota) &&
+            nota >= 1 &&
+            nota <= 5
+    );
+
+    if (!notasValidas) {
+        return res.status(400).json({
+            mensagem:
+                "Todas as categorias devem receber uma nota de 1 a 5."
+        });
+    }
+
+    const notaGeral =
+        notas.reduce((total, nota) => total + nota, 0)
+        / notas.length;
+
+    const sql = `
+        INSERT INTO avaliacoes
+        (
+            nota,
+            jogabilidade,
+            historia,
+            visual,
+            som,
+            originalidade,
+            usuario_id,
+            projeto_id
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+
+        ON DUPLICATE KEY UPDATE
+            nota = VALUES(nota),
+            jogabilidade = VALUES(jogabilidade),
+            historia = VALUES(historia),
+            visual = VALUES(visual),
+            som = VALUES(som),
+            originalidade = VALUES(originalidade)
+    `;
+
+    conexao.query(
+        sql,
+        [
+            notaGeral,
+            jogabilidade,
+            historia,
+            visual,
+            som,
+            originalidade,
+            usuarioId,
+            projetoId
+        ],
+        (erro) => {
+
+            if (erro) {
+                console.error(
+                    "Erro ao salvar avaliação:",
+                    erro
+                );
+
+                return res.status(500).json({
+                    mensagem:
+                        "Não foi possível salvar a avaliação."
+                });
+            }
+
+            res.json({
+                mensagem: "Avaliação salva com sucesso!"
+            });
+        }
+    );
+
+});
+
+// ==========================
+// MINHA AVALIAÇÃO DO PROJETO
+// ==========================
+
+app.get(
+    "/api/projetos/:id/minha-avaliacao",
+    (req, res) => {
+
+        if (!req.session.usuario) {
+            return res.status(401).json({
+                mensagem: "Usuário não autenticado."
+            });
+        }
+
+        const projetoId = req.params.id;
+        const usuarioId = req.session.usuario.id;
+
+        const sql = `
+            SELECT
+                jogabilidade,
+                historia,
+                visual,
+                som,
+                originalidade
+            FROM avaliacoes
+            WHERE usuario_id = ?
+            AND projeto_id = ?
+        `;
+
+        conexao.query(
+            sql,
+            [usuarioId, projetoId],
+            (erro, resultados) => {
+
+                if (erro) {
+
+                    console.error(
+                        "Erro ao buscar avaliação:",
+                        erro
+                    );
+
+                    return res.status(500).json({
+                        mensagem:
+                            "Erro ao buscar avaliação."
+                    });
+                }
+
+                if (resultados.length === 0) {
+
+                    return res.json({
+                        avaliou: false
+                    });
+                }
+
+                res.json({
+                    avaliou: true,
+                    avaliacao: resultados[0]
+                });
+            }
+        );
+    }
+);
+
+// ==========================
+// DNA DO JOGO / BREAK SCORE
+// ==========================
+
+app.get("/api/projetos/:id/dna", (req, res) => {
+
+    const projetoId = req.params.id;
+
+    const sql = `
+        SELECT
+            COUNT(*) AS total_avaliacoes,
+
+            ROUND(AVG(jogabilidade), 1)
+                AS jogabilidade,
+
+            ROUND(AVG(historia), 1)
+                AS historia,
+
+            ROUND(AVG(visual), 1)
+                AS visual,
+
+            ROUND(AVG(som), 1)
+                AS som,
+
+            ROUND(AVG(originalidade), 1)
+                AS originalidade,
+
+            ROUND(AVG(nota), 1)
+                AS break_score
+
+        FROM avaliacoes
+
+        WHERE projeto_id = ?
+    `;
+
+    conexao.query(
+        sql,
+        [projetoId],
+
+        (erro, resultados) => {
+
+            if (erro) {
+
+                console.error(
+                    "Erro ao calcular DNA do jogo:",
+                    erro
+                );
+
+                return res.status(500).json({
+                    mensagem:
+                        "Erro ao carregar avaliações."
+                });
+            }
+
+            const dna = resultados[0];
+
+            res.json({
+                totalAvaliacoes:
+                    Number(dna.total_avaliacoes),
+
+                jogabilidade:
+                    Number(dna.jogabilidade) || 0,
+
+                historia:
+                    Number(dna.historia) || 0,
+
+                visual:
+                    Number(dna.visual) || 0,
+
+                som:
+                    Number(dna.som) || 0,
+
+                originalidade:
+                    Number(dna.originalidade) || 0,
+
+                breakScore:
+                    Number(dna.break_score) || 0
+            });
+
+        }
+    );
+
 });
 
 //========================
