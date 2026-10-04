@@ -499,3 +499,130 @@ function atualizarDNA(categoria, nota) {
 
 
 carregarDNA();
+
+// ==========================
+// FAVORITAR PROJETO
+// ==========================
+
+const botaoFavoritar =
+    document.getElementById("favoritarProjeto");
+
+let projetoFavoritado = false;
+
+
+// Verifica se o projeto já está favoritado
+async function verificarFavorito() {
+
+    try {
+
+        const resposta = await fetch(
+            `/api/favoritos/${projetoId}/status`
+        );
+
+        // Usuário não está logado
+        if (resposta.status === 401) {
+            projetoFavoritado = false;
+            atualizarBotaoFavorito();
+            return;
+        }
+
+        const dados = await resposta.json();
+
+        projetoFavoritado = dados.favoritado;
+
+        atualizarBotaoFavorito();
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao verificar favorito:",
+            erro
+        );
+
+    }
+}
+
+
+// Atualiza o texto e aparência do botão
+function atualizarBotaoFavorito() {
+
+    if (projetoFavoritado) {
+
+        botaoFavoritar.textContent =
+            "★ Favoritado";
+
+        botaoFavoritar.classList.add(
+            "favoritado"
+        );
+
+    } else {
+
+        botaoFavoritar.textContent =
+            "☆ Favoritar";
+
+        botaoFavoritar.classList.remove(
+            "favoritado"
+        );
+
+    }
+}
+
+
+// Adiciona ou remove o favorito
+botaoFavoritar.addEventListener(
+    "click",
+    async function () {
+
+        try {
+
+            const metodo =
+                projetoFavoritado
+                    ? "DELETE"
+                    : "POST";
+
+            const resposta = await fetch(
+                `/api/favoritos/${projetoId}`,
+                {
+                    method: metodo
+                }
+            );
+
+            const dados =
+                await resposta.json();
+
+            if (resposta.status === 401) {
+
+                alert(
+                    "Faça login para favoritar este projeto."
+                );
+
+                return;
+            }
+
+            if (!resposta.ok) {
+
+                alert(dados.mensagem);
+                return;
+
+            }
+
+            projetoFavoritado =
+                !projetoFavoritado;
+
+            atualizarBotaoFavorito();
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao alterar favorito:",
+                erro
+            );
+
+        }
+
+    }
+);
+
+
+// Verifica o favorito assim que a página abre
+verificarFavorito();

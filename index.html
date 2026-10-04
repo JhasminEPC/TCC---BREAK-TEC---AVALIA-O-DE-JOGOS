@@ -89,7 +89,7 @@
 
       <!-- ÁREA DO USUÁRIO -->
 
-<div class="area-usuario" id="areaUsuario">
+<div class="area-usuario auth-carregando" id="areaUsuario">
 
     <!-- Aparece quando NÃO estiver logado -->
     <div id="usuarioDeslogado">
@@ -136,6 +136,7 @@
     </div>
 
 </div>
+
         </div>
 
         <button class="menu-button" id="menuButton">
@@ -230,26 +231,306 @@
 
         </section>
 
-    <!-- SEÇÕES TEMPORÁRIAS -->
-    <section class="placeholder" id="projetos">
-        <h2>Projetos</h2>
-        <p>Área de projetos da Break Tec.</p>
-    </section>
+    <!-- PROJETOS EM DESTAQUE -->
+<section class="projetos-section" id="projetos">
 
-    <section class="placeholder" id="avaliacoes">
-        <h2>Avaliações</h2>
-        <p>Área de avaliações.</p>
-    </section>
+    <div class="section-header">
 
-    <section class="placeholder" id="comunidade">
-        <h2>Comunidade</h2>
-        <p>Área da comunidade.</p>
-    </section>
+        <div>
+            <span class="section-tag">
+                DESCUBRA
+            </span>
 
-    <section class="placeholder" id="conteudos">
-        <h2>Conteúdos</h2>
-        <p>Conteúdos da Break Tec.</p>
-    </section>
+            <h2>
+                Projetos em destaque
+            </h2>
+
+            <p>
+                Conheça jogos e projetos criados
+                pela comunidade Break Tec.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            class="ver-todos"
+            id="verTodosProjetos"
+        >
+            Ver todos
+            <span>→</span>
+        </button>
+
+    </div>
+
+
+    <!-- CARDS SERÃO INSERIDOS PELO JAVASCRIPT -->
+    <div
+        class="projetos-grid"
+        id="projetosGrid"
+    >
+
+        <div class="projetos-carregando">
+            Carregando projetos...
+        </div>
+
+    </div>
+
+</section>
+
+
+    <section class="avaliacoes-section" id="avaliacoes">
+
+    <div class="section-header">
+
+        <div>
+            <span class="section-tag">BREAK SCORE</span>
+
+            <h2>Melhores avaliações</h2>
+
+            <p>
+                Descubra os projetos mais bem avaliados
+                pela comunidade Break Tec.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="avaliacoes-layout">
+
+        <!-- DESTAQUE PRINCIPAL -->
+        <div
+            class="avaliacao-destaque"
+            id="avaliacaoDestaque"
+        >
+            <div class="avaliacoes-carregando">
+                Carregando avaliações...
+            </div>
+        </div>
+
+
+        <!-- RANKING -->
+        <div class="ranking-avaliacoes">
+
+            <div class="ranking-titulo">
+                <span>RANKING</span>
+                <h3>Mais bem avaliados</h3>
+            </div>
+
+            <div
+                class="ranking-lista"
+                id="rankingLista"
+            >
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+    <section class="comunidade-section" id="comunidade">
+
+    <div class="section-header">
+
+        <div>
+            <span class="section-tag">COMUNIDADE</span>
+
+            <h2>O que está acontecendo</h2>
+
+            <p>
+                Acompanhe as atividades mais recentes
+                da comunidade Break Tec.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="comunidade-layout">
+
+        <!-- ATIVIDADES -->
+
+        <div class="atividade-box">
+
+            <div class="comunidade-box-header">
+                <span>ATIVIDADE RECENTE</span>
+                <h3>Últimas novidades</h3>
+            </div>
+
+            <div
+                class="atividade-lista"
+                id="atividadeLista"
+            >
+                <div class="comunidade-carregando">
+                    Carregando atividades...
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- RESUMO DA COMUNIDADE -->
+
+        <div class="comunidade-resumo">
+
+            <span class="comunidade-mini-tag">
+                BREAK TEC
+            </span>
+
+            <h3>
+                Uma comunidade feita para quem cria e joga.
+            </h3>
+
+            <p>
+                Publique seus projetos, descubra novos jogos
+                e compartilhe suas avaliações com outros jogadores.
+            </p>
+
+
+            <div class="comunidade-numeros">
+
+                <div>
+                    <strong id="comunidadeProjetos">—</strong>
+                    <span>Projetos</span>
+                </div>
+
+                <div>
+                    <strong id="comunidadeAvaliacoes">—</strong>
+                    <span>Avaliações</span>
+                </div>
+
+                <div>
+                    <strong id="comunidadeUsuarios">—</strong>
+                    <span>Usuários</span>
+                </div>
+
+            </div>
+
+
+            <a href="#projetos" class="comunidade-explorar">
+                Explorar projetos
+                <span>→</span>
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+    <section class="conteudos-section" id="conteudos">
+
+    <div class="section-header">
+
+        <div>
+            <span class="section-tag">CONTEÚDOS</span>
+
+            <h2>Explore, aprenda e crie</h2>
+
+            <p>
+                Conteúdos para quem quer conhecer mais sobre
+                jogos, desenvolvimento e a comunidade indie.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            class="ver-todos"
+            id="verTodosConteudos"
+        >
+            Ver conteúdos <span>→</span>
+        </button>
+
+    </div>
+
+
+    <div class="conteudos-grid">
+
+        <!-- CONTEÚDO PRINCIPAL -->
+
+        <article class="conteudo-card conteudo-principal">
+
+            <div class="conteudo-visual">
+                <span>BREAK TEC</span>
+            </div>
+
+            <div class="conteudo-info">
+
+                <span class="conteudo-tipo">
+                    DESENVOLVIMENTO
+                </span>
+
+                <h3>
+                    Como transformar uma ideia em um projeto de jogo
+                </h3>
+
+                <p>
+                    Entenda algumas das etapas que ajudam uma ideia
+                    a evoluir até se tornar um projeto jogável.
+                </p>
+
+                <a href="#" class="conteudo-link">
+                    Ler conteúdo <span>→</span>
+                </a>
+
+            </div>
+
+        </article>
+
+
+        <!-- CONTEÚDOS MENORES -->
+
+        <div class="conteudos-secundarios">
+
+            <article class="conteudo-card pequeno">
+
+                <span class="conteudo-tipo">
+                    DESIGN
+                </span>
+
+                <h3>
+                    O que faz uma boa experiência de jogo?
+                </h3>
+
+                <p>
+                    Jogabilidade, visual, som e outros elementos
+                    que constroem a experiência do jogador.
+                </p>
+
+                <a href="#" class="conteudo-link">
+                    Ler conteúdo <span>→</span>
+                </a>
+
+            </article>
+
+
+            <article class="conteudo-card pequeno">
+
+                <span class="conteudo-tipo">
+                    COMUNIDADE
+                </span>
+
+                <h3>
+                    Por que avaliar projetos independentes?
+                </h3>
+
+                <p>
+                    Feedbacks podem ajudar criadores a entender
+                    melhor os pontos fortes de seus projetos.
+                </p>
+
+                <a href="#" class="conteudo-link">
+                    Ler conteúdo <span>→</span>
+                </a>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
 
     <section class="placeholder" id="sobre">
         <h2>Sobre</h2>

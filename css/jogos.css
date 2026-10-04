@@ -654,3 +654,9 @@ body.modal-aberto {
     }
 
 }
+
+#favoritarProjeto.favoritado {
+    color: #ff3928;
+    border-color: #ff3928;
+    background: rgba(255, 57, 40, 0.08);
+}

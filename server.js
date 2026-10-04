@@ -275,25 +275,44 @@ app.post("/api/login", (req, res) => {
                 }
 
                 req.session.usuario = {
-                id: usuario.id,
-                nome: usuario.nome,
-                email: usuario.email
-                };
+    id: usuario.id,
+    nome: usuario.nome,
+    email: usuario.email
+};
 
-                // LOGIN CORRETO
 
-                res.status(200).json({
+// GARANTE QUE A SESSÃO FOI SALVA
+req.session.save((erro) => {
 
-                    mensagem:
-                        "Login realizado com sucesso!",
+    if (erro) {
 
-                    usuario: {
-                        id: usuario.id,
-                        nome: usuario.nome,
-                        email: usuario.email
-                    }
+        console.error(
+            "Erro ao salvar sessão:",
+            erro
+        );
 
-                });
+        return res.status(500).json({
+            mensagem:
+                "Erro ao iniciar a sessão."
+        });
+    }
+
+
+    // LOGIN CORRETO
+    res.status(200).json({
+
+        mensagem:
+            "Login realizado com sucesso!",
+
+        usuario: {
+            id: usuario.id,
+            nome: usuario.nome,
+            email: usuario.email
+        }
+
+    });
+
+});
 
 
             } catch (erro) {
@@ -894,6 +913,57 @@ app.delete("/api/favoritos/:projetoId", (req, res) => {
     );
 });
 
+// ==========================
+// VERIFICAR SE É FAVORITO
+// ==========================
+
+app.get("/api/favoritos/:projetoId/status", (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+    }
+
+    const usuarioId =
+        req.session.usuario.id;
+
+    const projetoId =
+        req.params.projetoId;
+
+    const sql = `
+        SELECT id
+        FROM favoritos
+        WHERE usuario_id = ?
+        AND projeto_id = ?
+        LIMIT 1
+    `;
+
+    conexao.query(
+        sql,
+        [usuarioId, projetoId],
+        (erro, resultados) => {
+
+            if (erro) {
+
+                console.error(
+                    "Erro ao verificar favorito:",
+                    erro
+                );
+
+                return res.status(500).json({
+                    mensagem:
+                        "Erro ao verificar favorito."
+                });
+            }
+
+            res.json({
+                favoritado:
+                    resultados.length > 0
+            });
+        }
+    );
+});
 
 // ==========================
 // LISTAR FAVORITOS
@@ -1195,6 +1265,269 @@ app.get("/api/projetos/:id/dna", (req, res) => {
                 breakScore:
                     Number(dna.break_score) || 0
             });
+
+        }
+    );
+
+});
+
+// ==========================
+// LISTAR PROJETOS PÚBLICOS
+// ==========================
+
+app.get("/api/projetos", (req, res) => {
+
+    const sql = `
+        SELECT
+            p.id,
+            p.titulo,
+            p.descricao,
+            p.categoria,
+            p.imagem,
+            p.criado_em,
+
+            u.nome AS autor_nome,
+
+            COUNT(a.id) AS total_avaliacoes,
+
+            ROUND(
+                AVG(a.nota) * 2,
+                1
+            ) AS break_score
+
+        FROM projetos p
+
+        LEFT JOIN usuarios u
+            ON p.usuario_id = u.id
+
+        LEFT JOIN avaliacoes a
+            ON a.projeto_id = p.id
+
+        GROUP BY
+            p.id,
+            p.titulo,
+            p.descricao,
+            p.categoria,
+            p.imagem,
+            p.criado_em,
+            u.nome
+
+        ORDER BY p.criado_em DESC
+    `;
+
+    conexao.query(
+        sql,
+        (erro, resultados) => {
+
+            if (erro) {
+
+                console.error(
+                    "Erro ao carregar projetos:",
+                    erro
+                );
+
+                return res.status(500).json({
+                    mensagem:
+                        "Erro ao carregar projetos."
+                });
+            }
+
+            res.json(resultados);
+        }
+    );
+});
+
+// ==========================
+// RANKING DE PROJETOS
+// ==========================
+
+app.get("/api/ranking", (req, res) => {
+
+    const sql = `
+        SELECT
+            p.id,
+            p.titulo,
+            p.categoria,
+            p.imagem,
+
+            u.nome AS autor,
+
+            COUNT(a.id) AS total_avaliacoes,
+
+            ROUND(
+                AVG(a.nota) * 2,
+                1
+            ) AS break_score
+
+        FROM projetos p
+
+        INNER JOIN avaliacoes a
+            ON a.projeto_id = p.id
+
+        LEFT JOIN usuarios u
+            ON p.usuario_id = u.id
+
+        GROUP BY
+            p.id,
+            p.titulo,
+            p.categoria,
+            p.imagem,
+            u.nome
+
+        ORDER BY
+            break_score DESC,
+            total_avaliacoes DESC
+
+        LIMIT 5
+    `;
+
+    conexao.query(
+        sql,
+        (erro, resultados) => {
+
+            if (erro) {
+
+                console.error(
+                    "Erro ao carregar ranking:",
+                    erro
+                );
+
+                return res.status(500).json({
+                    mensagem:
+                        "Erro ao carregar ranking."
+                });
+            }
+
+            res.json(resultados);
+        }
+    );
+});
+
+// ==========================
+// COMUNIDADE
+// ==========================
+
+app.get("/api/comunidade", (req, res) => {
+
+    // TOTAIS DA COMUNIDADE
+    const sqlTotais = `
+        SELECT
+            (SELECT COUNT(*) FROM usuarios) AS usuarios,
+            (SELECT COUNT(*) FROM projetos) AS projetos,
+            (SELECT COUNT(*) FROM avaliacoes) AS avaliacoes
+    `;
+
+
+    conexao.query(
+        sqlTotais,
+        (erro, resultadosTotais) => {
+
+            if (erro) {
+
+                console.error(
+                    "Erro ao carregar totais da comunidade:",
+                    erro
+                );
+
+                return res.status(500).json({
+                    mensagem:
+                        "Erro ao carregar comunidade."
+                });
+            }
+
+
+            // ATIVIDADES RECENTES
+            const sqlAtividades = `
+
+                SELECT *
+                FROM (
+
+                    /* PROJETOS PUBLICADOS */
+
+                    SELECT
+                        'projeto' AS tipo,
+                        u.nome AS usuario,
+                        p.titulo AS projeto,
+                        p.id AS projeto_id,
+                        p.criado_em AS data
+
+                    FROM projetos p
+
+                    INNER JOIN usuarios u
+                        ON p.usuario_id = u.id
+
+
+                    UNION ALL
+
+
+                    /* AVALIAÇÕES REALIZADAS */
+
+                    SELECT
+                        'avaliacao' AS tipo,
+                        u.nome AS usuario,
+                        p.titulo AS projeto,
+                        p.id AS projeto_id,
+                        a.criado_em AS data
+
+                    FROM avaliacoes a
+
+                    INNER JOIN usuarios u
+                        ON a.usuario_id = u.id
+
+                    INNER JOIN projetos p
+                        ON a.projeto_id = p.id
+
+                ) AS atividades
+
+                ORDER BY data DESC
+
+                LIMIT 6
+            `;
+
+
+            conexao.query(
+                sqlAtividades,
+                (erro, atividades) => {
+
+                    if (erro) {
+
+                        console.error(
+                            "Erro ao carregar atividades:",
+                            erro
+                        );
+
+                        return res.status(500).json({
+                            mensagem:
+                                "Erro ao carregar atividades."
+                        });
+                    }
+
+
+                    res.json({
+
+                        totais: {
+                            usuarios:
+                                Number(
+                                    resultadosTotais[0].usuarios
+                                ),
+
+                            projetos:
+                                Number(
+                                    resultadosTotais[0].projetos
+                                ),
+
+                            avaliacoes:
+                                Number(
+                                    resultadosTotais[0].avaliacoes
+                                )
+                        },
+
+                        atividades:
+                            atividades
+                    });
+
+                }
+            );
 
         }
     );

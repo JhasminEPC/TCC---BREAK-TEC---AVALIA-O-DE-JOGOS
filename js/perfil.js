@@ -333,10 +333,10 @@ async function carregarMeusProjetos() {
                     || "Sem descrição.";
 
 
-                card.innerHTML = `
-               <span class="projeto-categoria">
-                   ${categoria}
-               </span>
+        card.innerHTML = `
+        <span class="projeto-categoria">
+            ${categoria}
+            </span>
 
                <h3>
                    ${projeto.titulo}
@@ -371,69 +371,12 @@ async function carregarMeusProjetos() {
             Excluir
         </button>
 
-        <button
-        type="button"
-        class="favoritar-projeto"
-        data-id="${projeto.id}"
-        >
-        ☆ Favoritar
-        </button>
-
-    </div>
+     </div>
 `;
 
 
     meusProjetos.appendChild(card);
     
-// ==========================
-// FAVORITAR PROJETO
-// ==========================
-
-const botaoFavoritar =
-    card.querySelector(".favoritar-projeto");
-
-botaoFavoritar.addEventListener(
-    "click",
-    async function () {
-
-        try {
-
-            const resposta =
-                await fetch(
-                    `/api/favoritos/${projeto.id}`,
-                    {
-                        method: "POST"
-                    }
-                );
-
-            const dados =
-                await resposta.json();
-
-            if (!resposta.ok) {
-
-                alert(dados.mensagem);
-                return;
-
-            }
-
-            alert(dados.mensagem);
-
-            // Atualiza favoritos e contador
-            carregarFavoritos();
-            carregarEstatisticas();
-
-        } catch (erro) {
-
-            console.error(
-                "Erro ao favoritar projeto:",
-                erro
-            );
-
-        }
-
-    }
-);
-
 // ==========================
 // EDITAR PROJETO
 // ==========================
