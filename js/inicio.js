@@ -235,8 +235,11 @@ linksMenu.forEach(
 
 
 // ================================
-// PESQUISA
+// PESQUISA UNIFICADA - BREAK TEC
 // ================================
+
+const searchContainer =
+    document.querySelector(".search-container");
 
 const searchButton =
     document.getElementById("searchButton");
@@ -244,47 +247,455 @@ const searchButton =
 const searchInput =
     document.getElementById("searchInput");
 
+const searchResults =
+    document.getElementById("searchResults");
 
-if (searchButton && searchInput) {
+const searchResultsTitle =
+    document.getElementById("searchResultsTitle");
 
-    searchButton.addEventListener(
+const searchResultsContent =
+    document.getElementById("searchResultsContent");
+
+const searchResultsClose =
+    document.getElementById("searchResultsClose");
+
+let pesquisaTimer;
+let pesquisaControlador;
+let pesquisaVersao = 0;
+
+
+// ================================
+// ABRIR E FECHAR RESULTADOS
+// ================================
+
+function abrirResultados() {
+
+    searchResults.hidden = false;
+
+    searchInput.setAttribute(
+        "aria-expanded",
+        "true"
+    );
+}
+
+function fecharResultados() {
+
+    clearTimeout(pesquisaTimer);
+
+    pesquisaVersao++;
+
+    if (pesquisaControlador) {
+        pesquisaControlador.abort();
+    }
+
+    searchResults.hidden = true;
+
+    searchInput.setAttribute(
+        "aria-expanded",
+        "false"
+    );
+}
+
+
+// ================================
+// CRIAR CARD DE RESULTADO
+// ================================
+
+function criarResultado(jogo, origem) {
+
+    const oficial = origem === "oficial";
+
+    const item = document.createElement("a");
+
+    item.className = "search-result-item";
+
+    item.href = oficial
+        ? `Pages/jogo-oficial.html?id=${encodeURIComponent(jogo.id_externo)}`
+        : `Pages/jogos.html?id=${encodeURIComponent(jogo.id)}`;
+
+
+    // IMAGEM
+
+    const imagemContainer =
+        document.createElement("div");
+
+    imagemContainer.className =
+        "search-result-image";
+
+    if (jogo.imagem) {
+
+        const imagem = document.createElement("img");
+
+        imagem.src = jogo.imagem;
+
+        imagem.alt = "";
+
+        imagem.loading = "lazy";
+
+        imagemContainer.appendChild(imagem);
+
+    } else {
+
+        imagemContainer.textContent = "🎮";
+
+    }
+
+
+    // INFORMAÇÕES
+
+    const informacoes =
+        document.createElement("div");
+
+    informacoes.className =
+        "search-result-info";
+
+    const titulo = document.createElement("strong");
+
+    titulo.textContent =
+        oficial ? jogo.titulo : jogo.titulo;
+
+    const criador = document.createElement("span");
+
+    criador.textContent = oficial
+        ? "Estúdio: veja os detalhes"
+        : `Criado por: ${jogo.autor_nome || "Comunidade Break Tec"}`;
+
+    const genero = document.createElement("small");
+
+    genero.textContent = oficial
+        ? jogo.genero || "Gênero não informado"
+        : jogo.categoria || "Categoria não informada";
+
+    informacoes.append(
+        titulo,
+        criador,
+        genero
+    );
+
+
+    // IDENTIFICAÇÃO DA ORIGEM
+
+    const etiqueta =
+        document.createElement("span");
+
+    etiqueta.className = oficial
+        ? "search-result-badge oficial"
+        : "search-result-badge comunidade";
+
+    etiqueta.textContent = oficial
+        ? "OFICIAL"
+        : "COMUNIDADE";
+
+
+    item.append(
+        imagemContainer,
+        informacoes,
+        etiqueta
+    );
+
+    return item;
+}
+
+
+// ================================
+// PESQUISAR NOS DOIS CATÁLOGOS
+// ================================
+
+async function pesquisarJogos() {
+
+    const termo = searchInput.value.trim();
+
+    pesquisaVersao++;
+
+    const versaoAtual = pesquisaVersao;
+
+    if (pesquisaControlador) {
+        pesquisaControlador.abort();
+    }
+
+    if (termo.length < 2) {
+
+        fecharResultados();
+
+        return;
+    }
+
+    pesquisaControlador = new AbortController();
+
+    const sinal = pesquisaControlador.signal;
+
+    abrirResultados();
+
+    searchResultsTitle.textContent =
+        "Buscando jogos...";
+
+    searchResultsContent.textContent =
+        "Consultando jogos oficiais e projetos da comunidade...";
+
+
+    // REQUISIÇÕES
+
+    const requisicaoComunidade = fetch(
+        "/api/projetos",
+        { signal: sinal }
+    ).then(async resposta => {
+
+        if (!resposta.ok) {
+            throw new Error("Erro no catálogo da comunidade");
+        }
+
+        return resposta.json();
+    });
+
+
+    const requisicaoOficial = fetch(
+        `/api/jogos-oficiais?busca=${encodeURIComponent(termo)}`,
+        { signal: sinal }
+    ).then(async resposta => {
+
+        if (!resposta.ok) {
+            throw new Error("Erro no catálogo oficial");
+        }
+
+        return resposta.json();
+    });
+
+
+    const [resultadoComunidade, resultadoOficial] =
+        await Promise.allSettled([
+            requisicaoComunidade,
+            requisicaoOficial
+        ]);
+
+
+    // IGNORA PESQUISAS ANTIGAS
+
+    if (versaoAtual !== pesquisaVersao) {
+        return;
+    }
+
+
+    // RESULTADOS DO MYSQL
+
+    let projetos = [];
+
+    if (resultadoComunidade.status === "fulfilled") {
+
+        const dados = resultadoComunidade.value;
+
+        const texto = termo.toLocaleLowerCase("pt-BR");
+
+        projetos = (Array.isArray(dados) ? dados : [])
+            .filter(projeto => {
+
+                const conteudo = [
+                    projeto.titulo,
+                    projeto.categoria,
+                    projeto.descricao,
+                    projeto.autor_nome
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLocaleLowerCase("pt-BR");
+
+                return conteudo.includes(texto);
+
+            })
+            .slice(0, 6);
+    }
+
+
+    // RESULTADOS DA RAWG
+
+    let jogosOficiais = [];
+
+    if (resultadoOficial.status === "fulfilled") {
+
+        const dados = resultadoOficial.value;
+
+        jogosOficiais = (
+            Array.isArray(dados.jogos)
+                ? dados.jogos
+                : []
+        ).slice(0, 6);
+    }
+
+
+    // EXIBIR RESULTADOS
+
+    searchResultsContent.replaceChildren();
+
+    const resultados = [];
+
+    const quantidadeMaxima = Math.max(
+        projetos.length,
+        jogosOficiais.length
+    );
+
+    // Alterna os tipos de jogo na listagem.
+
+    for (let i = 0; i < quantidadeMaxima; i++) {
+
+        if (jogosOficiais[i]) {
+            resultados.push(
+                criarResultado(jogosOficiais[i], "oficial")
+            );
+        }
+
+        if (projetos[i]) {
+            resultados.push(
+                criarResultado(projetos[i], "comunidade")
+            );
+        }
+    }
+
+
+    searchResultsTitle.textContent =
+        `Resultados para "${termo}"`;
+
+
+    if (resultados.length === 0) {
+
+        const mensagem = document.createElement("p");
+
+        mensagem.className = "search-empty";
+
+        mensagem.textContent =
+            "Nenhum jogo ou projeto encontrado.";
+
+        searchResultsContent.appendChild(mensagem);
+
+    } else {
+
+        searchResultsContent.append(...resultados);
+
+    }
+
+
+    // SE ALGUMA FONTE FALHAR
+
+    if (
+        resultadoComunidade.status === "rejected" ||
+        resultadoOficial.status === "rejected"
+    ) {
+
+        const aviso = document.createElement("p");
+
+        aviso.className = "search-warning";
+
+        aviso.textContent =
+            "Parte do catálogo está temporariamente indisponível.";
+
+        searchResultsContent.appendChild(aviso);
+    }
+}
+
+
+// ================================
+// EVENTOS DA PESQUISA
+// ================================
+
+if (
+    searchContainer &&
+    searchButton &&
+    searchInput &&
+    searchResults &&
+    searchResultsContent &&
+    searchResultsTitle &&
+    searchResultsClose
+) {
+
+    // PESQUISA ENQUANTO DIGITA
+
+    searchInput.addEventListener("input", function () {
+
+        clearTimeout(pesquisaTimer);
+
+        pesquisaVersao++;
+
+        if (pesquisaControlador) {
+            pesquisaControlador.abort();
+        }
+
+        if (searchInput.value.trim().length < 2) {
+
+            fecharResultados();
+
+            return;
+        }
+
+        pesquisaTimer = setTimeout(
+            pesquisarJogos,
+            400
+        );
+
+    });
+
+
+    // CLIQUE NA LUPA
+
+    searchButton.addEventListener("click", function () {
+
+        if (searchInput.value.trim().length < 2) {
+
+            searchInput.focus();
+
+            return;
+        }
+
+        clearTimeout(pesquisaTimer);
+
+        pesquisarJogos();
+
+    });
+
+
+    // ENTER PARA PESQUISAR
+
+    searchInput.addEventListener("keydown", function (event) {
+
+        if (event.key === "Enter") {
+
+            event.preventDefault();
+
+            clearTimeout(pesquisaTimer);
+
+            pesquisarJogos();
+        }
+
+        if (event.key === "Escape") {
+
+            fecharResultados();
+
+            searchInput.blur();
+        }
+    });
+
+
+    // FECHAR PELO X
+
+    searchResultsClose.addEventListener(
         "click",
-        function () {
-
-            const pesquisa =
-                searchInput.value.trim();
-
-            if (pesquisa !== "") {
-
-                console.log(
-                    "Pesquisando por:",
-                    pesquisa
-                );
-
-            } else {
-
-                searchInput.focus();
-
-            }
-
-        }
+        fecharResultados
     );
 
 
-    searchInput.addEventListener(
-        "keydown",
-        function (event) {
+    // FECHAR AO CLICAR FORA
 
-            if (event.key === "Enter") {
+    document.addEventListener("click", function (event) {
 
-                searchButton.click();
+        if (!searchContainer.contains(event.target)) {
 
-            }
+            fecharResultados();
 
         }
-    );
+    });
 
 }
+
+//===============================
+// VERIFICAR SESSÃO DO USUÁRIO
+//===============================
 
 const areaUsuario = document.getElementById("areaUsuario");
 
@@ -355,6 +766,193 @@ const verTodosProjetos =
     document.getElementById("verTodosProjetos");
 
 
+// ========================================
+// PROJETOS E JOGOS OFICIAIS EM DESTAQUE
+// ========================================
+
+// PROTEGE OS TEXTOS INSERIDOS NOS CARDS
+
+function escaparTexto(valor) {
+
+    return String(valor ?? "").replace(
+        /[&<>"']/g,
+        caractere => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[caractere]
+    );
+}
+
+
+// VALIDA ENDEREÇOS DE IMAGENS
+
+function imagemSegura(valor) {
+
+    if (!valor || typeof valor !== "string") {
+        return "";
+    }
+
+    try {
+
+        const url = new URL(valor, window.location.href);
+
+        if (!["http:", "https:"].includes(url.protocol)) {
+            return "";
+        }
+
+        return escaparTexto(url.href);
+
+    } catch {
+        return "";
+    }
+}
+
+
+// CRIAR CARD DE DESTAQUE
+
+function criarCardDestaque(jogo) {
+
+    const oficial = jogo.origem === "oficial";
+
+    const id = Number(
+        oficial ? jogo.id_externo : jogo.id
+    );
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+        return null;
+    }
+
+    const titulo = escaparTexto(jogo.titulo);
+
+    const categoria = escaparTexto(
+        oficial
+            ? jogo.genero || "Jogo oficial"
+            : jogo.categoria || "Projeto"
+    );
+
+    const autor = escaparTexto(
+        oficial
+            ? jogo.desenvolvedor || "Não informado"
+            : jogo.autor_nome || "Comunidade Break Tec"
+    );
+
+    const descricao = escaparTexto(
+        oficial
+            ? `Explore este jogo do catálogo oficial da Break Tec.`
+            : jogo.descricao ||
+              "Projeto publicado na comunidade Break Tec."
+    );
+
+    const totalAvaliacoes =
+        Number(jogo.total_avaliacoes) || 0;
+
+    const score =
+        totalAvaliacoes > 0
+            ? `${Number(jogo.break_score).toFixed(1)}/10`
+            : "Novo";
+
+    const link = oficial
+        ? `Pages/jogo-oficial.html?id=${id}`
+        : `Pages/jogos.html?id=${id}`;
+
+    const imagem = imagemSegura(jogo.imagem);
+
+    const card = document.createElement("article");
+
+    card.className = "projeto-home-card";
+
+    card.innerHTML = `
+
+        <div class="projeto-home-imagem">
+
+            ${
+                imagem
+                    ? `<img src="${imagem}"
+                            alt="Imagem de ${titulo}"
+                            loading="lazy">`
+
+                    : `<div class="projeto-sem-imagem">
+                            BREAKTEC
+                       </div>`
+            }
+
+            <span class="destaque-origem ${
+                oficial ? "oficial" : "comunidade"
+            }">
+                ${oficial ? "OFICIAL" : "COMUNIDADE"}
+            </span>
+
+        </div>
+
+
+        <div class="projeto-home-conteudo">
+
+            <span class="projeto-home-categoria">
+                ${categoria}
+            </span>
+
+            <h3>${titulo}</h3>
+
+            <span class="projeto-home-autor">
+                ${oficial ? "Desenvolvido por" : "Criado por"}
+                ${autor}
+            </span>
+
+            <p class="projeto-home-descricao">
+                ${descricao}
+            </p>
+
+
+            <div class="projeto-home-info">
+
+                <div class="projeto-score">
+
+                    <span class="score-icone">★</span>
+
+                    <div>
+                        <small>BREAK SCORE</small>
+                        <strong>${score}</strong>
+                    </div>
+
+                </div>
+
+                <div class="projeto-avaliacoes">
+
+                    <strong>${totalAvaliacoes}</strong>
+
+                    <span>
+                        ${
+                            totalAvaliacoes === 1
+                                ? "avaliação"
+                                : "avaliações"
+                        }
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <a
+                href="${link}"
+                class="projeto-home-link"
+            >
+                ${oficial ? "Ver jogo" : "Ver projeto"}
+                <span>→</span>
+            </a>
+
+        </div>
+    `;
+
+    return card;
+}
+
+
+// CARREGAR OS DOIS CATÁLOGOS
+
 async function carregarProjetos() {
 
     if (!projetosGrid) {
@@ -363,167 +961,137 @@ async function carregarProjetos() {
 
     try {
 
-    const resposta =
-        await fetch("/api/projetos");
+        const requisicoes = await Promise.allSettled([
 
-    if (!resposta.ok) {
-        throw new Error("Não foi possível carregar os projetos.");
-        }
+            fetch("/api/projetos").then(resposta => {
 
-    const projetos =
-        await resposta.json();
+                if (!resposta.ok) {
+                    throw new Error("Erro nos projetos.");
+                }
 
+                return resposta.json();
+            }),
 
-// Remove "Carregando projetos..."
-    projetosGrid.innerHTML = "";
+            fetch("/api/destaques-oficiais").then(resposta => {
 
+                if (!resposta.ok) {
+                    throw new Error("Erro nos jogos oficiais.");
+                }
 
-    if (projetos.length === 0) {
+                return resposta.json();
+            })
 
-        projetosGrid.innerHTML = `
-            <div class="projetos-vazio">
-            Nenhum projeto publicado ainda.
-            </div>
-            `;
-
-        return;
-        }
+        ]);
 
 
-// Mostra no máximo 6 projetos na Home
-    projetos
-        .slice(0, 6)
-        .forEach(function (projeto) {
+        // PROJETOS DA COMUNIDADE
 
-        const card =
-        document.createElement("article");
+        const projetos = requisicoes[0].status === "fulfilled"
+            && Array.isArray(requisicoes[0].value)
 
-        card.classList.add("projeto-home-card");
+            ? requisicoes[0].value.slice(0, 3).map(
+                projeto => ({
+                    ...projeto,
+                    origem: "comunidade"
+                })
+            )
 
-        card.innerHTML = `
-
-    <div class="projeto-home-imagem">
-
-        ${
-            projeto.imagem
-
-            ? `
-                <img
-                    src="${projeto.imagem}"
-                    alt="Imagem do projeto ${projeto.titulo}"
-                >
-            `
-
-            : `
-                <div class="projeto-sem-imagem">
-                    BREAKTEC
-                </div>
-            `
-        }
-
-        <span class="projeto-home-categoria">
-            ${projeto.categoria || "Projeto"}
-        </span>
-
-    </div>
+            : [];
 
 
-    <div class="projeto-home-conteudo">
+        // JOGOS OFICIAIS
 
-        <h3>
-            ${projeto.titulo}
-        </h3>
+        const dadosOficiais =
+            requisicoes[1].status === "fulfilled"
+                ? requisicoes[1].value
+                : null;
+
+        const oficiais = Array.isArray(dadosOficiais?.jogos)
+            ? dadosOficiais.jogos.slice(0, 3)
+            : [];
 
 
-        <span class="projeto-home-autor">
-            por ${projeto.autor_nome || "Comunidade Break Tec"}
-        </span>
+        // MISTURA OS RESULTADOS
 
+        const destaques = [];
 
-        <p class="projeto-home-descricao">
+        for (let i = 0; i < 3; i++) {
 
-            ${
-                projeto.descricao ||
-                "Projeto publicado na comunidade Break Tec."
+            if (oficiais[i]) {
+                destaques.push(oficiais[i]);
             }
 
-        </p>
+            if (projetos[i]) {
+                destaques.push(projetos[i]);
+            }
+        }
 
 
-        <div class="projeto-home-info">
-
-        <div class="projeto-score">
-
-            <span class="score-icone">★</span>
-
-        <div>
-            <small>BREAK SCORE</small>
-
-            <strong>
-        ${
-           projeto.total_avaliacoes > 0
-            ? `${projeto.break_score}/10`
-            : "Novo" }
-            </strong>
-        </div>
-
-            </div>
+        projetosGrid.replaceChildren();
 
 
-        <div class="projeto-avaliacoes">
+        // NENHUM RESULTADO
 
-            <strong>
-             ${projeto.total_avaliacoes || 0}
-            </strong>
+        if (destaques.length === 0) {
 
-            <span>
-                ${
-                Number(projeto.total_avaliacoes) === 1
-                ? "avaliação"
-                : "avaliações"
-                }
-            </span>
+            projetosGrid.innerHTML = `
+                <div class="projetos-vazio">
+                    Nenhum jogo ou projeto disponível.
+                </div>
+            `;
 
-        </div>
-
-        </div>
+            return;
+        }
 
 
-        <a
-            href="Pages/jogos.html?id=${projeto.id}"
-            class="projeto-home-link"
-        >
-            Ver projeto
-            <span>→</span>
-        </a>
+        // MOSTRAR OS CARDS
 
-       </div>
-          `;
+        destaques.forEach(jogo => {
 
-            projetosGrid.appendChild(card);
+            const card = criarCardDestaque(jogo);
 
-            });
+            if (card) {
+                projetosGrid.appendChild(card);
+            }
+
+        });
+
 
     } catch (erro) {
 
         console.error(
-            "Erro ao carregar projetos:",
+            "Erro ao carregar destaques:",
             erro
         );
 
         projetosGrid.innerHTML = `
             <div class="projetos-vazio">
-                Não foi possível carregar os projetos.
+                Não foi possível carregar os destaques.
             </div>
         `;
-
     }
-
 }
-
-
 // Carrega os projetos ao abrir a Home
 carregarProjetos();
+
+
+// ==========================================
+// BOTÃO VER TODOS - CATÁLOGO
+// ==========================================
+
+if (verTodosProjetos) {
+
+    verTodosProjetos.addEventListener(
+        "click",
+        function () {
+
+            window.location.href =
+                "Pages/catalogo.html?tipo=todos";
+
+        }
+    );
+
+}
 
 // ==========================
 // RANKING DE AVALIAÇÕES
@@ -955,3 +1523,209 @@ botaoSair.addEventListener(
     }
 );
 
+
+// ==========================================
+// MENU LATERAL - CATÁLOGO BREAK TEC
+// ==========================================
+
+const catalogMenuButton =
+    document.getElementById("catalogMenuButton");
+
+const catalogSidebar =
+    document.getElementById("catalogSidebar");
+
+const catalogOverlay =
+    document.getElementById("catalogOverlay");
+
+const catalogClose =
+    document.getElementById("catalogClose");
+
+
+// ==========================================
+// ABRIR MENU
+// ==========================================
+
+function abrirMenuCatalogo() {
+
+    catalogOverlay.hidden = false;
+
+    catalogSidebar.classList.add("aberto");
+
+    catalogOverlay.classList.add("ativo");
+
+    document.body.classList.add(
+        "catalog-sidebar-aberta"
+    );
+
+    // Permite interação com o menu
+
+    catalogSidebar.inert = false;
+
+    catalogSidebar.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    catalogMenuButton.setAttribute(
+        "aria-expanded",
+        "true"
+    );
+
+    // Posiciona o foco no botão de fechar
+
+    catalogClose.focus();
+}
+
+
+// ==========================================
+// FECHAR MENU
+// ==========================================
+
+function fecharMenuCatalogo() {
+
+    catalogSidebar.classList.remove("aberto");
+
+    catalogOverlay.classList.remove("ativo");
+
+    document.body.classList.remove(
+        "catalog-sidebar-aberta"
+    );
+
+    // Impede interação com o menu fechado
+
+    catalogSidebar.inert = true;
+
+    catalogSidebar.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+    catalogMenuButton.setAttribute(
+        "aria-expanded",
+        "false"
+    );
+
+    // Devolve o foco ao botão principal
+
+    catalogMenuButton.focus();
+}
+
+
+// ==========================================
+// EVENTOS DO MENU
+// ==========================================
+
+if (
+    catalogMenuButton &&
+    catalogSidebar &&
+    catalogOverlay &&
+    catalogClose
+) {
+
+    // ABRIR PELAS TRÊS BARRINHAS
+
+    catalogMenuButton.addEventListener(
+        "click",
+        abrirMenuCatalogo
+    );
+
+
+    // FECHAR PELO X
+
+    catalogClose.addEventListener(
+        "click",
+        fecharMenuCatalogo
+    );
+
+
+    // FECHAR CLICANDO FORA
+
+    catalogOverlay.addEventListener(
+        "click",
+        fecharMenuCatalogo
+    );
+
+
+    // FECHAR PELO ESC
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape" &&
+                catalogSidebar.classList.contains("aberto")
+            ) {
+
+                fecharMenuCatalogo();
+
+            }
+
+        }
+    );
+
+
+    // FECHAR AO SELECIONAR UM LINK
+
+    const linksCatalogo =
+        catalogSidebar.querySelectorAll("a");
+
+    linksCatalogo.forEach(function (link) {
+
+        link.addEventListener(
+            "click",
+            fecharMenuCatalogo
+        );
+
+    });
+
+
+    // MANTER A NAVEGAÇÃO POR TAB DENTRO DO MENU
+
+    catalogSidebar.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key !== "Tab") {
+                return;
+            }
+
+            const elementos = Array.from(
+                catalogSidebar.querySelectorAll(
+                    'a[href], button:not([disabled])'
+                )
+            );
+
+            if (elementos.length === 0) {
+                return;
+            }
+
+            const primeiro = elementos[0];
+
+            const ultimo =
+                elementos[elementos.length - 1];
+
+            if (
+                event.shiftKey &&
+                document.activeElement === primeiro
+            ) {
+
+                event.preventDefault();
+
+                ultimo.focus();
+
+            } else if (
+                !event.shiftKey &&
+                document.activeElement === ultimo
+            ) {
+
+                event.preventDefault();
+
+                primeiro.focus();
+
+            }
+
+        }
+    );
+
+}

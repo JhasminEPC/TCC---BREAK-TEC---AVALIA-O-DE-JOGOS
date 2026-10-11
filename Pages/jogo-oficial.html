@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Jogo Oficial | Break Tec</title>
+
+    <link rel="stylesheet" href="../css/jogo-oficial.css">
+</head>
+
+<body>
+
+    <!-- CABEÇALHO -->
+
+    <header class="jogo-header">
+
+        <a href="../index.html" class="jogo-logo">
+            <img
+                src="../assets/logotipo.jpg"
+                alt="Logotipo Break Tec"
+            >
+
+            <span>BREAKTEC</span>
+        </a>
+
+        <a href="../index.html" class="voltar-home">
+            ← Voltar ao início
+        </a>
+
+    </header>
+
+
+    <!-- CONTEÚDO PRINCIPAL -->
+
+    <main class="jogo-container">
+
+        <div id="jogoCarregando" class="jogo-carregando">
+            Carregando informações do jogo...
+        </div>
+
+        <div id="jogoErro" class="jogo-erro" hidden></div>
+
+
+        <div id="jogoConteudo" hidden>
+
+    <!-- CAPA E INFORMAÇÕES -->
+
+            <section class="jogo-apresentacao">
+
+                <div class="jogo-capa">
+
+                    <img
+                        id="jogoImagem"
+                        alt="Capa do jogo"
+                    >
+
+                </div>
+
+
+                <div class="jogo-detalhes">
+
+                    <span class="jogo-origem">
+                        JOGO OFICIAL
+                    </span>
+
+                    <h1 id="jogoTitulo">
+                        Nome do jogo
+                    </h1>
+
+    <!-- FAVORITOS DO JOGO OFICIAL -->
+
+       <div class="jogo-favoritos">
+
+        <button
+        type="button"
+        class="favorito-oficial-botao"
+        id="favoritoOficialBotao"
+        aria-pressed="false"
+        hidden>
+
+        <span class="favorito-coracao" aria-hidden="true">
+            ♡
+        </span>
+
+        <span id="favoritoOficialTexto">
+            Adicionar aos favoritos
+        </span>
+    </button>
+
+    <a
+        href="login.html"
+        id="favoritoOficialLogin"
+        class="favorito-oficial-login"
+        hidden>
+        Entre para favoritar
+    </a>
+
+    <p
+        class="favorito-oficial-status"
+        id="favoritoOficialStatus"
+        role="status"
+        aria-live="polite">
+    </p>
+
+</div>
+
+        <div class="jogo-metadados">
+
+            <div>
+                <span>Desenvolvedora</span>
+                    <strong id="jogoDesenvolvedora">—</strong>
+            </div>
+
+            <div>
+                <span>Publicadora</span>
+                    <strong id="jogoPublicadora">—</strong>
+            </div>
+
+            <div>
+                 <span>Gêneros</span>
+                    <strong id="jogoGenero">—</strong>
+            </div>
+
+            <div>
+                 <span>Lançamento</span>
+                     <strong id="jogoLancamento">—</strong>
+            </div>
+
+                </div>
+
+                    </div>
+
+      </section>
+
+
+    <!-- DESCRIÇÃO -->
+
+     <section class="jogo-descricao-section">
+
+        <span class="section-tag">
+            CONHEÇA O JOGO
+        </span>
+
+        <h2>Sobre o jogo</h2>
+
+        <p id="jogoDescricao"></p>
+
+    </section>
+
+
+<!-- ==========================
+BREAK SCORE - JOGOS OFICIAIS
+========================== -->
+
+<section class="jogo-avaliacoes-section">
+
+    <span class="section-tag">
+        BREAK SCORE
+    </span>
+
+    <h2>Avaliações da comunidade</h2>
+
+    <p>
+        Descubra como este jogo é avaliado pelos
+        usuários da Break Tec.
+    </p>
+
+
+    <!-- PONTUAÇÃO GERAL -->
+
+    <div class="break-score-resumo">
+
+        <div class="break-score-valor">
+
+            <strong id="breakScoreValor">—</strong>
+
+            <span>/10</span>
+
+        </div>
+
+        <div class="break-score-detalhes">
+
+            <strong>Pontuação da comunidade</strong>
+
+            <span id="breakScoreTotal">
+                Carregando avaliações...
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- DNA DO JOGO -->
+
+    <div class="jogo-dna">
+
+        <h3>DNA do jogo</h3>
+
+        <p>
+            Média das avaliações em cada categoria.
+        </p>
+
+        <div class="dna-categorias">
+
+            <div class="dna-item">
+                <span>Jogabilidade</span>
+                <strong id="dnaJogabilidade">—</strong>
+            </div>
+
+            <div class="dna-item">
+                <span>História</span>
+                <strong id="dnaHistoria">—</strong>
+            </div>
+
+            <div class="dna-item">
+                <span>Visual</span>
+                <strong id="dnaVisual">—</strong>
+            </div>
+
+            <div class="dna-item">
+                <span>Som</span>
+                <strong id="dnaSom">—</strong>
+            </div>
+
+            <div class="dna-item">
+                <span>Originalidade</span>
+                <strong id="dnaOriginalidade">—</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- AVALIAÇÃO DO USUÁRIO -->
+
+    <div class="avaliacao-usuario">
+
+        <h3>Sua avaliação</h3>
+
+        <p>
+            Avalie cada categoria de 1 a 5 estrelas
+            e contribua para o Break Score.
+        </p>
+
+        <p
+            id="avaliacaoStatus"
+            class="avaliacao-status"
+            role="status"
+            aria-live="polite"
+        >
+            Verificando sua sessão...
+        </p>
+
+
+        <!-- USUÁRIO NÃO LOGADO -->
+
+        <div id="avaliacaoLogin" hidden>
+
+            <p>
+                Faça login para avaliar este jogo.
+            </p>
+
+            <a
+                href="login.html"
+                class="avaliacao-login-link"
+            >
+                Entrar na minha conta
+            </a>
+
+        </div>
+
+
+        <!-- FORMULÁRIO -->
+
+        <form id="avaliacaoOficialForm" hidden>
+
+            <div class="avaliacao-categoria">
+
+                <span>Jogabilidade</span>
+
+                <div
+                    class="avaliacao-estrelas"
+                    data-categoria="jogabilidade"
+                    aria-label="Nota de jogabilidade"
+                ></div>
+
+            </div>
+
+
+            <div class="avaliacao-categoria">
+
+                <span>História</span>
+
+                <div
+                    class="avaliacao-estrelas"
+                    data-categoria="historia"
+                    aria-label="Nota de história"
+                ></div>
+
+            </div>
+
+
+            <div class="avaliacao-categoria">
+
+                <span>Visual</span>
+
+                <div
+                    class="avaliacao-estrelas"
+                    data-categoria="visual"
+                    aria-label="Nota de visual"
+                ></div>
+
+            </div>
+
+
+            <div class="avaliacao-categoria">
+
+                <span>Som</span>
+
+                <div
+                    class="avaliacao-estrelas"
+                    data-categoria="som"
+                    aria-label="Nota de som"
+                ></div>
+
+            </div>
+
+
+            <div class="avaliacao-categoria">
+
+                <span>Originalidade</span>
+
+                <div
+                    class="avaliacao-estrelas"
+                    data-categoria="originalidade"
+                    aria-label="Nota de originalidade"
+                ></div>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="enviar-avaliacao-oficial"
+                id="enviarAvaliacaoOficial"
+            >
+                Enviar avaliação
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+            <!-- FONTE DOS DADOS -->
+
+            <div class="jogo-fonte">
+
+                Informações do catálogo fornecidas pela
+
+                <a
+                    id="jogoFonteLink"
+                    href="https://rawg.io/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    RAWG
+                </a>.
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script src="../js/jogo-oficial.js"></script>
+
+</body>
+</html>

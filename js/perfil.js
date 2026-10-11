@@ -105,9 +105,6 @@ async function carregarEstatisticas() {
         totalAvaliacoes.textContent =
             dados.avaliacoes;
 
-        totalFavoritos.textContent =
-            dados.favoritos;
-
 
     } catch (erro) {
 
@@ -488,133 +485,394 @@ async function carregarMeusProjetos() {
 
 carregarMeusProjetos();
 
-// ==========================
-// CARREGAR FAVORITOS
-// ==========================
+// ==========================================
+// FAVORITOS - OFICIAIS E COMUNIDADE
+// ==========================================
+
+// CONSULTAR UMA LISTA DE FAVORITOS
+
+async function buscarListaFavoritos(url) {
+
+    const resposta = await fetch(url, {
+        credentials: "same-origin"
+    });
+
+    if (!resposta.ok) {
+        throw new Error(
+            `Erro ao consultar favoritos: ${resposta.status}`
+        );
+    }
+
+    const dados = await resposta.json();
+
+    return Array.isArray(dados) ? dados : [];
+}
+
+
+// ==========================================
+// CRIAR CARD DE FAVORITO
+// ==========================================
+
+function criarCardFavorito(item, origem) {
+
+    const oficial = origem === "oficial";
+
+    const id = Number(
+        oficial ? item.id_externo : item.id
+    );
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+        return null;
+    }
+
+    const titulo = item.titulo || "Sem título";
+
+    const card = document.createElement("article");
+
+    card.className = "projeto-card favorito-card";
+
+
+    // IMAGEM DO JOGO
+
+    const capa = document.createElement("div");
+
+    capa.className = "favorito-capa";
+
+    let urlImagem = null;
+
+    if (typeof item.imagem === "string" && item.imagem) {
+
+        try {
+
+            const url = new URL(
+                item.imagem,
+                window.location.origin + "/"
+            );
+
+            if (["http:", "https:"].includes(url.protocol)) {
+                urlImagem = url.href;
+            }
+
+        } catch (erro) {
+
+            console.warn("Imagem inválida:", erro);
+
+        }
+    }
+
+    if (urlImagem) {
+
+        const imagem = document.createElement("img");
+
+        imagem.src = urlImagem;
+        imagem.alt = `Capa de ${titulo}`;
+        imagem.loading = "lazy";
+
+        imagem.addEventListener("error", () => {
+            imagem.remove();
+            capa.textContent = "BREAKTEC";
+        }, { once: true });
+
+        capa.appendChild(imagem);
+
+    } else {
+
+        capa.textContent = "BREAKTEC";
+
+    }
+
+
+    // IDENTIFICAÇÃO DE ORIGEM
+
+    const etiqueta = document.createElement("span");
+
+    etiqueta.className = oficial
+        ? "favorito-origem oficial"
+        : "favorito-origem comunidade";
+
+    etiqueta.textContent = oficial
+        ? "OFICIAL"
+        : "COMUNIDADE";
+
+
+    // TÍTULO
+
+    const nome = document.createElement("h3");
+
+    nome.textContent = titulo;
+
+
+    // DESENVOLVEDOR / AUTOR
+
+    const autor = document.createElement("p");
+
+    autor.className = "favorito-autor";
+
+    autor.textContent = oficial
+        ? `Desenvolvido por: ${item.desenvolvedor || "Não informado"}`
+        : `Criado por: ${item.autor_nome || "Autor não disponível"}`;
+
+
+    // DESCRIÇÃO / CATEGORIA
+
+    const descricao = document.createElement("p");
+
+    descricao.className = "favorito-descricao";
+
+    descricao.textContent = oficial
+        ? item.genero || "Jogo do catálogo oficial."
+        : item.descricao || item.categoria ||
+          "Projeto da comunidade Break Tec.";
+
+
+    // AÇÕES DO CARD
+
+    const acoes = document.createElement("div");
+
+    acoes.className = "favorito-acoes";
+
+
+    // ABRIR JOGO
+
+    const link = document.createElement("a");
+
+    link.className = "favorito-ver";
+
+    link.href = oficial
+        ? `jogo-oficial.html?id=${id}`
+        : `jogos.html?id=${id}`;
+
+    link.textContent = oficial
+        ? "Ver jogo →"
+        : "Ver projeto →";
+
+
+    // REMOVER FAVORITO
+
+    const botaoRemover = document.createElement("button");
+
+    botaoRemover.type = "button";
+
+    botaoRemover.className = "remover-favorito";
+
+    botaoRemover.textContent = "Remover favorito";
+
+    botaoRemover.setAttribute(
+        "aria-label",
+        `Remover ${titulo} dos favoritos`
+    );
+
+
+    // MENSAGEM DE STATUS
+
+    const status = document.createElement("p");
+
+    status.className = "favorito-status";
+
+    status.setAttribute("role", "status");
+
+
+    // EVENTO DE REMOÇÃO
+
+    botaoRemover.addEventListener("click", async () => {
+
+        botaoRemover.disabled = true;
+
+        botaoRemover.textContent = "Removendo...";
+
+        status.textContent = "";
+
+        const endereco = oficial
+            ? `/api/jogos-oficiais/${id}/favoritos`
+            : `/api/favoritos/${id}`;
+
+        try {
+
+            const resposta = await fetch(endereco, {
+                method: "DELETE",
+                credentials: "same-origin"
+            });
+
+            if (!resposta.ok) {
+
+                const dados = await resposta.json();
+
+                throw new Error(
+                    dados.mensagem ||
+                    "Não foi possível remover o favorito."
+                );
+            }
+
+            // RECARREGA OS DOIS CATÁLOGOS
+
+            await carregarFavoritos();
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao remover favorito:",
+                erro
+            );
+
+            status.textContent = erro.message;
+
+        } finally {
+
+            botaoRemover.disabled = false;
+
+            botaoRemover.textContent =
+                "Remover favorito";
+
+        }
+    });
+
+
+    acoes.append(link, botaoRemover);
+
+    card.append(
+        capa,
+        etiqueta,
+        nome,
+        autor,
+        descricao,
+        acoes,
+        status
+    );
+
+    return card;
+}
+
+
+// ==========================================
+// CARREGAR TODOS OS FAVORITOS
+// ==========================================
 
 async function carregarFavoritos() {
 
     const meusFavoritos =
-    document.getElementById("meusFavoritos");
+        document.getElementById("meusFavoritos");
 
-    try {
+    const totalFavoritos =
+        document.getElementById("totalFavoritos");
 
-    const resposta =
-    await fetch("/api/meus-favoritos");
+    if (!meusFavoritos) return;
 
-    if (!resposta.ok) {
-        return;
-        }
+    meusFavoritos.textContent = "Carregando favoritos...";
 
-    const favoritos =
-    await resposta.json();
 
-    meusFavoritos.innerHTML = "";
+    // CONSULTA AS DUAS FONTES
 
-    if (favoritos.length === 0) {
+    const resultados = await Promise.allSettled([
 
-    meusFavoritos.innerHTML = `
-        <div class="estado-vazio">
-        <h3>
-        Nenhum favorito ainda
-        </h3>
+        buscarListaFavoritos("/api/meus-favoritos"),
 
-        <p>
-        Os projetos que você favoritar
-        aparecerão aqui.
-        </p>
-                </div>
-            `;
+        buscarListaFavoritos("/api/meus-favoritos-oficiais")
 
-            return;
-        }
+    ]);
 
-        favoritos.forEach(
-            function (projeto) {
 
-            const card =
-                document.createElement("article");
+    const comunidadeDisponivel =
+        resultados[0].status === "fulfilled";
 
-            card.classList.add("projeto-card");
-            const categoria =
-                projeto.categoria
-                    || "Sem categoria";
+    const oficiaisDisponiveis =
+        resultados[1].status === "fulfilled";
 
-            const descricao =
-                projeto.descricao
-                    || "Sem descrição.";
 
-            card.innerHTML = `
-                <span class="projeto-categoria">
-                    ${categoria}
-                </span>
+    const comunidade = comunidadeDisponivel
+        ? resultados[0].value
+        : [];
 
-                <h3>
-                    ${projeto.titulo}
-                </h3>
+    const oficiais = oficiaisDisponiveis
+        ? resultados[1].value
+        : [];
 
-                <p>
-                    ${descricao}
-                </p>
 
-                <button
-                    type="button"
-                    class="remover-favorito"
-                    >
-                    Remover favorito
-                    </button>
-                `;
+    meusFavoritos.replaceChildren();
 
-            const botaoRemover =
-                card.querySelector(".remover-favorito");
 
-                botaoRemover.addEventListener(
-                    "click",
-                    async function () {
+    // ATUALIZA O TOTAL SOMENTE QUANDO AS
+    // DUAS CONSULTAS TERMINAREM COM SUCESSO
 
-                        try {
+    if (totalFavoritos) {
 
-                            const resposta =
-                                await fetch(
-                                    `/api/favoritos/${projeto.id}`,
-                                    {
-                                        method: "DELETE"
-                                    }
-                                );
+        totalFavoritos.textContent =
+            comunidadeDisponivel && oficiaisDisponiveis
+                ? comunidade.length + oficiais.length
+                : "—";
+    }
 
-                            const dados =
-                                await resposta.json();
 
-                            if (!resposta.ok) {
-                                alert(dados.mensagem);
-                                return;
-                            }
+    // ORGANIZA OS CARDS ALTERNANDO AS ORIGENS
 
-                            carregarFavoritos();
-                            carregarEstatisticas();
+    const quantidade = Math.max(
+        oficiais.length,
+        comunidade.length
+    );
 
-                        } catch (erro) {
+    for (let i = 0; i < quantidade; i++) {
 
-                            console.error(
-                                "Erro ao remover favorito:",
-                                erro
-                            );
-                        }
-                    }
-                );
+        if (oficiais[i]) {
 
-                meusFavoritos.appendChild(
-                    card
-                );
+            const card = criarCardFavorito(
+                oficiais[i],
+                "oficial"
+            );
+
+            if (card) {
+                meusFavoritos.appendChild(card);
             }
-        );
+        }
 
-    } catch (erro) {
+        if (comunidade[i]) {
 
-        console.error(
-            "Erro ao carregar favoritos:",
-            erro
-        );
+            const card = criarCardFavorito(
+                comunidade[i],
+                "comunidade"
+            );
+
+            if (card) {
+                meusFavoritos.appendChild(card);
+            }
+        }
+    }
+
+
+    // NENHUM FAVORITO
+
+    if (quantidade === 0) {
+
+        const vazio = document.createElement("div");
+
+        vazio.className = "estado-vazio";
+
+        const titulo = document.createElement("h3");
+
+        titulo.textContent =
+            "Nenhum favorito disponível";
+
+        const mensagem = document.createElement("p");
+
+        mensagem.textContent =
+            "Os jogos e projetos favoritados aparecerão aqui.";
+
+        vazio.append(titulo, mensagem);
+
+        meusFavoritos.appendChild(vazio);
+    }
+
+
+    // AVISO EM CASO DE FALHA PARCIAL
+
+    if (!comunidadeDisponivel || !oficiaisDisponiveis) {
+
+        const aviso = document.createElement("p");
+
+        aviso.className = "favoritos-aviso";
+
+        aviso.textContent =
+        "Não foi possível carregar todos os favoritos. Tente atualizar a página.";
+
+        meusFavoritos.appendChild(aviso);
     }
 }
 

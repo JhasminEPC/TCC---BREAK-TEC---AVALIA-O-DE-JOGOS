@@ -2150,3 +2150,1044 @@ section[id] {
 .projeto-sem-imagem {
     font-size: 22px;
 }
+
+
+/* ==========================
+   SOBRE
+========================== */
+
+.sobre-section {
+    padding: 80px 0;
+
+    background:
+        radial-gradient(
+            circle at 15% 50%,
+            rgba(150, 25, 15, 0.10),
+            transparent 35%
+        ),
+        #0b0807;
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.05);
+}
+
+
+.sobre-container {
+    width: min(90%, 1120px);
+    margin: 0 auto;
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 80px;
+
+    align-items: center;
+}
+
+
+/* TEXTO PRINCIPAL */
+
+.sobre-conteudo h2 {
+    max-width: 520px;
+
+    margin: 12px 0 22px;
+
+    font-size:
+        clamp(1.9rem, 3vw, 2.6rem);
+
+    line-height: 1.15;
+}
+
+
+.sobre-descricao {
+    max-width: 560px;
+
+    margin-top: 14px;
+
+    color: #8f8f8f;
+
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+
+/* PILARES */
+
+.sobre-pilares {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.sobre-pilar {
+    display: grid;
+
+    grid-template-columns:
+        45px 1fr;
+
+    gap: 18px;
+
+    padding: 23px 0;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.07);
+}
+
+
+.sobre-pilar:first-child {
+    border-top:
+        1px solid rgba(255, 255, 255, 0.07);
+}
+
+
+.sobre-numero {
+    padding-top: 3px;
+
+    color: #d3263f;
+
+    font-size: 0.72rem;
+    font-weight: 700;
+
+    letter-spacing: 1px;
+}
+
+
+.sobre-pilar h3 {
+    margin-bottom: 7px;
+
+    color: #ffffff;
+
+    font-size: 1.05rem;
+}
+
+
+.sobre-pilar p {
+    max-width: 430px;
+
+    color: #777;
+
+    font-size: 0.82rem;
+    line-height: 1.6;
+}
+
+
+/* RESPONSIVO */
+
+@media (max-width: 800px) {
+
+    .sobre-container {
+        grid-template-columns: 1fr;
+
+        gap: 45px;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .sobre-section {
+        padding: 65px 0;
+    }
+
+}
+
+/* ==========================
+   EQUIPE
+========================== */
+
+.equipe-container {
+    width: min(90%, 1120px);
+
+    margin: 65px auto 0;
+    padding-top: 35px;
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.07);
+}
+
+
+.equipe-header {
+    margin-bottom: 25px;
+}
+
+
+.equipe-header h3 {
+    margin-top: 7px;
+
+    color: #ffffff;
+
+    font-size: 1.35rem;
+}
+
+
+/* LISTA DOS MEMBROS */
+
+.equipe-lista {
+    display: grid;
+
+    grid-template-columns:
+        repeat(7, minmax(0, 1fr));
+
+    gap: 12px;
+}
+
+
+/* CARD */
+
+.membro-card {
+    min-width: 0;
+
+    padding: 18px 12px;
+
+    text-align: center;
+
+    background:
+        linear-gradient(
+            145deg,
+            #15100f,
+            #0e0a09
+        );
+
+    border:
+        1px solid rgba(255, 255, 255, 0.07);
+
+    border-radius: 12px;
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease;
+}
+
+
+.membro-card:hover {
+    transform: translateY(-4px);
+
+    border-color:
+        rgba(242, 56, 32, 0.4);
+}
+
+
+/* AVATAR */
+
+.membro-avatar {
+    width: 42px;
+    height: 42px;
+
+    margin: 0 auto 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        rgba(242, 56, 32, 0.10);
+
+    border:
+        1px solid rgba(242, 56, 32, 0.25);
+
+    color: #f23820;
+
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+
+/* INFORMAÇÕES */
+
+.membro-info strong {
+    display: block;
+
+    overflow: hidden;
+
+    color: #ffffff;
+
+    font-size: 0.8rem;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+.membro-info span {
+    display: block;
+
+    margin-top: 5px;
+
+    color: #666;
+
+    font-size: 0.65rem;
+}
+
+@media (max-width: 950px) {
+
+    .equipe-lista {
+        display: flex;
+
+        overflow-x: auto;
+
+        padding-bottom: 12px;
+
+        scrollbar-width: thin;
+    }
+
+    .membro-card {
+        flex: 0 0 140px;
+    }
+
+}
+
+/* ==========================
+   FOOTER
+========================== */
+
+.footer {
+    background: #080606;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 55px 0 22px;
+}
+
+.footer-container {
+    width: min(90%, 1120px);
+    margin: 0 auto;
+}
+
+.footer-principal {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 65px;
+    padding-bottom: 45px;
+}
+
+/* MARCA */
+
+.footer-marca h3 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #ffffff;
+}
+
+.footer-marca h3 span {
+    color: #f23820;
+}
+
+.footer-marca p {
+    max-width: 340px;
+    margin-top: 15px;
+    color: #858080;
+    font-size: 0.85rem;
+    line-height: 1.7;
+}
+
+/* LINKS */
+
+.footer-links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.footer-links h4 {
+    margin-bottom: 8px;
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.footer-links a {
+    color: #858080;
+    text-decoration: none;
+    font-size: 0.82rem;
+    transition: color 0.25s ease;
+}
+
+.footer-links a:hover {
+    color: #f23820;
+}
+
+/* PARTE INFERIOR */
+
+.footer-inferior {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding-top: 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.footer-inferior p,
+.footer-inferior span {
+    color: #686363;
+    font-size: 0.75rem;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 700px) {
+    .footer-principal {
+        grid-template-columns: 1fr 1fr;
+        gap: 35px;
+    }
+
+    .footer-marca {
+        grid-column: 1 / -1;
+    }
+
+    .footer-inferior {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 420px) {
+    .footer-principal {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-marca {
+        grid-column: auto;
+    }
+}
+
+/* ================================
+   PESQUISA UNIFICADA - BREAK TEC
+================================ */
+
+/* PAINEL DE RESULTADOS */
+
+.search-results {
+    position: absolute;
+
+    top: calc(100% + 15px);
+    right: 0;
+
+    width: 430px;
+    max-width: calc(100vw - 30px);
+
+    background: #130d0c;
+
+    border: 1px solid #482019;
+    border-radius: 14px;
+
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
+
+    overflow: hidden;
+
+    z-index: 1100;
+}
+
+/* CABEÇALHO DO PAINEL */
+
+.search-results-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 17px 20px;
+
+    border-bottom: 1px solid #30201c;
+}
+
+.search-results-topo strong {
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.search-results-close {
+    background: transparent;
+    border: none;
+
+    color: #999;
+    font-size: 23px;
+
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.search-results-close:hover {
+    color: #f23820;
+}
+
+/* LISTA DE RESULTADOS */
+
+.search-results-content {
+    max-height: 420px;
+    overflow-y: auto;
+
+    scrollbar-width: thin;
+    scrollbar-color: #6b3026 #130d0c;
+}
+
+/* CADA RESULTADO */
+
+.search-result-item {
+    display: grid;
+
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+
+    align-items: center;
+    gap: 13px;
+
+    padding: 13px 16px;
+
+    color: white;
+    text-decoration: none;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+    transition: background 0.2s;
+}
+
+.search-result-item:hover,
+.search-result-item:focus-visible {
+    background: #261411;
+}
+
+/* IMAGEM DO JOGO */
+
+.search-result-image {
+    width: 56px;
+    height: 56px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #29110d;
+
+    border-radius: 9px;
+    overflow: hidden;
+
+    font-size: 23px;
+}
+
+.search-result-image img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+/* INFORMAÇÕES */
+
+.search-result-info {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.search-result-info strong {
+    font-size: 13px;
+    color: #fff;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-result-info span {
+    font-size: 11px;
+    color: #aaa;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-result-info small {
+    font-size: 10px;
+    color: #777;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ETIQUETAS DE ORIGEM */
+
+.search-result-badge {
+    padding: 5px 7px;
+
+    border-radius: 5px;
+
+    font-size: 9px;
+    font-weight: 700;
+
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+}
+
+.search-result-badge.oficial {
+    color: #ff634f;
+
+    background: rgba(242, 56, 32, 0.12);
+    border: 1px solid rgba(242, 56, 32, 0.3);
+}
+
+.search-result-badge.comunidade {
+    color: #b5a1ff;
+
+    background: rgba(132, 105, 230, 0.12);
+    border: 1px solid rgba(132, 105, 230, 0.3);
+}
+
+/* MENSAGENS */
+
+.search-empty,
+.search-warning {
+    padding: 22px;
+
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.search-empty {
+    color: #aaa;
+}
+
+.search-warning {
+    color: #ffaf76;
+}
+
+/* RODAPÉ DO PAINEL */
+
+.search-results-rodape {
+    padding: 12px 18px;
+
+    background: #0d0908;
+    border-top: 1px solid #30201c;
+
+    color: #777;
+    font-size: 11px;
+
+    text-align: right;
+}
+
+.search-results-rodape a {
+    color: #f23820;
+    text-decoration: none;
+}
+
+.search-results-rodape a:hover {
+    text-decoration: underline;
+}
+
+/* TELAS MENORES */
+
+@media (max-width: 600px) {
+
+    .search-results {
+        width: 340px;
+    }
+
+    .search-result-item {
+        grid-template-columns: 46px minmax(0, 1fr);
+    }
+
+    .search-result-image {
+        width: 46px;
+        height: 46px;
+    }
+
+    .search-result-badge {
+        grid-column: 2;
+        justify-self: start;
+    }
+}
+
+/* ========================================
+   IDENTIFICAÇÃO DOS JOGOS EM DESTAQUE
+======================================== */
+
+.destaque-origem {
+    position: absolute;
+
+    top: 13px;
+    left: 13px;
+
+    z-index: 3;
+
+    padding: 7px 10px;
+
+    border-radius: 6px;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 0.8px;
+
+    backdrop-filter: blur(8px);
+}
+
+/* JOGOS OFICIAIS */
+
+.destaque-origem.oficial {
+    color: #ff6654;
+
+    background: rgba(55, 13, 9, 0.9);
+
+    border: 1px solid rgba(242, 56, 32, 0.5);
+}
+
+/* PROJETOS DA COMUNIDADE */
+
+.destaque-origem.comunidade {
+    color: #c6b6ff;
+
+    background: rgba(35, 23, 65, 0.9);
+
+    border: 1px solid rgba(150, 120, 255, 0.45);
+}
+
+/* MANTER O TEXTO DOS CARDS ORGANIZADO */
+
+.projeto-home-conteudo h3 {
+    overflow-wrap: anywhere;
+}
+
+.projeto-home-autor {
+    display: block;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.projeto-home-descricao {
+    display: -webkit-box;
+
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+
+    overflow: hidden;
+
+    line-clamp: 3;
+}
+
+/* ==========================================
+   MENU LATERAL - CATÁLOGO BREAK TEC
+========================================== */
+
+/* BOTÃO DAS TRÊS BARRINHAS */
+
+.catalog-menu-button {
+    width: 42px;
+    height: 42px;
+
+    margin-right: 20px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    flex-shrink: 0;
+
+    background: transparent;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 9px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.catalog-menu-button span {
+    display: block;
+
+    width: 21px;
+    height: 2px;
+
+    background: #ffffff;
+    border-radius: 4px;
+
+    transition: background 0.25s ease;
+}
+
+.catalog-menu-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #f23820;
+}
+
+.catalog-menu-button:hover span {
+    background: #ff6654;
+}
+
+
+/* ==========================================
+   FUNDO ESCURECIDO
+========================================== */
+
+.catalog-overlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.7);
+
+    backdrop-filter: blur(3px);
+
+    z-index: 1200;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
+}
+
+.catalog-overlay.ativo {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.catalog-overlay[hidden] {
+    display: none !important;
+}
+
+
+/* ==========================================
+   PAINEL LATERAL
+========================================== */
+
+.catalog-sidebar {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: min(340px, 88vw);
+    height: 100vh;
+    height: 100dvh;
+
+    display: flex;
+    flex-direction: column;
+
+    background: linear-gradient(
+        160deg,
+        #1e100d,
+        #0d0908 65%
+    );
+
+    border-right: 1px solid #5d2118;
+
+    box-shadow: 20px 0 50px rgba(0, 0, 0, 0.45);
+
+    z-index: 1300;
+
+    transform: translateX(-105%);
+
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+        transform 0.35s ease,
+        visibility 0.35s ease;
+}
+
+.catalog-sidebar.aberto {
+    transform: translateX(0);
+
+    visibility: visible;
+    pointer-events: auto;
+}
+
+
+/* ==========================================
+   CABEÇALHO DO MENU
+========================================== */
+
+.catalog-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 28px 25px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.catalog-sidebar-header strong {
+    color: #ffffff;
+
+    font-size: 19px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.catalog-sidebar-header strong span {
+    color: #f23820;
+}
+
+.catalog-close {
+    width: 35px;
+    height: 35px;
+
+    background: transparent;
+    border: none;
+
+    color: #aaaaaa;
+
+    font-size: 28px;
+
+    cursor: pointer;
+
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.catalog-close:hover {
+    color: #f23820;
+    transform: rotate(90deg);
+}
+
+
+/* ==========================================
+   NAVEGAÇÃO DO CATÁLOGO
+========================================== */
+
+.catalog-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+
+    flex: 1;
+
+    padding: 28px 18px;
+
+    overflow-y: auto;
+}
+
+.catalog-sidebar-title {
+    margin: 12px 12px 10px;
+
+    color: #f23820;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+}
+
+.catalog-sidebar-nav a {
+    display: flex;
+    align-items: center;
+
+    min-height: 46px;
+
+    padding: 12px 15px;
+
+    color: #bbbbbb;
+
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.catalog-sidebar-nav a:hover,
+.catalog-sidebar-nav a:focus-visible {
+    color: #ffffff;
+
+    background: rgba(242, 56, 32, 0.1);
+
+    border-left-color: #f23820;
+}
+
+
+/* LINHA DIVISÓRIA */
+
+.catalog-sidebar-divider {
+    height: 1px;
+
+    margin: 20px 12px;
+
+    background: rgba(255, 255, 255, 0.08);
+}
+
+
+/* ==========================================
+   RODAPÉ DO MENU
+========================================== */
+
+.catalog-sidebar-footer {
+    padding: 22px 25px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+    color: #777777;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* IMPEDIR ROLAGEM COM MENU ABERTO */
+
+body.catalog-sidebar-aberta {
+    overflow: hidden;
+}
+
+
+/* ==========================================
+   RESPONSIVIDADE
+========================================== */
+
+@media (max-width: 600px) {
+
+    .catalog-sidebar-header {
+        padding: 23px 20px;
+    }
+
+    .catalog-sidebar-nav {
+        padding: 20px 12px;
+    }
+
+    .catalog-menu-button {
+        width: 38px;
+        height: 38px;
+    }
+
+}
+
+
+/* ACESSIBILIDADE: REDUZIR ANIMAÇÕES */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .catalog-sidebar,
+    .catalog-overlay {
+        transition: none;
+    }
+
+}

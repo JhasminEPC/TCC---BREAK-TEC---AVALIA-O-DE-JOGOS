@@ -981,19 +981,27 @@ app.get("/api/meus-favoritos", (req, res) => {
         req.session.usuario.id;
 
     const sql = `
-        SELECT
-            p.id,
-            p.titulo,
-            p.descricao,
-            p.categoria,
-            p.imagem,
-            p.criado_em
-        FROM favoritos f
-        INNER JOIN projetos p
-            ON f.projeto_id = p.id
-        WHERE f.usuario_id = ?
-        ORDER BY f.criado_em DESC
-    `;
+    SELECT
+        p.id,
+        p.titulo,
+        p.descricao,
+        p.categoria,
+        p.imagem,
+        p.criado_em,
+        u.nome AS autor_nome
+
+    FROM favoritos f
+
+    INNER JOIN projetos p
+        ON f.projeto_id = p.id
+
+    LEFT JOIN usuarios u
+        ON p.usuario_id = u.id
+
+    WHERE f.usuario_id = ?
+
+    ORDER BY f.criado_em DESC
+`;
 
     conexao.query(
         sql,
@@ -1533,6 +1541,1635 @@ app.get("/api/comunidade", (req, res) => {
     );
 
 });
+
+
+// ==========================
+// JOGOS OFICIAIS - API RAWG
+// ==========================
+
+// Requer Node.js 18 ou superior.
+// A chave da API fica protegida no arquivo .env.
+
+const cacheRawg = new Map();
+
+const TEMPO_CACHE_RAWG = 5 * 60 * 1000;
+
+
+// ==========================
+// CONSULTAR A API
+// ==========================
+
+async function consultarRawg(caminho, parametros = {}) {
+
+    if (!process.env.RAWG_API_KEY) {
+
+        const erro = new Error(
+            "RAWG_API_KEY não configurada."
+        );
+
+        erro.statusLocal = 503;
+
+        throw erro;
+    }
+
+    const url = new URL(
+        `https://api.rawg.io/api/${caminho}`
+    );
+
+    url.searchParams.set(
+        "key",
+        process.env.RAWG_API_KEY
+    );
+
+    for (const [chave, valor] of Object.entries(parametros)) {
+
+        url.searchParams.set(
+            chave,
+            String(valor)
+        );
+    }
+
+    // Cache temporário para reduzir consultas à API.
+
+    const chaveCache =
+        `${caminho}:${JSON.stringify(parametros)}`;
+
+    const existente = cacheRawg.get(chaveCache);
+
+    if (existente && existente.expiraEm > Date.now()) {
+        return existente.dados;
+    }
+
+    const controlador = new AbortController();
+
+    const temporizador = setTimeout(() => {
+        controlador.abort();
+    }, 8000);
+
+    try {
+
+        const resposta = await fetch(url, {
+            signal: controlador.signal
+        });
+
+        if (!resposta.ok) {
+
+            const erro = new Error(
+                `RAWG respondeu com status ${resposta.status}`
+            );
+
+            erro.statusRawg = resposta.status;
+
+            throw erro;
+        }
+
+        const dados = await resposta.json();
+
+        if (cacheRawg.size >= 50) {
+            cacheRawg.clear();
+        }
+
+        cacheRawg.set(chaveCache, {
+            dados,
+            expiraEm: Date.now() + TEMPO_CACHE_RAWG
+        });
+
+        return dados;
+
+    } finally {
+
+        clearTimeout(temporizador);
+    }
+}
+
+
+// ==========================
+// TRATAMENTO DE ERROS
+// ==========================
+
+function tratarErroRawg(res, erro) {
+
+    if (erro.statusLocal === 503) {
+
+        return res.status(503).json({
+            mensagem:
+                "API de jogos não configurada no servidor."
+        });
+    }
+
+    if (erro.statusRawg === 404) {
+
+        return res.status(404).json({
+            mensagem: "Jogo não encontrado."
+        });
+    }
+
+    if (erro.statusRawg === 429) {
+
+        return res.status(503).json({
+            mensagem:
+                "Limite de consultas à API atingido. Tente novamente mais tarde."
+        });
+    }
+
+    console.error(
+        "Erro ao consultar RAWG:",
+        erro.message
+    );
+
+    return res.status(502).json({
+        mensagem:
+            "Não foi possível consultar o catálogo de jogos agora."
+    });
+}
+
+
+// ==========================
+// GERAR LINK DO JOGO NA RAWG
+// ==========================
+
+function linkRawg(jogo) {
+
+    return jogo && typeof jogo.slug === "string"
+
+        ? `https://rawg.io/games/${encodeURIComponent(jogo.slug)}`
+
+        : "https://rawg.io/";
+}
+
+
+// ==========================
+// PESQUISAR JOGOS OFICIAIS
+// ==========================
+
+// Exemplo:
+// GET /api/jogos-oficiais?busca=minecraft
+
+app.get("/api/jogos-oficiais", async (req, res) => {
+
+    const busca =
+        typeof req.query.busca === "string"
+            ? req.query.busca.trim()
+            : "";
+
+    if (busca.length < 2 || busca.length > 80) {
+
+        return res.status(400).json({
+            mensagem:
+                "Digite de 2 a 80 caracteres para pesquisar."
+        });
+    }
+
+    try {
+
+        const dados = await consultarRawg("games", {
+            search: busca,
+            page_size: 12,
+            page: 1
+        });
+
+        const jogos = (
+            Array.isArray(dados.results)
+                ? dados.results
+                : []
+        ).map(jogo => ({
+
+            id_externo: jogo.id,
+
+            titulo: jogo.name,
+
+            imagem: jogo.background_image || null,
+
+            genero: (jogo.genres || [])
+                .map(g => g.name)
+                .join(", "),
+
+            lancamento: jogo.released || null,
+
+            // O desenvolvedor será buscado
+            // na rota de detalhes do jogo.
+
+            criador: null,
+
+            origem: "oficial",
+
+            fonte: "RAWG",
+
+            fonte_url: linkRawg(jogo)
+
+        }));
+
+        res.json({ jogos });
+
+    } catch (erro) {
+
+        tratarErroRawg(res, erro);
+    }
+});
+
+
+// ==========================
+// DETALHES DE UM JOGO OFICIAL
+// ==========================
+
+// Exemplo:
+// GET /api/jogos-oficiais/3498
+
+app.get("/api/jogos-oficiais/:id", async (req, res) => {
+
+    const id = Number(req.params.id);
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+
+        return res.status(400).json({
+            mensagem: "ID inválido."
+        });
+    }
+
+    try {
+
+        const jogo = await consultarRawg(
+            `games/${id}`
+        );
+
+        res.json({
+
+            jogo: {
+
+                id_externo: jogo.id,
+
+                titulo: jogo.name,
+
+                descricao: jogo.description_raw || "",
+
+                imagem: jogo.background_image || null,
+
+                genero: (jogo.genres || [])
+                    .map(g => g.name)
+                    .join(", "),
+
+                desenvolvedores: (jogo.developers || [])
+                    .map(d => d.name),
+
+                publicadoras: (jogo.publishers || [])
+                    .map(p => p.name),
+
+                lancamento: jogo.released || null,
+
+                origem: "oficial",
+
+                fonte: "RAWG",
+
+                fonte_url: linkRawg(jogo)
+
+            }
+
+        });
+
+    } catch (erro) {
+
+        tratarErroRawg(res, erro);
+    }
+});
+
+// ==========================================
+// BREAK SCORE - JOGOS OFICIAIS
+// ==========================================
+
+// VALIDAR ID DO JOGO
+
+function validarIdJogoOficial(valor) {
+    const id = Number(valor);
+
+    return Number.isSafeInteger(id) && id > 0
+        ? id
+        : null;
+}
+
+
+// ==========================================
+// SALVAR OU ATUALIZAR AVALIAÇÃO
+// ==========================================
+
+app.post("/api/jogos-oficiais/:id/avaliacoes", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Faça login para avaliar este jogo."
+        });
+    }
+
+    const rawgId = validarIdJogoOficial(req.params.id);
+
+    if (!rawgId) {
+        return res.status(400).json({
+            mensagem: "ID do jogo inválido."
+        });
+    }
+
+    const categorias = [
+        "jogabilidade",
+        "historia",
+        "visual",
+        "som",
+        "originalidade"
+    ];
+
+    const notas = categorias.map(
+        categoria => Number(req.body[categoria])
+    );
+
+    const notasValidas = notas.every(
+        nota => Number.isInteger(nota) &&
+                nota >= 1 &&
+                nota <= 5
+    );
+
+    if (!notasValidas) {
+        return res.status(400).json({
+            mensagem: "Avalie todas as categorias de 1 a 5."
+        });
+    }
+
+    // MÉDIA DAS CINCO CATEGORIAS
+
+    const notaGeral = Number(
+        (
+            notas.reduce((soma, nota) => soma + nota, 0)
+            / notas.length
+        ).toFixed(2)
+    );
+
+
+    // VERIFICA O JOGO NA RAWG
+
+    let jogo;
+
+    try {
+        jogo = await consultarRawg(`games/${rawgId}`);
+    } catch (erro) {
+        return tratarErroRawg(res, erro);
+    }
+
+    if (!jogo || jogo.id !== rawgId || !jogo.name) {
+        return res.status(502).json({
+            mensagem: "Não foi possível validar o jogo."
+        });
+    }
+
+
+    try {
+
+        const banco = conexao.promise();
+
+        // REGISTRA O JOGO NO MYSQL CASO AINDA NÃO EXISTA
+
+        await banco.query(`
+            INSERT INTO jogos_oficiais
+            (
+                rawg_id,
+                titulo,
+                imagem,
+                desenvolvedor,
+                genero,
+                fonte_url
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+
+            ON DUPLICATE KEY UPDATE
+                titulo = VALUES(titulo),
+                imagem = VALUES(imagem),
+                desenvolvedor = VALUES(desenvolvedor),
+                genero = VALUES(genero),
+                fonte_url = VALUES(fonte_url)
+        `, [
+            rawgId,
+            jogo.name.slice(0, 200),
+            jogo.background_image?.slice(0, 500) || null,
+            (jogo.developers || [])
+                .map(dev => dev.name)
+                .join(", ")
+                .slice(0, 255),
+            (jogo.genres || [])
+                .map(genero => genero.name)
+                .join(", ")
+                .slice(0, 255),
+            linkRawg(jogo)
+        ]);
+
+
+        // ENCONTRA O ID INTERNO DO JOGO
+
+        const [jogos] = await banco.query(`
+            SELECT id
+            FROM jogos_oficiais
+            WHERE rawg_id = ?
+            LIMIT 1
+        `, [rawgId]);
+
+        const jogoOficialId = jogos[0].id;
+
+
+        // SALVA OU ATUALIZA A AVALIAÇÃO
+
+        await banco.query(`
+            INSERT INTO avaliacoes_oficiais
+            (
+                usuario_id,
+                jogo_oficial_id,
+                nota,
+                jogabilidade,
+                historia,
+                visual,
+                som,
+                originalidade
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+
+            ON DUPLICATE KEY UPDATE
+                nota = VALUES(nota),
+                jogabilidade = VALUES(jogabilidade),
+                historia = VALUES(historia),
+                visual = VALUES(visual),
+                som = VALUES(som),
+                originalidade = VALUES(originalidade)
+        `, [
+            req.session.usuario.id,
+            jogoOficialId,
+            notaGeral,
+            ...notas
+        ]);
+
+
+        res.json({
+            mensagem: "Avaliação salva com sucesso!",
+            nota: notaGeral,
+            breakScore: Number((notaGeral * 2).toFixed(1))
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao salvar avaliação oficial:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem: "Não foi possível salvar a avaliação."
+        });
+    }
+});
+
+
+// ==========================================
+// CONSULTAR BREAK SCORE DO JOGO
+// ==========================================
+
+app.get("/api/jogos-oficiais/:id/dna", async (req, res) => {
+
+    const rawgId = validarIdJogoOficial(req.params.id);
+
+    if (!rawgId) {
+        return res.status(400).json({
+            mensagem: "ID inválido."
+        });
+    }
+
+    try {
+
+        const [resultados] = await conexao.promise().query(`
+            SELECT
+                COUNT(a.id) AS total_avaliacoes,
+
+                ROUND(AVG(a.jogabilidade), 1) AS jogabilidade,
+                ROUND(AVG(a.historia), 1) AS historia,
+                ROUND(AVG(a.visual), 1) AS visual,
+                ROUND(AVG(a.som), 1) AS som,
+                ROUND(AVG(a.originalidade), 1) AS originalidade,
+
+                ROUND(AVG(a.nota) * 2, 1) AS break_score
+
+            FROM jogos_oficiais j
+
+            LEFT JOIN avaliacoes_oficiais a
+                ON a.jogo_oficial_id = j.id
+
+            WHERE j.rawg_id = ?
+        `, [rawgId]);
+
+        const dna = resultados[0];
+
+        res.json({
+            totalAvaliacoes: Number(dna.total_avaliacoes),
+            jogabilidade: Number(dna.jogabilidade) || 0,
+            historia: Number(dna.historia) || 0,
+            visual: Number(dna.visual) || 0,
+            som: Number(dna.som) || 0,
+            originalidade: Number(dna.originalidade) || 0,
+            breakScore: Number(dna.break_score) || 0
+        });
+
+    } catch (erro) {
+
+        console.error("Erro no Break Score oficial:", erro);
+
+        res.status(500).json({
+            mensagem: "Erro ao carregar o Break Score."
+        });
+    }
+});
+
+
+// ==========================================
+// CONSULTAR MINHA AVALIAÇÃO
+// ==========================================
+
+app.get(
+    "/api/jogos-oficiais/:id/minha-avaliacao",
+    async (req, res) => {
+
+        if (!req.session.usuario) {
+            return res.status(401).json({
+                mensagem: "Usuário não autenticado."
+            });
+        }
+
+        const rawgId =
+            validarIdJogoOficial(req.params.id);
+
+        if (!rawgId) {
+            return res.status(400).json({
+                mensagem: "ID inválido."
+            });
+        }
+
+        try {
+
+            const [resultados] = await conexao.promise().query(`
+                SELECT
+                    a.jogabilidade,
+                    a.historia,
+                    a.visual,
+                    a.som,
+                    a.originalidade
+
+                FROM avaliacoes_oficiais a
+
+                INNER JOIN jogos_oficiais j
+                    ON j.id = a.jogo_oficial_id
+
+                WHERE j.rawg_id = ?
+                AND a.usuario_id = ?
+
+                LIMIT 1
+            `, [
+                rawgId,
+                req.session.usuario.id
+            ]);
+
+            if (resultados.length === 0) {
+                return res.json({
+                    avaliou: false
+                });
+            }
+
+            res.json({
+                avaliou: true,
+                avaliacao: resultados[0]
+            });
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao buscar avaliação do usuário:",
+                erro
+            );
+
+            res.status(500).json({
+                mensagem: "Erro ao consultar sua avaliação."
+            });
+        }
+    }
+);
+
+
+// ==========================================
+// JOGOS OFICIAIS EM DESTAQUE - HOME
+// ==========================================
+
+app.get("/api/destaques-oficiais", async (req, res) => {
+
+    try {
+
+        // BUSCA OS JOGOS POPULARES NA RAWG
+
+        const dados = await consultarRawg("games", {
+            ordering: "-added",
+            page_size: 3,
+            page: 1
+        });
+
+        const lista = (
+            Array.isArray(dados.results)
+                ? dados.results
+                : []
+        ).filter(jogo =>
+            Number.isSafeInteger(jogo.id) &&
+            jogo.id > 0
+        ).slice(0, 3);
+
+
+        // OBTÉM OS DESENVOLVEDORES DE CADA JOGO
+
+        const jogos = await Promise.all(
+            lista.map(async jogo => {
+
+                let desenvolvedor =
+                    "Desenvolvedor não informado";
+
+                try {
+
+                    const detalhes = await consultarRawg(
+                        `games/${jogo.id}`
+                    );
+
+                    const nomes = (detalhes.developers || [])
+                        .map(dev => dev.name);
+
+                    if (nomes.length > 0) {
+                        desenvolvedor = nomes.join(", ");
+                    }
+
+                } catch (erro) {
+
+                    console.warn(
+                        "Não foi possível obter o desenvolvedor:",
+                        jogo.id
+                    );
+
+                }
+
+                return {
+                    id_externo: jogo.id,
+                    titulo: jogo.name,
+                    imagem: jogo.background_image || null,
+
+                    genero: (jogo.genres || [])
+                        .map(g => g.name)
+                        .join(", "),
+
+                    desenvolvedor,
+
+                    origem: "oficial",
+                    fonte: "RAWG",
+
+                    total_avaliacoes: 0,
+                    break_score: null
+                };
+
+            })
+        );
+
+
+        // CONSULTA AS AVALIAÇÕES DA BREAK TEC
+
+        if (jogos.length > 0) {
+
+            const ids = jogos.map(
+                jogo => jogo.id_externo
+            );
+
+            const marcadores = ids
+                .map(() => "?")
+                .join(", ");
+
+
+            try {
+
+                const [resultados] =
+                    await conexao.promise().query(`
+
+                        SELECT
+                            j.rawg_id,
+
+                            COUNT(a.id) AS total_avaliacoes,
+
+                            ROUND(
+                                AVG(a.nota) * 2,
+                                1
+                            ) AS break_score
+
+                        FROM jogos_oficiais j
+
+                        LEFT JOIN avaliacoes_oficiais a
+                            ON a.jogo_oficial_id = j.id
+
+                        WHERE j.rawg_id IN (${marcadores})
+
+                        GROUP BY j.rawg_id
+
+                    `, ids);
+
+
+                const avaliacoesPorJogo = new Map(
+                    resultados.map(resultado => [
+                        Number(resultado.rawg_id),
+                        resultado
+                    ])
+                );
+
+
+                jogos.forEach(jogo => {
+
+                    const avaliacao =
+                        avaliacoesPorJogo.get(jogo.id_externo);
+
+                    if (avaliacao) {
+
+                        jogo.total_avaliacoes =
+                            Number(avaliacao.total_avaliacoes);
+
+                        jogo.break_score =
+                            avaliacao.break_score === null
+                                ? null
+                                : Number(avaliacao.break_score);
+
+                    }
+
+                });
+
+            } catch (erro) {
+
+                console.error(
+                    "Erro ao consultar avaliações dos destaques:",
+                    erro
+                );
+
+            }
+
+        }
+
+
+        res.json({ jogos });
+
+
+    } catch (erro) {
+
+        tratarErroRawg(res, erro);
+
+    }
+
+});
+
+
+// ==========================================
+// FAVORITOS - JOGOS OFICIAIS
+// ==========================================
+
+
+// ==========================================
+// ADICIONAR JOGO OFICIAL AOS FAVORITOS
+// ==========================================
+
+app.post("/api/jogos-oficiais/:id/favoritos", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Faça login para favoritar este jogo."
+        });
+    }
+
+    const rawgId = Number(req.params.id);
+    const usuarioId = req.session.usuario.id;
+
+    if (!Number.isSafeInteger(rawgId) || rawgId <= 0) {
+        return res.status(400).json({
+            mensagem: "ID do jogo inválido."
+        });
+    }
+
+    try {
+
+        const banco = conexao.promise();
+
+        // VERIFICAR SE JÁ ESTÁ NOS FAVORITOS
+
+        const [favoritosExistentes] = await banco.query(`
+            SELECT f.id
+            FROM favoritos_oficiais f
+
+            INNER JOIN jogos_oficiais j
+                ON j.id = f.jogo_oficial_id
+
+            WHERE f.usuario_id = ?
+            AND j.rawg_id = ?
+
+            LIMIT 1
+        `, [usuarioId, rawgId]);
+
+        if (favoritosExistentes.length > 0) {
+            return res.json({
+                mensagem: "Este jogo já está nos favoritos.",
+                favoritado: true
+            });
+        }
+
+
+        // CONSULTAR INFORMAÇÕES DO JOGO NA RAWG
+
+        const jogo = await consultarRawg(
+            `games/${rawgId}`
+        );
+
+        if (!jogo || jogo.id !== rawgId || !jogo.name) {
+            return res.status(502).json({
+                mensagem: "Não foi possível validar o jogo."
+            });
+        }
+
+
+        // CADASTRAR O JOGO NO MYSQL, CASO NÃO EXISTA
+
+        await banco.query(`
+            INSERT INTO jogos_oficiais
+            (
+                rawg_id,
+                titulo,
+                imagem,
+                desenvolvedor,
+                genero,
+                fonte_url
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+
+            ON DUPLICATE KEY UPDATE
+                titulo = VALUES(titulo),
+                imagem = VALUES(imagem),
+                desenvolvedor = VALUES(desenvolvedor),
+                genero = VALUES(genero),
+                fonte_url = VALUES(fonte_url)
+        `, [
+            rawgId,
+            jogo.name.slice(0, 200),
+            jogo.background_image?.slice(0, 500) || null,
+
+            (jogo.developers || [])
+                .map(dev => dev.name)
+                .join(", ")
+                .slice(0, 255),
+
+            (jogo.genres || [])
+                .map(genero => genero.name)
+                .join(", ")
+                .slice(0, 255),
+
+            linkRawg(jogo)
+        ]);
+
+
+        // SALVAR O FAVORITO
+
+        const [resultado] = await banco.query(`
+            INSERT IGNORE INTO favoritos_oficiais
+                (usuario_id, jogo_oficial_id)
+
+            SELECT ?, id
+            FROM jogos_oficiais
+
+            WHERE rawg_id = ?
+        `, [usuarioId, rawgId]);
+
+
+        res.status(resultado.affectedRows > 0 ? 201 : 200).json({
+            mensagem: resultado.affectedRows > 0
+                ? "Jogo adicionado aos favoritos!"
+                : "Este jogo já está nos favoritos.",
+            favoritado: true
+        });
+
+    } catch (erro) {
+
+        if (erro.statusRawg || erro.statusLocal) {
+            return tratarErroRawg(res, erro);
+        }
+
+        console.error(
+            "Erro ao favoritar jogo oficial:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem: "Não foi possível adicionar o favorito."
+        });
+    }
+});
+
+
+// ==========================================
+// VERIFICAR SE O JOGO ESTÁ FAVORITADO
+// ==========================================
+
+app.get("/api/jogos-oficiais/:id/favoritos/status", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+    }
+
+    const rawgId = Number(req.params.id);
+
+    if (!Number.isSafeInteger(rawgId) || rawgId <= 0) {
+        return res.status(400).json({
+            mensagem: "ID inválido."
+        });
+    }
+
+    try {
+
+        const [resultados] = await conexao.promise().query(`
+            SELECT f.id
+
+            FROM favoritos_oficiais f
+
+            INNER JOIN jogos_oficiais j
+                ON j.id = f.jogo_oficial_id
+
+            WHERE f.usuario_id = ?
+            AND j.rawg_id = ?
+
+            LIMIT 1
+        `, [
+            req.session.usuario.id,
+            rawgId
+        ]);
+
+        res.json({
+            favoritado: resultados.length > 0
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao verificar favorito oficial:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem: "Erro ao verificar favorito."
+        });
+    }
+});
+
+
+// ==========================================
+// REMOVER JOGO OFICIAL DOS FAVORITOS
+// ==========================================
+
+app.delete("/api/jogos-oficiais/:id/favoritos", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+    }
+
+    const rawgId = Number(req.params.id);
+
+    if (!Number.isSafeInteger(rawgId) || rawgId <= 0) {
+        return res.status(400).json({
+            mensagem: "ID inválido."
+        });
+    }
+
+    try {
+
+        const [resultado] = await conexao.promise().query(`
+            DELETE f
+
+            FROM favoritos_oficiais f
+
+            INNER JOIN jogos_oficiais j
+                ON j.id = f.jogo_oficial_id
+
+            WHERE f.usuario_id = ?
+            AND j.rawg_id = ?
+        `, [
+            req.session.usuario.id,
+            rawgId
+        ]);
+
+        res.json({
+            mensagem: resultado.affectedRows > 0
+                ? "Jogo removido dos favoritos."
+                : "Este jogo não estava nos favoritos.",
+
+            favoritado: false
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao remover favorito oficial:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem: "Não foi possível remover o favorito."
+        });
+    }
+});
+
+
+// ==========================================
+// LISTAR FAVORITOS OFICIAIS DO USUÁRIO
+// ==========================================
+
+app.get("/api/meus-favoritos-oficiais", async (req, res) => {
+
+    if (!req.session.usuario) {
+
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+
+    }
+
+    const usuarioId = req.session.usuario.id;
+
+    try {
+
+        const [resultados] = await conexao.promise().query(`
+
+            SELECT
+                j.id,
+                j.rawg_id AS id_externo,
+                j.titulo,
+                j.imagem,
+                j.desenvolvedor,
+                j.genero,
+                'oficial' AS origem
+
+            FROM favoritos_oficiais f
+
+            INNER JOIN jogos_oficiais j
+                ON j.id = f.jogo_oficial_id
+
+            WHERE f.usuario_id = ?
+
+            ORDER BY f.id DESC
+
+        `, [usuarioId]);
+
+        res.json(resultados);
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar favoritos oficiais:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem:
+                "Não foi possível carregar os favoritos oficiais."
+        });
+
+    }
+
+});
+
+
+// ==========================================
+// CATÁLOGO DE JOGOS OFICIAIS - BREAK TEC
+// ==========================================
+
+app.get("/api/catalogo/oficiais", async (req, res) => {
+
+    // =====================================
+    // PARÂMETROS DO CATÁLOGO
+    // =====================================
+
+    const pagina = Number(req.query.pagina || 1);
+
+    const genero = String(
+        req.query.genero || "todos"
+    );
+
+    const ordenacao = String(
+        req.query.ordenacao || "popularidade"
+    );
+
+    const busca = String(
+        req.query.busca || ""
+    ).trim();
+
+
+    // VALIDAR PÁGINA
+
+    if (
+        !Number.isSafeInteger(pagina) ||
+        pagina < 1 ||
+        pagina > 1000
+    ) {
+        return res.status(400).json({
+            mensagem: "Página inválida."
+        });
+    }
+
+
+    // VALIDAR PESQUISA
+
+    if (busca.length > 80) {
+        return res.status(400).json({
+            mensagem: "Pesquisa muito longa."
+        });
+    }
+
+
+    // GÊNEROS PERMITIDOS
+
+    const generosPermitidos = [
+        "todos",
+        "action",
+        "adventure",
+        "role-playing-games-rpg",
+        "shooter",
+        "strategy",
+        "simulation",
+        "puzzle",
+        "platformer",
+        "racing"
+    ];
+
+    if (!generosPermitidos.includes(genero)) {
+        return res.status(400).json({
+            mensagem: "Gênero inválido."
+        });
+    }
+
+
+    // ORDENAÇÃO DA RAWG
+
+    const ordenacoes = {
+        popularidade: "-added",
+        recentes: "-released",
+        avaliacao: "-rating",
+        nome: "name"
+    };
+
+    if (!Object.hasOwn(ordenacoes, ordenacao)) {
+        return res.status(400).json({
+            mensagem: "Ordenação inválida."
+        });
+    }
+
+
+    // =====================================
+    // MONTAR PARÂMETROS DA RAWG
+    // =====================================
+
+    const parametros = {
+        page: pagina,
+        page_size: 12,
+        ordering: ordenacoes[ordenacao]
+    };
+
+    if (genero !== "todos") {
+        parametros.genres = genero;
+    }
+
+    if (busca.length > 0) {
+        parametros.search = busca;
+    }
+
+
+    try {
+
+        // CONSULTAR A API
+
+        const dados = await consultarRawg(
+            "games",
+            parametros
+        );
+
+
+        // =====================================
+        // ORGANIZAR OS JOGOS
+        // =====================================
+
+        const jogos = (
+            Array.isArray(dados.results)
+                ? dados.results
+                : []
+        ).map(jogo => ({
+
+            id_externo: jogo.id,
+
+            titulo: jogo.name,
+
+            imagem: jogo.background_image || null,
+
+            genero: (jogo.genres || [])
+                .map(g => g.name)
+                .join(", "),
+
+            lancamento: jogo.released || null,
+
+            desenvolvedor: null,
+
+            descricao: null,
+
+            origem: "oficial",
+
+            fonte: "RAWG",
+
+            fonte_url: linkRawg(jogo),
+
+            total_avaliacoes: 0,
+
+            break_score: null
+        }));
+
+
+        // =====================================
+        // CONSULTAR DADOS DA BREAK TEC
+        // =====================================
+
+        const ids = jogos
+            .map(jogo => Number(jogo.id_externo))
+            .filter(id =>
+                Number.isSafeInteger(id) && id > 0
+            );
+
+        if (ids.length > 0) {
+
+            const marcadores = ids
+                .map(() => "?")
+                .join(", ");
+
+
+            try {
+
+                const [resultados] =
+                    await conexao.promise().query(`
+
+                        SELECT
+                            j.rawg_id,
+                            j.desenvolvedor,
+
+                            COUNT(a.id) AS total_avaliacoes,
+
+                            ROUND(
+                                AVG(a.nota) * 2,
+                                1
+                            ) AS break_score
+
+                        FROM jogos_oficiais j
+
+                        LEFT JOIN avaliacoes_oficiais a
+                            ON a.jogo_oficial_id = j.id
+
+                        WHERE j.rawg_id IN (${marcadores})
+
+                        GROUP BY
+                            j.rawg_id,
+                            j.desenvolvedor
+
+                    `, ids);
+
+
+                const informacoes = new Map(
+                    resultados.map(item => [
+                        Number(item.rawg_id),
+                        item
+                    ])
+                );
+
+
+                // COMPLETAR DADOS DOS JOGOS
+
+                jogos.forEach(jogo => {
+
+                    const registro =
+                        informacoes.get(
+                            Number(jogo.id_externo)
+                        );
+
+                    if (!registro) return;
+
+                    jogo.desenvolvedor =
+                        registro.desenvolvedor || null;
+
+                    jogo.total_avaliacoes =
+                        Number(
+                            registro.total_avaliacoes
+                        ) || 0;
+
+                    jogo.break_score =
+                        registro.break_score === null
+                            ? null
+                            : Number(registro.break_score);
+                });
+
+
+            } catch (erro) {
+
+                console.error(
+                    "Erro ao consultar notas do catálogo:",
+                    erro
+                );
+
+                // A lista da RAWG continua disponível.
+
+            }
+        }
+
+
+        // =====================================
+        // INFORMAÇÕES DE PAGINAÇÃO
+        // =====================================
+
+        const total = Number(dados.count) || 0;
+
+        const totalPaginas = Math.ceil(total / 12);
+
+
+        res.json({
+
+            jogos,
+
+            pagina,
+
+            total,
+
+            totalPaginas,
+
+            temProxima: Boolean(dados.next),
+
+            temAnterior: Boolean(dados.previous),
+
+            genero,
+
+            ordenacao,
+
+            fonteOrdenacao: "RAWG"
+
+        });
+
+
+    } catch (erro) {
+
+        tratarErroRawg(res, erro);
+
+    }
+
+});
+
+
+
+// ==========================================
+// BREAK TEC - PERFIS PÚBLICOS
+// ==========================================
+
+// LISTAR MEMBROS QUE AUTORIZARAM
+// APARECER NA COMUNIDADE
+
+app.get("/api/usuarios/publicos", async (req, res) => {
+
+    const busca =
+        typeof req.query.busca === "string"
+            ? req.query.busca.trim()
+            : "";
+
+    const pagina = Number(req.query.pagina || 1);
+
+    const limite = 12;
+
+    if (busca.length > 60) {
+        return res.status(400).json({
+            mensagem: "Pesquisa muito longa."
+        });
+    }
+
+    if (
+        !Number.isSafeInteger(pagina) ||
+        pagina < 1 ||
+        pagina > 1000
+    ) {
+        return res.status(400).json({
+            mensagem: "Página inválida."
+        });
+    }
+
+    const inicio = (pagina - 1) * limite;
+
+    const termoBusca = `%${busca}%`;
+
+    try {
+
+        const banco = conexao.promise();
+
+        // CONTAR PERFIS PÚBLICOS
+
+        const [totais] = await banco.execute(`
+            SELECT COUNT(*) AS total
+            FROM usuarios
+            WHERE perfil_publico = 1
+            AND nome LIKE ?
+        `, [termoBusca]);
+
+
+        // BUSCAR PERFIS E ESTATÍSTICAS
+
+        const [usuarios] = await banco.execute(`
+            SELECT
+                u.id,
+                u.nome,
+                u.biografia,
+
+                (
+                    SELECT COUNT(*)
+                    FROM projetos p
+                    WHERE p.usuario_id = u.id
+                ) AS total_projetos,
+
+                (
+                    SELECT COUNT(*)
+                    FROM avaliacoes a
+                    WHERE a.usuario_id = u.id
+                )
+                +
+                (
+                    SELECT COUNT(*)
+                    FROM avaliacoes_oficiais ao
+                    WHERE ao.usuario_id = u.id
+                ) AS total_avaliacoes
+
+            FROM usuarios u
+
+            WHERE u.perfil_publico = 1
+            AND u.nome LIKE ?
+
+            ORDER BY u.nome ASC, u.id ASC
+
+            LIMIT ? OFFSET ?
+        `, [
+            termoBusca,
+            limite,
+            inicio
+        ]);
+
+
+        const total = Number(totais[0].total);
+
+        res.json({
+            usuarios: usuarios.map(usuario => ({
+                id: usuario.id,
+                nome: usuario.nome,
+                biografia: usuario.biografia,
+                total_projetos:
+                    Number(usuario.total_projetos),
+                total_avaliacoes:
+                    Number(usuario.total_avaliacoes)
+            })),
+
+            total,
+            pagina,
+            totalPaginas: Math.ceil(total / limite),
+            temProxima: pagina * limite < total
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao buscar perfis públicos:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem:
+                "Não foi possível carregar os perfis."
+        });
+
+    }
+
+});
+
+
+// ==========================================
+// CONSULTAR MINHA VISIBILIDADE
+// ==========================================
+
+app.get("/api/perfil/visibilidade", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+    }
+
+    try {
+
+        const [resultados] =
+            await conexao.promise().execute(`
+                SELECT perfil_publico
+                FROM usuarios
+                WHERE id = ?
+                LIMIT 1
+            `, [req.session.usuario.id]);
+
+
+        if (resultados.length === 0) {
+            return res.status(404).json({
+                mensagem: "Usuário não encontrado."
+            });
+        }
+
+        res.json({
+            publico:
+                resultados[0].perfil_publico === 1
+        });
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        res.status(500).json({
+            mensagem:
+                "Erro ao consultar visibilidade."
+        });
+
+    }
+
+});
+
+
+// ==========================================
+// ALTERAR MINHA VISIBILIDADE
+// ==========================================
+
+app.put("/api/perfil/visibilidade", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+    }
+
+    const { publico } = req.body;
+
+    if (typeof publico !== "boolean") {
+        return res.status(400).json({
+            mensagem:
+                "Informe true ou false para a visibilidade."
+        });
+    }
+
+    try {
+
+        const [resultado] =
+            await conexao.promise().execute(`
+                UPDATE usuarios
+                SET perfil_publico = ?
+                WHERE id = ?
+            `, [
+                publico ? 1 : 0,
+                req.session.usuario.id
+            ]);
+
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({
+                mensagem: "Usuário não encontrado."
+            });
+        }
+
+
+        res.json({
+            mensagem: publico
+                ? "Seu perfil agora está público."
+                : "Seu perfil agora está privado.",
+
+            publico
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao alterar visibilidade:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem:
+                "Não foi possível alterar a visibilidade."
+        });
+
+    }
+
+});
+
 
 //========================
 //NAO MEXER ESTA PARTE

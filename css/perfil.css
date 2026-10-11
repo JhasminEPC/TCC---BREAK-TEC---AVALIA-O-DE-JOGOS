@@ -416,3 +416,395 @@ body {
     }
 
 }
+
+/* ==========================================
+   FAVORITOS - OFICIAIS E COMUNIDADE
+========================================== */
+
+.favorito-card {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    padding: 15px;
+
+    overflow: hidden;
+
+    transition:
+        border-color 0.25s ease,
+        transform 0.25s ease;
+}
+
+.favorito-card:hover {
+    transform: translateY(-4px);
+}
+
+/* CAPA */
+
+.favorito-capa {
+    height: 155px;
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    border-radius: 8px;
+
+    background: linear-gradient(
+        135deg,
+        #47160f,
+        #160908
+    );
+
+    color: #76504a;
+
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.favorito-capa img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+/* ETIQUETAS */
+
+.favorito-origem {
+    align-self: flex-start;
+
+    padding: 6px 9px;
+
+    border-radius: 5px;
+
+    font-size: 10px;
+    font-weight: bold;
+
+    letter-spacing: 0.8px;
+}
+
+.favorito-origem.oficial {
+    color: #ff6654;
+
+    background: rgba(242, 56, 32, 0.12);
+
+    border: 1px solid rgba(242, 56, 32, 0.35);
+}
+
+.favorito-origem.comunidade {
+    color: #c6b6ff;
+
+    background: rgba(132, 105, 230, 0.12);
+
+    border: 1px solid rgba(132, 105, 230, 0.35);
+}
+
+/* TEXTO */
+
+.favorito-card h3 {
+    margin-top: 2px;
+
+    font-size: 19px;
+
+    overflow-wrap: anywhere;
+}
+
+.favorito-card .favorito-autor {
+    margin-top: 0;
+
+    color: #bbb;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+.favorito-card .favorito-descricao {
+    margin-top: 0;
+
+    color: #888;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+
+    overflow: hidden;
+}
+
+/* BOTÕES */
+
+.favorito-acoes {
+    display: flex;
+    flex-direction: column;
+
+    gap: 9px;
+
+    margin-top: auto;
+
+    padding-top: 12px;
+}
+
+.favorito-ver,
+.favorito-acoes .remover-favorito {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 41px;
+
+    padding: 10px;
+
+    border-radius: 7px;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+.favorito-ver {
+    background: #f23820;
+
+    color: white;
+
+    border: 1px solid #f23820;
+}
+
+.favorito-ver:hover {
+    background: #ff5038;
+}
+
+.favorito-acoes .remover-favorito {
+    background: transparent;
+
+    color: #ff8575;
+
+    border: 1px solid #633027;
+}
+
+.favorito-acoes .remover-favorito:hover:not(:disabled) {
+    background: #28120f;
+}
+
+.favorito-acoes .remover-favorito:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+/* MENSAGENS */
+
+.favorito-card .favorito-status {
+    color: #ff8575;
+    font-size: 12px;
+}
+
+.favoritos-aviso {
+    grid-column: 1 / -1;
+
+    padding: 15px;
+
+    color: #ffad7c;
+
+    background: #21130e;
+
+    border: 1px solid #64351e;
+    border-radius: 8px;
+
+    font-size: 13px;
+}
+
+
+/* ==========================================
+   PERFIL - CONFIGURAÇÃO DE VISIBILIDADE
+========================================== */
+
+.perfil-visibilidade {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    gap: 24px;
+
+    margin: 28px 0;
+    padding: 28px;
+
+    background: linear-gradient(
+        145deg,
+        #1d110f,
+        #100b0a
+    );
+
+    border: 1px solid #49271f;
+    border-radius: 13px;
+}
+
+.perfil-visibilidade-info {
+    flex: 1;
+    min-width: 230px;
+}
+
+.perfil-visibilidade-etiqueta {
+    display: block;
+
+    margin-bottom: 10px;
+
+    color: #ff6654;
+
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+}
+
+.perfil-visibilidade-info h2 {
+    margin-bottom: 10px;
+
+    color: #ffffff;
+
+    font-size: 21px;
+}
+
+.perfil-visibilidade-info p {
+    max-width: 570px;
+
+    color: #aaaaaa;
+
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.perfil-visibilidade-info
+.perfil-visibilidade-privacidade {
+    margin-top: 10px;
+    color: #827a77;
+    font-size: 12px;
+}
+
+/* CONTROLE */
+
+.perfil-visibilidade-controle {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 12px;
+}
+
+.perfil-visibilidade-estado {
+    color: #b9aaa5;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.perfil-visibilidade-estado.publico {
+    color: #8ce0a4;
+}
+
+.perfil-visibilidade-estado.privado {
+    color: #ffb19d;
+}
+
+/* BOTÃO */
+
+.perfil-visibilidade-botao {
+    min-height: 43px;
+
+    padding: 12px 19px;
+
+    color: #ffffff;
+    background: #b72b1c;
+
+    border: 1px solid #d53f2c;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.perfil-visibilidade-botao:hover:not(:disabled) {
+    background: #f23820;
+}
+
+.perfil-visibilidade-botao.ativo {
+    background: #35201b;
+    border-color: #765044;
+}
+
+.perfil-visibilidade-botao.ativo:hover:not(:disabled) {
+    background: #542920;
+}
+
+.perfil-visibilidade-botao:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.perfil-visibilidade-botao:focus-visible {
+    outline: 3px solid #ffad8b;
+    outline-offset: 3px;
+}
+
+/* MENSAGENS */
+
+.perfil-visibilidade-mensagem {
+    width: 100%;
+
+    color: #b9aaa5;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.perfil-visibilidade-mensagem:empty {
+    display: none;
+}
+
+.perfil-visibilidade-mensagem.erro {
+    color: #ff9587;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 650px) {
+
+    .perfil-visibilidade {
+        flex-direction: column;
+        align-items: stretch;
+
+        padding: 22px;
+    }
+
+    .perfil-visibilidade-info {
+        min-width: 0;
+    }
+
+    .perfil-visibilidade-controle {
+        align-items: stretch;
+    }
+
+    .perfil-visibilidade-botao {
+        width: 100%;
+    }
+
+}

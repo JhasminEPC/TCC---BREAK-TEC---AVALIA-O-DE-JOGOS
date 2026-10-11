@@ -1,0 +1,745 @@
+/* ==========================================
+   BREAK TEC - CATÁLOGO DE JOGOS
+========================================== */
+
+/* RESET */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    color: #ffffff;
+    background: #080606;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+
+/* ==========================================
+   CABEÇALHO
+========================================== */
+
+.catalogo-header {
+    min-height: 85px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 25px;
+
+    padding: 12px 7%;
+
+    background: linear-gradient(
+        90deg,
+        #8e1d10,
+        #4b0d08
+    );
+
+    border-bottom: 2px solid #5d150d;
+}
+
+.catalogo-logo {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    color: white;
+    text-decoration: none;
+
+    font-size: 19px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.catalogo-logo img {
+    width: 53px;
+    height: 53px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    border: 2px solid #f23820;
+}
+
+.voltar-home {
+    color: #eeeeee;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: color 0.25s ease;
+}
+
+.voltar-home:hover {
+    color: #ff9988;
+}
+
+
+/* ==========================================
+   CONTEÚDO PRINCIPAL
+========================================== */
+
+.catalogo-container {
+    width: min(90%, 1120px);
+
+    margin: 0 auto;
+
+    padding: 65px 0 90px;
+}
+
+
+/* ==========================================
+   APRESENTAÇÃO
+========================================== */
+
+.catalogo-apresentacao {
+    padding: 30px 0 40px;
+}
+
+.catalogo-tag {
+    display: block;
+
+    margin-bottom: 12px;
+
+    color: #f23820;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+}
+
+.catalogo-apresentacao h1 {
+    margin-bottom: 17px;
+
+    font-size: clamp(2.2rem, 4vw, 3.4rem);
+
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.catalogo-apresentacao p {
+    max-width: 680px;
+
+    color: #999999;
+
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+
+/* ==========================================
+   NAVEGAÇÃO ENTRE CATÁLOGOS
+========================================== */
+
+.catalogo-tipos {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-bottom: 30px;
+    padding-bottom: 25px;
+
+    border-bottom: 1px solid #34201b;
+}
+
+.catalogo-tipo {
+    min-height: 43px;
+
+    padding: 11px 18px;
+
+    color: #aaaaaa;
+    background: #17100e;
+
+    border: 1px solid #35211c;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition:
+        color 0.25s ease,
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.catalogo-tipo:hover {
+    color: #ffffff;
+
+    border-color: #b13a2b;
+}
+
+.catalogo-tipo.ativo {
+    color: #ffffff;
+
+    background: #b72b1c;
+
+    border-color: #ed4630;
+}
+
+
+/* ==========================================
+   FILTROS
+========================================== */
+
+.catalogo-filtros {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 2fr)
+        minmax(160px, 1fr)
+        minmax(160px, 1fr);
+
+    gap: 18px;
+
+    padding: 24px;
+
+    background: linear-gradient(
+        145deg,
+        #18100e,
+        #100b0a
+    );
+
+    border: 1px solid #38211b;
+    border-radius: 13px;
+}
+
+.catalogo-busca,
+.catalogo-filtro {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    min-width: 0;
+}
+
+.catalogo-filtros label {
+    color: #dddddd;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.catalogo-filtros input,
+.catalogo-filtros select {
+    width: 100%;
+    height: 44px;
+
+    padding: 0 14px;
+
+    color: #eeeeee;
+    background: #0e0908;
+
+    border: 1px solid #49302a;
+    border-radius: 8px;
+
+    outline: none;
+
+    font-size: 13px;
+
+    transition: border-color 0.25s ease;
+}
+
+.catalogo-filtros input::placeholder {
+    color: #777777;
+}
+
+.catalogo-filtros input:focus,
+.catalogo-filtros select:focus {
+    border-color: #f23820;
+}
+
+.catalogo-filtros select {
+    cursor: pointer;
+
+    color-scheme: dark;
+}
+
+
+/* ==========================================
+   RESULTADOS
+========================================== */
+
+.catalogo-resultados {
+    margin-top: 55px;
+}
+
+.catalogo-resultados-topo {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 25px;
+
+    margin-bottom: 25px;
+}
+
+.catalogo-resultados-topo h2 {
+    font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+}
+
+#catalogoQuantidade {
+    color: #999999;
+
+    font-size: 13px;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================
+   GRADE DE JOGOS
+========================================== */
+
+.catalogo-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 22px;
+}
+
+
+/* ==========================================
+   CARDS DOS JOGOS
+========================================== */
+
+.catalogo-card {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+
+    overflow: hidden;
+
+    background: linear-gradient(
+        145deg,
+        #17100e,
+        #0e0a09
+    );
+
+    border: 1px solid #34201b;
+    border-radius: 13px;
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.catalogo-card:hover {
+    transform: translateY(-5px);
+
+    border-color: #853023;
+
+    box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.35);
+}
+
+
+/* IMAGEM */
+
+.catalogo-card-imagem {
+    position: relative;
+
+    width: 100%;
+    height: 190px;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(
+        135deg,
+        #3b100a,
+        #140807
+    );
+
+    color: #84534a;
+
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.catalogo-card-imagem img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transition: transform 0.35s ease;
+}
+
+.catalogo-card:hover .catalogo-card-imagem img {
+    transform: scale(1.05);
+}
+
+
+/* ORIGEM DO JOGO */
+
+.catalogo-card-origem {
+    position: absolute;
+
+    top: 12px;
+    left: 12px;
+
+    padding: 7px 10px;
+
+    border-radius: 6px;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 0.6px;
+}
+
+.catalogo-card-origem.oficial {
+    color: #ff7967;
+
+    background: rgba(55, 13, 9, 0.92);
+
+    border: 1px solid #984033;
+}
+
+.catalogo-card-origem.comunidade {
+    color: #c6b6ff;
+
+    background: rgba(35, 23, 65, 0.92);
+
+    border: 1px solid #6650a2;
+}
+
+
+/* CONTEÚDO DO CARD */
+
+.catalogo-card-conteudo {
+    display: flex;
+    flex-direction: column;
+
+    flex: 1;
+
+    gap: 12px;
+
+    padding: 20px;
+}
+
+.catalogo-card-genero {
+    color: #f23820;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    line-height: 1.5;
+
+    text-transform: uppercase;
+}
+
+.catalogo-card-conteudo h3 {
+    color: #ffffff;
+
+    font-size: 19px;
+
+    overflow-wrap: anywhere;
+}
+
+.catalogo-card-autor {
+    color: #aaaaaa;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+.catalogo-card-descricao {
+    color: #858585;
+
+    font-size: 12px;
+
+    line-height: 1.7;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+
+    overflow: hidden;
+}
+
+
+/* LINK PARA A PÁGINA DO JOGO */
+
+.catalogo-card-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    margin-top: auto;
+
+    padding: 12px;
+
+    color: #ffffff;
+    background: #b72b1c;
+
+    border-radius: 7px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition: background 0.25s ease;
+}
+
+.catalogo-card-link:hover {
+    background: #f23820;
+}
+
+
+/* ==========================================
+   CARREGAMENTO E ESTADOS VAZIOS
+========================================== */
+
+.catalogo-carregando,
+.catalogo-vazio,
+.catalogo-erro {
+    grid-column: 1 / -1;
+
+    padding: 65px 25px;
+
+    color: #999999;
+
+    text-align: center;
+
+    font-size: 14px;
+    line-height: 1.7;
+
+    background: #110b0a;
+
+    border: 1px dashed #493027;
+    border-radius: 12px;
+}
+
+.catalogo-erro {
+    color: #ff9988;
+}
+
+
+/* ==========================================
+   PAGINAÇÃO
+========================================== */
+
+.catalogo-paginacao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 25px;
+
+    margin-top: 45px;
+}
+
+.catalogo-paginacao button {
+    min-height: 42px;
+
+    padding: 12px 20px;
+
+    color: #ffffff;
+    background: #1c110f;
+
+    border: 1px solid #5b2b22;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.catalogo-paginacao button:hover:not(:disabled) {
+    background: #a82a1c;
+
+    border-color: #f23820;
+}
+
+.catalogo-paginacao button:disabled {
+    opacity: 0.35;
+
+    cursor: not-allowed;
+}
+
+#catalogoPagina {
+    color: #bbbbbb;
+
+    font-size: 13px;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================
+   ATRIBUIÇÃO DA RAWG
+========================================== */
+
+.catalogo-fonte {
+    margin-top: 45px;
+
+    color: #777777;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+
+    text-align: right;
+}
+
+.catalogo-fonte a {
+    color: #f23820;
+
+    text-decoration: none;
+}
+
+.catalogo-fonte a:hover {
+    text-decoration: underline;
+}
+
+
+/* ==========================================
+   RESPONSIVIDADE
+========================================== */
+
+@media (max-width: 950px) {
+
+    .catalogo-filtros {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .catalogo-busca {
+        grid-column: 1 / -1;
+    }
+
+    .catalogo-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+
+    .catalogo-header {
+        padding: 14px 5%;
+    }
+
+    .catalogo-container {
+        padding: 35px 0 65px;
+    }
+
+    .catalogo-apresentacao {
+        padding: 20px 0 30px;
+    }
+
+    .catalogo-filtros {
+        grid-template-columns: 1fr;
+
+        padding: 18px;
+    }
+
+    .catalogo-busca {
+        grid-column: auto;
+    }
+
+    .catalogo-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .catalogo-card-imagem {
+        height: 210px;
+    }
+
+    .catalogo-resultados-topo {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .catalogo-paginacao {
+        gap: 12px;
+    }
+
+    .catalogo-paginacao button {
+        padding: 10px 13px;
+    }
+}
+
+@media (max-width: 400px) {
+
+    .catalogo-logo {
+        font-size: 15px;
+    }
+
+    .catalogo-logo img {
+        width: 43px;
+        height: 43px;
+    }
+
+    .voltar-home {
+        font-size: 11px;
+    }
+
+    .catalogo-tipo {
+        width: 100%;
+    }
+}
+
+/* BREAK SCORE DOS CARDS */
+
+.catalogo-card-score {
+    color: #ffae69;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    line-height: 1.5;
+
+    margin-top: auto;
+}

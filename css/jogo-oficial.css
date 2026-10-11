@@ -1,0 +1,922 @@
+/* ==========================
+   RESET E CONFIGURAÇÕES
+========================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #080606;
+    color: #ffffff;
+    min-height: 100vh;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+
+/* ==========================
+   CABEÇALHO
+========================== */
+
+.jogo-header {
+    width: 100%;
+    min-height: 85px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 25px;
+    padding: 15px 7%;
+
+    background: linear-gradient(
+        90deg,
+        #8e1d10,
+        #4b0d08
+    );
+
+    border-bottom: 2px solid #5d150d;
+}
+
+/* LOGOTIPO */
+
+.jogo-logo {
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+
+    color: #ffffff;
+    text-decoration: none;
+
+    font-size: 20px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.jogo-logo img {
+    width: 55px;
+    height: 55px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    border: 2px solid #f23820;
+}
+
+/* VOLTAR */
+
+.voltar-home {
+    color: #ffffff;
+    text-decoration: none;
+
+    font-size: 14px;
+
+    transition: color 0.25s ease;
+}
+
+.voltar-home:hover {
+    color: #ff9988;
+}
+
+
+/* ==========================
+   CONTEÚDO PRINCIPAL
+========================== */
+
+.jogo-container {
+    width: min(90%, 1120px);
+
+    margin: 0 auto;
+
+    padding: 65px 0 90px;
+}
+
+
+/* ==========================
+   CARREGAMENTO E ERROS
+========================== */
+
+.jogo-carregando,
+.jogo-erro {
+    padding: 65px 25px;
+
+    text-align: center;
+
+    background: #130d0c;
+
+    border: 1px solid #34201c;
+    border-radius: 14px;
+
+    color: #aaaaaa;
+
+    font-size: 15px;
+}
+
+.jogo-erro {
+    color: #ff8575;
+    border-color: #65251c;
+}
+
+
+/* ==========================
+   APRESENTAÇÃO DO JOGO
+========================== */
+
+.jogo-apresentacao {
+    display: grid;
+
+    grid-template-columns: 350px minmax(0, 1fr);
+
+    align-items: start;
+
+    gap: 50px;
+}
+
+
+/* CAPA DO JOGO */
+
+.jogo-capa {
+    width: 100%;
+    height: 400px;
+
+    overflow: hidden;
+
+    background: linear-gradient(
+        145deg,
+        #35100b,
+        #100706
+    );
+
+    border: 1px solid #4a2019;
+    border-radius: 16px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.jogo-capa img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+
+/* INFORMAÇÕES PRINCIPAIS */
+
+.jogo-detalhes {
+    min-width: 0;
+
+    padding-top: 10px;
+}
+
+.jogo-origem {
+    display: inline-block;
+
+    padding: 7px 11px;
+
+    background: rgba(242, 56, 32, 0.12);
+
+    border: 1px solid rgba(242, 56, 32, 0.30);
+    border-radius: 6px;
+
+    color: #ff634f;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    letter-spacing: 1px;
+}
+
+.jogo-detalhes h1 {
+    margin: 20px 0 35px;
+
+    font-size: clamp(2.1rem, 4vw, 3.4rem);
+
+    line-height: 1.12;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ==========================
+   METADADOS
+========================== */
+
+.jogo-metadados {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 25px;
+}
+
+.jogo-metadados > div {
+    min-width: 0;
+
+    padding-bottom: 18px;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.08);
+}
+
+.jogo-metadados span {
+    display: block;
+
+    margin-bottom: 9px;
+
+    color: #888888;
+
+    font-size: 12px;
+}
+
+.jogo-metadados strong {
+    display: block;
+
+    color: #eeeeee;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    line-height: 1.5;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ==========================
+   DESCRIÇÃO
+========================== */
+
+.jogo-descricao-section {
+    margin-top: 65px;
+
+    padding: 35px;
+
+    background: linear-gradient(
+        145deg,
+        #17100e,
+        #0e0a09
+    );
+
+    border: 1px solid #2b1713;
+    border-radius: 14px;
+}
+
+.section-tag {
+    display: block;
+
+    margin-bottom: 12px;
+
+    color: #f23820;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    letter-spacing: 1.5px;
+}
+
+.jogo-descricao-section h2,
+.jogo-avaliacoes-section h2 {
+    margin-bottom: 20px;
+
+    font-size: clamp(1.6rem, 2.5vw, 2rem);
+}
+
+.jogo-descricao-section p {
+    color: #aaaaaa;
+
+    font-size: 14px;
+    line-height: 1.9;
+
+    white-space: pre-line;
+}
+
+
+/* ==========================
+   AVALIAÇÕES
+========================== */
+
+.jogo-avaliacoes-section {
+    margin-top: 35px;
+
+    padding: 35px;
+
+    background: #100b0a;
+
+    border: 1px solid #2b1713;
+    border-radius: 14px;
+}
+
+.jogo-avaliacoes-section > p {
+    max-width: 700px;
+
+    color: #999999;
+
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.jogo-avaliacao-placeholder {
+    margin-top: 25px;
+
+    padding: 35px 20px;
+
+    text-align: center;
+
+    color: #777777;
+
+    background: rgba(242, 56, 32, 0.04);
+
+    border: 1px dashed #482019;
+    border-radius: 10px;
+
+    font-size: 13px;
+}
+
+
+/* ==========================
+   FONTE DOS DADOS
+========================== */
+
+.jogo-fonte {
+    margin-top: 35px;
+
+    color: #777777;
+
+    font-size: 12px;
+
+    text-align: right;
+
+    line-height: 1.6;
+}
+
+.jogo-fonte a {
+    color: #f23820;
+
+    text-decoration: none;
+}
+
+.jogo-fonte a:hover {
+    text-decoration: underline;
+}
+
+
+/* ==========================
+   RESPONSIVIDADE
+========================== */
+
+@media (max-width: 900px) {
+
+    .jogo-apresentacao {
+        grid-template-columns: 280px minmax(0, 1fr);
+        gap: 30px;
+    }
+
+    .jogo-capa {
+        height: 340px;
+    }
+}
+
+@media (max-width: 700px) {
+
+    .jogo-header {
+        padding: 15px 5%;
+    }
+
+    .jogo-container {
+        padding: 40px 0 65px;
+    }
+
+    .jogo-apresentacao {
+        grid-template-columns: 1fr;
+
+        gap: 25px;
+    }
+
+    .jogo-capa {
+        max-width: 430px;
+
+        height: 300px;
+    }
+
+    .jogo-detalhes h1 {
+        margin-bottom: 25px;
+    }
+
+    .jogo-descricao-section,
+    .jogo-avaliacoes-section {
+        padding: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .jogo-logo {
+        font-size: 16px;
+    }
+
+    .jogo-logo img {
+        width: 43px;
+        height: 43px;
+    }
+
+    .voltar-home {
+        font-size: 12px;
+    }
+
+    .jogo-metadados {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .jogo-capa {
+        height: 250px;
+    }
+}
+
+/* IMAGEM INDISPONÍVEL */
+
+.jogo-sem-capa {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: linear-gradient(
+        135deg,
+        #35100b,
+        #100706
+    );
+
+    color: #a88b85;
+
+    font-size: 14px;
+    text-align: center;
+}
+
+/* =====================================
+   BREAK SCORE - JOGOS OFICIAIS
+===================================== */
+
+/* RESUMO DA PONTUAÇÃO */
+
+.break-score-resumo {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+
+    margin-top: 30px;
+    padding: 28px;
+
+    background: linear-gradient(
+        135deg,
+        #24100d,
+        #140c0a
+    );
+
+    border: 1px solid #58251b;
+    border-radius: 12px;
+}
+
+.break-score-valor {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+
+    white-space: nowrap;
+}
+
+.break-score-valor strong {
+    color: #f23820;
+    font-size: 3.5rem;
+    line-height: 1;
+}
+
+.break-score-valor span {
+    color: #a58b85;
+    font-size: 1.2rem;
+}
+
+.break-score-detalhes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.break-score-detalhes strong {
+    font-size: 16px;
+}
+
+.break-score-detalhes span {
+    color: #999;
+    font-size: 13px;
+}
+
+
+/* =====================================
+   DNA DO JOGO
+===================================== */
+
+.jogo-dna {
+    margin-top: 35px;
+    padding-top: 30px;
+
+    border-top: 1px solid #35201b;
+}
+
+.jogo-dna h3 {
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.jogo-dna > p {
+    margin-bottom: 23px;
+
+    color: #999;
+    font-size: 13px;
+}
+
+.dna-categorias {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.dna-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    min-height: 105px;
+    padding: 18px 10px;
+
+    background: #1b1110;
+
+    border: 1px solid #38201b;
+    border-radius: 10px;
+
+    text-align: center;
+}
+
+.dna-item span {
+    color: #a9a09d;
+    font-size: 12px;
+}
+
+.dna-item strong {
+    color: #f23820;
+    font-size: 1.6rem;
+}
+
+
+/* =====================================
+   FORMULÁRIO DE AVALIAÇÃO
+===================================== */
+
+.avaliacao-usuario {
+    margin-top: 35px;
+    padding-top: 30px;
+
+    border-top: 1px solid #35201b;
+}
+
+.avaliacao-usuario h3 {
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.avaliacao-usuario > p {
+    color: #999;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.avaliacao-status {
+    margin-top: 16px;
+    color: #a9a09d;
+    font-size: 13px;
+}
+
+
+/* USUÁRIO NÃO LOGADO */
+
+#avaliacaoLogin {
+    margin-top: 20px;
+    padding: 24px;
+
+    background: #1b1110;
+
+    border: 1px solid #38201b;
+    border-radius: 10px;
+}
+
+#avaliacaoLogin p {
+    margin-bottom: 18px;
+    color: #bbb;
+    font-size: 13px;
+}
+
+.avaliacao-login-link {
+    display: inline-block;
+    padding: 12px 20px;
+
+    background: #f23820;
+    color: #fff;
+
+    border-radius: 8px;
+
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+
+    transition: background 0.25s ease;
+}
+
+.avaliacao-login-link:hover {
+    background: #ff5038;
+}
+
+
+/* CATEGORIAS */
+
+#avaliacaoOficialForm {
+    margin-top: 24px;
+}
+
+.avaliacao-categoria {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+    padding: 17px 0;
+
+    border-bottom: 1px solid #35201b;
+}
+
+.avaliacao-categoria > span {
+    color: #ddd;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ESTRELAS */
+
+.avaliacao-estrelas {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.avaliacao-estrelas button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+    padding: 0;
+
+    background: transparent;
+
+    border: none;
+
+    color: #62514d;
+    font-size: 28px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.avaliacao-estrelas button:hover {
+    transform: scale(1.15);
+}
+
+.avaliacao-estrelas button.ativa {
+    color: #ffad33;
+}
+
+.avaliacao-estrelas button:focus-visible {
+    outline: 2px solid #ffad33;
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+
+/* BOTÃO DE ENVIO */
+
+.enviar-avaliacao-oficial {
+    margin-top: 28px;
+    padding: 15px 26px;
+
+    background: #f23820;
+
+    border: none;
+    border-radius: 9px;
+
+    color: #fff;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        transform 0.25s ease;
+}
+
+.enviar-avaliacao-oficial:hover:not(:disabled) {
+    background: #ff5038;
+    transform: translateY(-2px);
+}
+
+.enviar-avaliacao-oficial:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+/* =====================================
+   RESPONSIVIDADE
+===================================== */
+
+@media (max-width: 850px) {
+
+    .dna-categorias {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .break-score-resumo {
+        padding: 20px;
+        gap: 18px;
+    }
+
+    .break-score-valor strong {
+        font-size: 2.7rem;
+    }
+
+    .dna-categorias {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .avaliacao-categoria {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .avaliacao-estrelas button {
+        width: 36px;
+        height: 36px;
+    }
+
+    .enviar-avaliacao-oficial {
+        width: 100%;
+    }
+
+}
+
+/* =====================================
+   FAVORITOS DOS JOGOS OFICIAIS
+===================================== */
+
+.jogo-favoritos {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 10px;
+
+    margin: -10px 0 30px;
+}
+
+/* BOTÃO PRINCIPAL */
+
+.favorito-oficial-botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    padding: 12px 20px;
+
+    background: #1d1110;
+
+    border: 1px solid #633027;
+    border-radius: 9px;
+
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        transform 0.25s ease;
+}
+
+.favorito-oficial-botao:hover:not(:disabled) {
+    background: #301713;
+
+    border-color: #f23820;
+
+    transform: translateY(-2px);
+}
+
+/* CORAÇÃO */
+
+.favorito-coracao {
+    color: #f23820;
+
+    font-size: 24px;
+    line-height: 1;
+}
+
+/* QUANDO ESTIVER FAVORITADO */
+
+.favorito-oficial-botao.favoritado {
+    background: rgba(242, 56, 32, 0.13);
+
+    border-color: #f23820;
+
+    color: #ffb3a8;
+}
+
+.favorito-oficial-botao.favoritado
+.favorito-coracao {
+    color: #ff4d38;
+}
+
+/* BOTÃO DESABILITADO */
+
+.favorito-oficial-botao:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* LINK DE LOGIN */
+
+.favorito-oficial-login {
+    display: inline-block;
+
+    padding: 12px 20px;
+
+    color: #ffffff;
+    background: #261410;
+
+    border: 1px solid #633027;
+    border-radius: 9px;
+
+    text-decoration: none;
+    font-size: 13px;
+
+    transition: background 0.25s ease;
+}
+
+.favorito-oficial-login:hover {
+    background: #402018;
+}
+
+/* MENSAGENS */
+
+.favorito-oficial-status {
+    color: #a9a09d;
+
+    font-size: 12px;
+    line-height: 1.5;
+}

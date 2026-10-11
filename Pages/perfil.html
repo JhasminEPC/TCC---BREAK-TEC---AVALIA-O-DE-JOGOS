@@ -119,6 +119,67 @@
         </section>
 
 
+<!-- ====================================
+     VISIBILIDADE DO PERFIL
+==================================== -->
+
+<section
+    class="perfil-visibilidade"
+    aria-labelledby="perfilVisibilidadeTitulo"
+>
+
+    <div class="perfil-visibilidade-info">
+
+        <span class="perfil-visibilidade-etiqueta">
+            COMUNIDADE BREAK TEC
+        </span>
+
+        <h2 id="perfilVisibilidadeTitulo">
+            Visibilidade do perfil
+        </h2>
+
+        <p>
+            Escolha se outros jogadores poderão encontrar
+            e visualizar seu perfil na comunidade.
+        </p>
+
+        <p class="perfil-visibilidade-privacidade">
+            Seu e-mail, senha e favoritos privados
+            não serão exibidos publicamente.
+        </p>
+
+    </div>
+
+    <div class="perfil-visibilidade-controle">
+
+        <span
+            id="perfilVisibilidadeEstado"
+            class="perfil-visibilidade-estado"
+        >
+            Verificando...
+        </span>
+
+        <button
+            type="button"
+            id="perfilVisibilidadeBotao"
+            class="perfil-visibilidade-botao"
+            aria-pressed="false"
+            disabled
+        >
+            Carregando...
+        </button>
+
+    </div>
+
+    <p
+        id="perfilVisibilidadeMensagem"
+        class="perfil-visibilidade-mensagem"
+        role="status"
+        aria-live="polite"
+    ></p>
+
+</section>
+
 
         <!-- ESTATÍSTICAS -->
 
@@ -331,6 +392,7 @@
 
 
     <script src="../js/perfil.js"></script>
+    <script src="../js/perfil-publico.js"></script>
 
 </body>
 

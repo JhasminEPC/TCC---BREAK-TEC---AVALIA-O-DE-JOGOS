@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Catálogo de Jogos | Break Tec</title>
+
+    <link rel="stylesheet" href="../css/catalogo.css">
+</head>
+
+<body>
+
+    <!-- CABEÇALHO -->
+
+    <header class="catalogo-header">
+
+        <a href="../index.html" class="catalogo-logo">
+            <img
+                src="../assets/logotipo.jpg"
+                alt="Logotipo Break Tec"
+            >
+
+            <span>BREAKTEC</span>
+        </a>
+
+        <a href="../index.html" class="voltar-home">
+            ← Voltar ao início
+        </a>
+
+    </header>
+
+
+    <main class="catalogo-container">
+
+        <!-- APRESENTAÇÃO -->
+
+        <section class="catalogo-apresentacao">
+
+            <span class="catalogo-tag">
+                EXPLORE A BREAK TEC
+            </span>
+
+            <h1>Catálogo de jogos</h1>
+
+            <p>
+                Descubra jogos oficiais e projetos da comunidade.
+                Explore gêneros, encontre novas experiências
+                e compartilhe suas avaliações.
+            </p>
+
+        </section>
+
+
+        <!-- TIPOS DE JOGOS -->
+
+        <nav class="catalogo-tipos" aria-label="Tipos de jogos">
+
+            <button
+                type="button"
+                class="catalogo-tipo ativo"
+                data-tipo="todos"
+                aria-pressed="true"
+            >
+                Todos os jogos
+            </button>
+
+            <button
+                type="button"
+                class="catalogo-tipo"
+                data-tipo="oficial"
+                aria-pressed="false"
+            >
+                Jogos oficiais
+            </button>
+
+            <button
+                type="button"
+                class="catalogo-tipo"
+                data-tipo="comunidade"
+                aria-pressed="false"
+            >
+                Projetos da comunidade
+            </button>
+
+        </nav>
+
+
+        <!-- FILTROS -->
+
+        <section
+            class="catalogo-filtros"
+            id="categorias"
+            aria-label="Filtros do catálogo"
+        >
+
+            <div class="catalogo-busca">
+
+                <label for="catalogoPesquisa">
+                    Pesquisar jogos
+                </label>
+
+                <input
+                    type="search"
+                    id="catalogoPesquisa"
+                    placeholder="Nome, gênero ou desenvolvedor..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <div class="catalogo-filtro">
+
+                <label for="catalogoGenero">
+                    Gênero
+                </label>
+
+                <select id="catalogoGenero">
+
+                    <option value="todos">
+                        Todos os gêneros
+                    </option>
+
+                    <option value="action">Ação</option>
+                    <option value="adventure">Aventura</option>
+                    <option value="role-playing-games-rpg">RPG</option>
+                    <option value="shooter">Tiro</option>
+                    <option value="strategy">Estratégia</option>
+                    <option value="simulation">Simulação</option>
+                    <option value="puzzle">Puzzle</option>
+                    <option value="platformer">Plataforma</option>
+                    <option value="racing">Corrida</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="catalogo-filtro">
+
+                <label for="catalogoOrdenacao">
+                    Ordenar por
+                </label>
+
+                <select id="catalogoOrdenacao">
+
+                    <option value="popularidade">
+                        Mais populares
+                    </option>
+
+                    <option value="recentes">
+                        Mais recentes
+                    </option>
+
+                    <option value="avaliacao">
+                        Melhor avaliados
+                    </option>
+
+                    <option value="nome">
+                        Nome (A–Z)
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <!-- RESULTADOS -->
+
+        <section class="catalogo-resultados">
+
+            <div class="catalogo-resultados-topo">
+
+                <div>
+
+                    <span class="catalogo-tag">
+                        DESCUBRA
+                    </span>
+
+                    <h2>Explore os jogos</h2>
+
+                </div>
+
+                <span id="catalogoQuantidade">
+                    Carregando...
+                </span>
+
+            </div>
+
+
+            <!-- CARDS GERADOS PELO JAVASCRIPT -->
+
+            <div
+                class="catalogo-grid"
+                id="catalogoGrid"
+                aria-live="polite"
+            >
+
+                <div class="catalogo-carregando">
+                    Carregando catálogo de jogos...
+                </div>
+
+            </div>
+
+
+            <!-- PAGINAÇÃO -->
+
+            <nav
+                class="catalogo-paginacao"
+                aria-label="Páginas do catálogo"
+            >
+
+                <button
+                    type="button"
+                    id="catalogoAnterior"
+                    disabled
+                >
+                    ← Anterior
+                </button>
+
+                <span id="catalogoPagina">
+                    Página 1
+                </span>
+
+                <button
+                    type="button"
+                    id="catalogoProximo"
+                    disabled
+                >
+                    Próxima →
+                </button>
+
+            </nav>
+
+        </section>
+
+        <!-- ATRIBUIÇÃO DA API -->
+
+        <p class="catalogo-fonte">
+            Informações dos jogos oficiais fornecidas pela
+            <a
+                href="https://rawg.io/"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                RAWG
+            </a>.
+        </p>
+
+    </main>
+
+
+    <script src="../js/catalogo.js"></script>
+
+</body>
+</html>

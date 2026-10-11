@@ -12,8 +12,116 @@
 
 <body>
 
+<!-- ==========================
+    MENU LATERAL - CATÁLOGO
+=========================== -->
+
+<div
+    class="catalog-overlay"
+    id="catalogOverlay"
+    hidden
+></div>
+
+<aside
+    class="catalog-sidebar"
+    id="catalogSidebar"
+    aria-label="Menu do catálogo"
+    aria-hidden="true"
+    inert
+>
+
+    <div class="catalog-sidebar-header">
+
+        <strong>
+            BREAK <span>TEC</span>
+        </strong>
+
+        <button
+            type="button"
+            class="catalog-close"
+            id="catalogClose"
+            aria-label="Fechar menu"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <nav class="catalog-sidebar-nav"
+         aria-label="Navegação do catálogo">
+
+        <span class="catalog-sidebar-title">
+            CATÁLOGO
+        </span>
+
+        <a href="Pages/catalogo.html">
+            Todos os jogos
+        </a>
+
+        <a href="Pages/catalogo.html?tipo=oficial">
+            Jogos oficiais
+        </a>
+
+        <a href="Pages/catalogo.html?tipo=comunidade">
+            Projetos da comunidade
+        </a>
+
+
+        <div class="catalog-sidebar-divider"></div>
+
+
+  <!-- EXPLORAR -->
+
+        <span class="catalog-sidebar-title">
+         EXPLORAR
+        </span>
+
+        <a href="Pages/quiz.html">
+          Quiz
+        </a>
+
+        <a href="Pages/ranking.html">
+          Mais bem avaliados
+        </a>
+
+        <div class="catalog-sidebar-divider"></div>
+
+
+    <!-- COMUNIDADE -->
+
+       <span class="catalog-sidebar-title">
+        COMUNIDADE
+       </span>
+
+       <a href="Pages/usuarios.html">
+        Explorar perfis
+       </a>
+
+    </nav>
+
+    <div class="catalog-sidebar-footer">
+        Explore, descubra e avalie.
+    </div>
+
+</aside>
+
     <!-- CABEÇALHO -->
     <header class="header">
+
+    <!-- MENU LATERAL DO CATÁLOGO -->
+
+    <button
+      type="button"
+      class="catalog-menu-button"
+      id="catalogMenuButton"
+      aria-label="Abrir menu do catálogo"
+      aria-controls="catalogSidebar"
+      aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+    </button>
 
         <div class="logo">
             <div class="logo-icon">
@@ -62,14 +170,18 @@
 
       <div class="header-actions">
         <!--AREA DE PESQUISA-->
-        <div class="search-container">
+    <div class="search-container">
 
     <input
-        type="search"
-        class="search-input"
-        id="searchInput"
-        placeholder="Pesquisar..."
-        aria-label="Pesquisar no site"
+    type="search"
+    class="search-input"
+    id="searchInput"
+    placeholder="Pesquisar jogos e projetos..."
+    aria-label="Pesquisar jogos oficiais e projetos da comunidade"
+    aria-controls="searchResults"
+    aria-expanded="false"
+    autocomplete="off"
+    maxlength="80"
     >
 
     <button
@@ -84,6 +196,47 @@
             aria-hidden="true"
         >
     </button>
+
+    <!-- RESULTADOS DA PESQUISA -->
+
+<div class="search-results" id="searchResults" hidden>
+
+    <div class="search-results-topo">
+
+        <strong id="searchResultsTitle">
+            Resultados
+        </strong>
+
+        <button
+            type="button"
+            class="search-results-close"
+            id="searchResultsClose"
+            aria-label="Fechar resultados"
+        >
+            ×
+        </button>
+
+    </div>
+
+    <div
+        class="search-results-content"
+        id="searchResultsContent"
+        role="status"
+        aria-live="polite"
+    ></div>
+
+    <div class="search-results-rodape">
+        Jogos oficiais via
+        <a
+            href="https://rawg.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            RAWG
+        </a>
+    </div>
+
+</div>
 
 </div>
 
@@ -241,14 +394,10 @@
                 DESCUBRA
             </span>
 
-            <h2>
-                Projetos em destaque
-            </h2>
+            <h2>Jogos e projetos em destaque</h2>
 
-            <p>
-                Conheça jogos e projetos criados
-                pela comunidade Break Tec.
-            </p>
+            <p>Explore grandes títulos e descubra
+               projetos criados pela comunidade Break Tec.</p>
         </div>
 
         <button
@@ -532,10 +681,252 @@
 
 </section>
 
-    <section class="placeholder" id="sobre">
-        <h2>Sobre</h2>
-        <p>Conheça a Break Tec.</p>
-    </section>
+    <!-- ==========================
+     SOBRE
+========================== -->
+
+<section class="sobre-section" id="sobre">
+
+    <div class="sobre-container">
+
+        <div class="sobre-conteudo">
+
+            <span class="section-tag">
+                SOBRE A BREAK TEC
+            </span>
+
+            <h2>
+                Um espaço para projetos,
+                ideias e experiências.
+            </h2>
+
+            <p class="sobre-descricao">
+                A Break Tec é um grupo de desenvolvedores,
+                prontos para entregar um bom projeto, e um site
+                satisfatório o suficiente para agradar os usuários
+                que acessarem essa nossa plataforma.
+            </p>
+
+            <p class="sobre-descricao">
+                Aqui, projetos podem ser descobertos,
+                avaliados e compartilhados com a comunidade,
+                ajudando criadores a receber feedback e
+                novas ideias para seus trabalhos.
+            </p>
+
+        </div>
+
+
+        <div class="sobre-pilares">
+
+            <article class="sobre-pilar">
+
+                <span class="sobre-numero">
+                    01
+                </span>
+
+                <div>
+                    <h3>Descobrir</h3>
+
+                    <p>
+                        Conheça novos projetos e explore
+                        diferentes ideias criadas pela
+                        comunidade.
+                    </p>
+                </div>
+
+            </article>
+
+
+            <article class="sobre-pilar">
+
+                <span class="sobre-numero">
+                    02
+                </span>
+
+                <div>
+                    <h3>Avaliar</h3>
+
+                    <p>
+                        Compartilhe sua opinião através
+                        do Break Score e ajude outros
+                        projetos e desenvolvedores a evoluírem.
+                    </p>
+                </div>
+
+            </article>
+
+
+            <article class="sobre-pilar">
+
+                <span class="sobre-numero">
+                    03
+                </span>
+
+                <div>
+                    <h3>Criar</h3>
+
+                    <p>
+                        Publique seus próprios projetos
+                        e apresente suas ideias para
+                        toda a comunidade.
+                    </p>
+                </div>
+
+            </article>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================
+     EQUIPE
+========================== -->
+
+<div class="equipe-container">
+
+    <div class="equipe-header">
+
+        <span class="section-tag">
+            NOSSA EQUIPE
+        </span>
+
+        <h3>
+            Quem desenvolveu a Break Tec
+        </h3>
+
+    </div>
+
+
+    <div class="equipe-lista">
+
+        <article class="membro-card">
+            <div class="membro-avatar">01</div>
+
+            <div class="membro-info">
+                <strong>Gabrielly</strong>
+                <span>Desenvolvedora</span>
+            </div>
+        </article>
+
+
+        <article class="membro-card">
+            <div class="membro-avatar">02</div>
+
+            <div class="membro-info">
+                <strong>Jhasmin</strong>
+                <span>Desenvolvedor</span>
+            </div>
+        </article>
+
+
+        <article class="membro-card">
+            <div class="membro-avatar">03</div>
+
+            <div class="membro-info">
+                <strong>Laryssa</strong>
+                <span>Desenvolvedora</span>
+            </div>
+        </article>
+
+
+        <article class="membro-card">
+            <div class="membro-avatar">04</div>
+
+            <div class="membro-info">
+                <strong>Kamilly</strong>
+                <span>Colaboradora</span>
+            </div>
+        </article>
+
+
+        <article class="membro-card">
+            <div class="membro-avatar">05</div>
+
+            <div class="membro-info">
+                <strong>Nathalia</strong>
+                <span>Colaboradora</span>
+            </div>
+        </article>
+
+
+        <article class="membro-card">
+            <div class="membro-avatar">06</div>
+
+            <div class="membro-info">
+                <strong>Raphael</strong>
+                <span>Colaborador</span>
+            </div>
+        </article>
+
+
+        <article class="membro-card">
+            <div class="membro-avatar">07</div>
+
+            <div class="membro-info">
+                <strong>Matheus S.</strong>
+                <span>Colaborador</span>
+            </div>
+        </article>
+
+    </div>
+
+</div>
+
+</section>
+
+    </main>
+
+<!-- ==========================
+     RODAPÉ
+========================== -->
+
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <div class="footer-principal">
+
+            <div class="footer-marca">
+                <h3>BREAK <span>TEC</span></h3>
+
+                <p>
+                    Um espaço para descobrir, compartilhar
+                    e avaliar projetos de jogos independentes.
+                </p>
+            </div>
+
+            <div class="footer-links">
+                <h4>Explorar</h4>
+
+                <a href="#inicio">Início</a>
+                <a href="#projetos">Projetos</a>
+                <a href="#avaliacoes">Avaliações</a>
+                <a href="#comunidade">Comunidade</a>
+            </div>
+
+            <div class="footer-links">
+                <h4>Plataforma</h4>
+
+                <a href="#conteudos">Conteúdos</a>
+                <a href="#sobre">Sobre nós</a>
+                <a href="pages/login.html">Entrar</a>
+                <a href="pages/cadastro.html">Criar conta</a>
+            </div>
+
+        </div>
+
+        <div class="footer-inferior">
+            <p>© 2026 Break Tec. Projeto desenvolvido para fins acadêmicos.</p>
+
+            <span>Feito por uma equipe apaixonada por tecnologia e jogos.</span>
+        </div>
+
+    </div>
+
+</footer>
+
 
 
     <script src="js/inicio.js"></script>

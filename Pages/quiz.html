@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Central de Quizzes | Break Tec</title>
+
+    <link rel="stylesheet" href="../css/quiz.css">
+
+    <script src="../js/quiz.js" defer></script>
+</head>
+
+<body>
+
+    <!-- CABEÇALHO -->
+
+    <header class="quiz-header">
+
+        <a href="../index.html" class="quiz-logo">
+            BREAK <span>TEC</span>
+        </a>
+
+        <a href="../index.html" class="quiz-voltar">
+            ← Voltar ao início
+        </a>
+
+    </header>
+
+
+    <main class="quiz-container">
+
+        <!-- CENTRAL DE QUIZZES -->
+
+        <section id="quizCentral">
+
+            <div class="quiz-introducao">
+
+                <span class="quiz-etiqueta">
+                    BREAK TEC • INTERATIVO
+                </span>
+
+                <h1>Central de Quizzes</h1>
+
+                <p>
+                    Descubra seu perfil como jogador,
+                    teste seus conhecimentos e encontre
+                    seu próximo jogo favorito.
+                </p>
+
+            </div>
+
+
+            <!-- OPÇÕES DE QUIZZES -->
+
+            <div class="quiz-cards">
+
+                <!-- QUIZ 1 -->
+
+                <article class="quiz-card">
+
+                    <span class="quiz-card-categoria">
+                        PERFIL GAMER
+                    </span>
+
+                    <h2>Qual é o seu estilo de jogador?</h2>
+
+                    <p>
+                        Descubra se você prefere explorar
+                        mundos, criar estratégias, competir
+                        ou desenvolver sua criatividade.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="quiz-iniciar"
+                        data-quiz="personalidade"
+                    >
+                        Descobrir meu estilo →
+                    </button>
+
+                </article>
+
+
+                <!-- QUIZ 2 -->
+
+                <article class="quiz-card">
+
+                    <span class="quiz-card-categoria">
+                        DESAFIO GAMER
+                    </span>
+
+                    <h2>Quanto você sabe sobre jogos?</h2>
+
+                    <p>
+                        Coloque seus conhecimentos à prova
+                        com perguntas sobre jogos,
+                        personagens e curiosidades.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="quiz-iniciar"
+                        data-quiz="conhecimento"
+                    >
+                        Começar desafio →
+                    </button>
+
+                </article>
+
+
+                <!-- QUIZ 3 -->
+
+                <article class="quiz-card">
+
+                    <span class="quiz-card-categoria">
+                        RECOMENDAÇÕES
+                    </span>
+
+                    <h2>Qual será seu próximo jogo?</h2>
+
+                    <p>
+                        Conte um pouco sobre suas
+                        preferências e descubra jogos
+                        que combinam com você.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="quiz-iniciar"
+                        data-quiz="recomendacao"
+                    >
+                        Encontrar meu jogo →
+                    </button>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- ÁREA DAS PERGUNTAS -->
+
+        <section
+            id="quizJogo"
+            class="quiz-jogo"
+            hidden
+            aria-labelledby="quizTitulo"
+        >
+
+            <button
+                type="button"
+                id="quizVoltar"
+                class="quiz-voltar-central"
+            >
+                ← Voltar aos quizzes
+            </button>
+
+            <div class="quiz-painel">
+
+                <span
+                    id="quizCategoria"
+                    class="quiz-etiqueta"
+                ></span>
+
+                <h2 id="quizTitulo"></h2>
+
+                <p id="quizDescricao"></p>
+
+
+                <!-- PROGRESSO -->
+
+                <div id="quizProgressoContainer">
+
+                    <div class="quiz-progresso-topo">
+
+                        <span id="quizContador">
+                            Pergunta 1
+                        </span>
+
+                        <span id="quizPorcentagem">
+                            0%
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="quiz-progresso-barra"
+                        role="progressbar"
+                        id="quizProgresso"
+                        aria-label="Progresso do quiz"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-valuenow="0"
+                    >
+                        <div
+                            id="quizProgressoPreenchimento"
+                        ></div>
+                    </div>
+
+                </div>
+
+
+                <!-- PERGUNTA -->
+
+                <div id="quizPerguntaArea">
+
+                    <h3 id="quizPergunta"></h3>
+
+                    <div
+                        id="quizAlternativas"
+                        class="quiz-alternativas"
+                        role="group"
+                        aria-label="Alternativas da pergunta"
+                    ></div>
+
+
+                    <!-- FEEDBACK -->
+
+                    <p
+                        id="quizFeedback"
+                        class="quiz-feedback"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+
+
+                    <button
+                        type="button"
+                        id="quizProxima"
+                        class="quiz-proxima"
+                        disabled
+                    >
+                        Próxima pergunta →
+                    </button>
+
+                </div>
+
+
+                <!-- RESULTADO -->
+
+                <div
+                    id="quizResultado"
+                    class="quiz-resultado"
+                    hidden
+                    aria-live="polite"
+                >
+
+                    <span class="quiz-etiqueta">
+                        RESULTADO
+                    </span>
+
+                    <h3 id="quizResultadoTitulo"></h3>
+
+                    <p id="quizResultadoDescricao"></p>
+
+                    <div
+                        id="quizResultadoDetalhes"
+                        class="quiz-resultado-detalhes"
+                    ></div>
+
+                    <div class="quiz-resultado-acoes">
+
+                        <button
+                            type="button"
+                            id="quizRefazer"
+                        >
+                            Refazer quiz
+                        </button>
+
+                        <button
+                            type="button"
+                            id="quizOutro"
+                        >
+                            Escolher outro quiz
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer class="quiz-footer">
+
+        <p>
+            BREAK TEC — Explore, descubra e jogue.
+        </p>
+
+    </footer>
+
+</body>
+</html>
