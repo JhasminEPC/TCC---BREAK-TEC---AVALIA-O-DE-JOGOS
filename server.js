@@ -5,11 +5,39 @@ const mysql = require("mysql2");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
+const multer = require("multer");
+const sharp = require("sharp");
+const fs = require("fs/promises");
+const { randomUUID } = require("crypto");
 
 console.log("SERVER.JS EXECUTADO:");
 console.log(__filename);
 
 const app = express();
+
+
+// ==========================================
+// CONFIGURAÇÃO DAS FOTOS DE PERFIL
+// ==========================================
+
+// Pasta fora da área pública do site
+
+const pastaFotos = path.resolve(
+    __dirname,
+    "..",
+    "breaktec-uploads",
+    "avatars"
+);
+
+// Receber uma imagem com limite de 3 MB
+
+const receberFoto = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 3 * 1024 * 1024,
+        files: 1
+    }
+}).single("foto");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -2982,43 +3010,49 @@ app.get("/api/usuarios/publicos", async (req, res) => {
 
         // BUSCAR PERFIS E ESTATÍSTICAS
 
-        const [usuarios] = await banco.execute(`
-            SELECT
-                u.id,
-                u.nome,
-                u.biografia,
+        
 
-                (
-                    SELECT COUNT(*)
-                    FROM projetos p
-                    WHERE p.usuario_id = u.id
-                ) AS total_projetos,
+const [usuarios] = await banco.query(`
 
-                (
-                    SELECT COUNT(*)
-                    FROM avaliacoes a
-                    WHERE a.usuario_id = u.id
-                )
-                +
-                (
-                    SELECT COUNT(*)
-                    FROM avaliacoes_oficiais ao
-                    WHERE ao.usuario_id = u.id
-                ) AS total_avaliacoes
+    SELECT
+        u.id,
+        u.nome,
+        u.biografia,
 
-            FROM usuarios u
+        (
+            SELECT COUNT(*)
+            FROM projetos p
+            WHERE p.usuario_id = u.id
+        ) AS total_projetos,
 
-            WHERE u.perfil_publico = 1
-            AND u.nome LIKE ?
+        (
+            (
+                SELECT COUNT(*)
+                FROM avaliacoes a
+                WHERE a.usuario_id = u.id
+            )
+            +
+            (
+                SELECT COUNT(*)
+                FROM avaliacoes_oficiais ao
+                WHERE ao.usuario_id = u.id
+            )
+        ) AS total_avaliacoes
 
-            ORDER BY u.nome ASC, u.id ASC
+    FROM usuarios u
 
-            LIMIT ? OFFSET ?
-        `, [
-            termoBusca,
-            limite,
-            inicio
-        ]);
+    WHERE u.perfil_publico = 1
+      AND u.nome LIKE ?
+
+    ORDER BY u.nome ASC, u.id ASC
+
+    LIMIT ? OFFSET ?
+
+`, [
+    termoBusca,
+    limite,
+    inicio
+]);
 
 
         const total = Number(totais[0].total);
@@ -3164,6 +3198,1584 @@ app.put("/api/perfil/visibilidade", async (req, res) => {
         res.status(500).json({
             mensagem:
                 "Não foi possível alterar a visibilidade."
+        });
+
+    }
+
+});
+
+
+
+// ==========================================
+// BREAK TEC - PERFIL PÚBLICO INDIVIDUAL
+// ==========================================
+
+app.get("/api/usuarios/publicos/:id", async (req, res) => {
+
+    const usuarioId = Number(req.params.id);
+
+    // VALIDAR O ID
+
+    if (
+        !Number.isSafeInteger(usuarioId) ||
+        usuarioId <= 0
+    ) {
+        return res.status(400).json({
+            mensagem: "ID de usuário inválido."
+        });
+    }
+
+    try {
+
+        const banco = conexao.promise();
+
+        // ==================================
+        // BUSCAR SOMENTE PERFIS PÚBLICOS
+        // ==================================
+
+        
+const [usuarios] = await banco.execute(`
+
+    SELECT
+        id,
+        nome,
+        biografia,
+        passport_arquetipo,
+        passport_generos,
+        passport_plataforma,
+        passport_estilo,
+        passport_lema
+
+    FROM usuarios
+
+    WHERE id = ?
+      AND perfil_publico = 1
+
+    LIMIT 1
+
+`, [usuarioId]);
+
+
+
+        // NÃO REVELAR SE UM PERFIL PRIVADO EXISTE
+
+        if (usuarios.length === 0) {
+            return res.status(404).json({
+                mensagem:
+                    "Perfil não encontrado ou indisponível."
+            });
+        }
+
+
+        // ==================================
+        // ESTATÍSTICAS COMPLETAS
+        // ==================================
+
+        const [estatisticas] = await banco.execute(`
+            SELECT
+
+                (
+                    SELECT COUNT(*)
+                    FROM projetos
+                    WHERE usuario_id = ?
+                ) AS projetos,
+
+                (
+                    SELECT COUNT(*)
+                    FROM avaliacoes
+                    WHERE usuario_id = ?
+                )
+                +
+                (
+                    SELECT COUNT(*)
+                    FROM avaliacoes_oficiais
+                    WHERE usuario_id = ?
+                ) AS avaliacoes
+
+        `, [
+            usuarioId,
+            usuarioId,
+            usuarioId
+        ]);
+
+
+        // ==================================
+        // PROJETOS PUBLICADOS
+        // ==================================
+
+        const [projetos] = await banco.execute(`
+            SELECT
+                id,
+                titulo,
+                descricao,
+                categoria,
+                imagem,
+                criado_em
+
+            FROM projetos
+
+            WHERE usuario_id = ?
+
+            ORDER BY criado_em DESC
+
+            LIMIT 6
+        `, [usuarioId]);
+
+
+        // ==================================
+        // AVALIAÇÕES DA COMUNIDADE
+        // ==================================
+
+        const [avaliacoesComunidade] =
+            await banco.execute(`
+
+                SELECT
+                    p.id AS jogo_id,
+                    p.titulo,
+                    a.nota,
+                    a.criado_em
+
+                FROM avaliacoes a
+
+                INNER JOIN projetos p
+                    ON p.id = a.projeto_id
+
+                WHERE a.usuario_id = ?
+
+                ORDER BY a.criado_em DESC
+
+                LIMIT 6
+
+            `, [usuarioId]);
+
+
+        // ==================================
+        // AVALIAÇÕES DE JOGOS OFICIAIS
+        // ==================================
+
+        const [avaliacoesOficiais] =
+            await banco.execute(`
+
+                SELECT
+                    j.rawg_id AS jogo_id,
+                    j.titulo,
+                    a.nota,
+                    a.criado_em
+
+                FROM avaliacoes_oficiais a
+
+                INNER JOIN jogos_oficiais j
+                    ON j.id = a.jogo_oficial_id
+
+                WHERE a.usuario_id = ?
+
+                ORDER BY a.criado_em DESC
+
+                LIMIT 6
+
+            `, [usuarioId]);
+
+
+        // ==================================
+        // ORGANIZAR AS AVALIAÇÕES
+        // ==================================
+
+        const avaliacoes = [
+
+            ...avaliacoesComunidade.map(item => ({
+
+                jogo_id: item.jogo_id,
+                titulo: item.titulo,
+                origem: "comunidade",
+                nota: Number(item.nota),
+                criado_em: item.criado_em
+
+            })),
+
+            ...avaliacoesOficiais.map(item => ({
+
+                jogo_id: item.jogo_id,
+                titulo: item.titulo,
+                origem: "oficial",
+                nota: Number(item.nota),
+                criado_em: item.criado_em
+
+            }))
+
+        ];
+
+        // ORDENAR AS MAIS RECENTES PRIMEIRO
+
+        avaliacoes.sort((a, b) =>
+            new Date(b.criado_em) -
+            new Date(a.criado_em)
+        );
+
+        
+// ==========================================
+// GAME VAULT DO PERFIL PÚBLICO
+// ==========================================
+
+    const [jogosVault] = await banco.execute(`
+        SELECT
+            slot,
+            rawg_id,
+            titulo,
+            imagem
+
+        FROM game_vault
+
+        WHERE usuario_id = ?
+
+    `, [usuarioId]);
+
+
+// ORGANIZAR OS TRÊS ESPAÇOS
+
+    const gameVaultPublico = {
+        favorito: null,
+        jogando: null,
+        quero_jogar: null
+    };
+
+
+    jogosVault.forEach(jogo => {
+
+        if (
+            Object.prototype.hasOwnProperty.call(
+                gameVaultPublico,
+                jogo.slot
+            )
+        ) {
+
+            gameVaultPublico[jogo.slot] = {
+                id_externo: jogo.rawg_id,
+                titulo: jogo.titulo,
+                imagem: jogo.imagem
+            };
+
+        }
+
+    });
+
+
+        // ==================================
+        // RESPOSTA PÚBLICA
+        // ==================================
+
+        res.json({
+
+            usuario: {
+                id: usuarios[0].id,
+                nome: usuarios[0].nome,
+                biografia: usuarios[0].biografia
+            },
+            
+            
+            passport: {
+                arquetipo: usuarios[0].passport_arquetipo || "",
+                generos: usuarios[0].passport_generos || "",
+                plataforma: usuarios[0].passport_plataforma || "",
+                estilo: usuarios[0].passport_estilo || "",
+                lema: usuarios[0].passport_lema || ""
+            },
+
+
+            estatisticas: {
+                projetos:
+                    Number(estatisticas[0].projetos),
+
+                avaliacoes:
+                    Number(estatisticas[0].avaliacoes)
+            },
+
+            projetos,
+
+            avaliacoes: avaliacoes.slice(0, 6),
+
+            gameVault: gameVaultPublico
+
+        });
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar perfil público:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem:
+                "Não foi possível carregar o perfil."
+        });
+
+    }
+
+});
+
+
+
+// ==========================================
+// BREAK TEC - BIOGRAFIA DO USUÁRIO
+// ==========================================
+
+// ==========================================
+// CONSULTAR MINHA BIOGRAFIA
+// ==========================================
+
+app.get("/api/perfil/biografia", async (req, res) => {
+
+    // VERIFICAR SESSÃO
+
+    if (!req.session.usuario) {
+
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+
+    }
+
+    try {
+
+        const usuarioId = req.session.usuario.id;
+
+        const [usuarios] = await conexao.promise().execute(`
+
+            SELECT biografia
+
+            FROM usuarios
+
+            WHERE id = ?
+
+            LIMIT 1
+
+        `, [usuarioId]);
+
+
+        if (usuarios.length === 0) {
+
+            return res.status(404).json({
+                mensagem: "Usuário não encontrado."
+            });
+
+        }
+
+
+        res.json({
+
+            biografia: usuarios[0].biografia || ""
+
+        });
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao consultar biografia:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem: "Erro ao carregar biografia."
+        });
+
+    }
+
+});
+
+// ==========================================
+// SALVAR MINHA BIOGRAFIA
+// ==========================================
+
+app.put("/api/perfil/biografia", async (req, res) => {
+
+    // VERIFICAR SESSÃO
+
+    if (!req.session.usuario) {
+
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+
+    }
+
+
+    // VALIDAR O CONTEÚDO RECEBIDO
+
+    const { biografia } = req.body || {};
+
+    if (typeof biografia !== "string") {
+
+        return res.status(400).json({
+            mensagem: "Biografia inválida."
+        });
+
+    }
+
+
+    const texto = biografia.trim();
+
+
+    // LIMITE DO CAMPO NO MYSQL
+
+    if (texto.length > 280) {
+
+        return res.status(400).json({
+            mensagem:
+                "A biografia deve ter no máximo 280 caracteres."
+        });
+
+    }
+
+
+    try {
+
+        // O ID VEM DA SESSÃO, NÃO DO FORMULÁRIO
+
+        const usuarioId = req.session.usuario.id;
+
+
+        const [resultado] = await conexao.promise().execute(`
+
+            UPDATE usuarios
+
+            SET biografia = ?
+
+            WHERE id = ?
+
+        `, [
+
+            texto || null,
+
+            usuarioId
+
+        ]);
+
+
+        if (resultado.affectedRows === 0) {
+
+            return res.status(404).json({
+                mensagem: "Usuário não encontrado."
+            });
+
+        }
+
+
+        res.json({
+
+            mensagem: "Biografia atualizada com sucesso!",
+
+            biografia: texto
+
+        });
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao atualizar biografia:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem:
+                "Não foi possível salvar a biografia."
+        });
+
+    }
+
+});
+
+
+
+// ==========================================
+// BREAK TEC - GAMER PASSPORT
+// ==========================================
+
+// CONSULTAR MEU GAMER PASSPORT
+
+app.get("/api/perfil/passport", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+    }
+
+    try {
+
+        const usuarioId = req.session.usuario.id;
+
+        const [usuarios] = await conexao.promise().execute(`
+            SELECT
+                passport_arquetipo,
+                passport_generos,
+                passport_plataforma,
+                passport_estilo,
+                passport_lema
+            FROM usuarios
+            WHERE id = ?
+            LIMIT 1
+        `, [usuarioId]);
+
+        if (usuarios.length === 0) {
+            return res.status(404).json({
+                mensagem: "Usuário não encontrado."
+            });
+        }
+
+        const usuario = usuarios[0];
+
+        res.json({
+            arquetipo: usuario.passport_arquetipo || "",
+            generos: usuario.passport_generos || "",
+            plataforma: usuario.passport_plataforma || "",
+            estilo: usuario.passport_estilo || "",
+            lema: usuario.passport_lema || ""
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar Gamer Passport:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem: "Erro ao carregar Gamer Passport."
+        });
+
+    }
+
+});
+
+
+// ==========================================
+// SALVAR MEU GAMER PASSPORT
+// ==========================================
+
+app.put("/api/perfil/passport", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+    }
+
+    const campos = [
+        "arquetipo",
+        "generos",
+        "plataforma",
+        "estilo",
+        "lema"
+    ];
+
+    const dados = req.body;
+
+    // VERIFICAR O FORMATO DOS DADOS
+
+    if (
+        !dados ||
+        typeof dados !== "object" ||
+        campos.some(campo => typeof dados[campo] !== "string")
+    ) {
+        return res.status(400).json({
+            mensagem: "Dados do Gamer Passport inválidos."
+        });
+    }
+
+    const passport = {
+        arquetipo: dados.arquetipo.trim(),
+        generos: dados.generos.trim(),
+        plataforma: dados.plataforma.trim(),
+        estilo: dados.estilo.trim(),
+        lema: dados.lema.trim()
+    };
+
+    // LIMITES DOS CAMPOS
+
+    const limites = {
+        arquetipo: 50,
+        generos: 100,
+        plataforma: 30,
+        estilo: 30,
+        lema: 120
+    };
+
+    for (const campo of campos) {
+
+        if (passport[campo].length > limites[campo]) {
+            return res.status(400).json({
+                mensagem:
+                    `O campo ${campo} ultrapassou o limite permitido.`
+            });
+        }
+
+    }
+
+    // VALIDAR OPÇÕES DOS SELECTS
+
+    const plataformasPermitidas = [
+        "",
+        "PC",
+        "PlayStation",
+        "Xbox",
+        "Nintendo",
+        "Mobile",
+        "Multiplataforma"
+    ];
+
+    const estilosPermitidos = [
+        "",
+        "Solo",
+        "Cooperativo",
+        "Competitivo",
+        "Casual",
+        "Variado"
+    ];
+
+    if (
+        !plataformasPermitidas.includes(passport.plataforma) ||
+        !estilosPermitidos.includes(passport.estilo)
+    ) {
+        return res.status(400).json({
+            mensagem: "Plataforma ou estilo de jogo inválido."
+        });
+    }
+
+    try {
+
+        const usuarioId = req.session.usuario.id;
+
+        const [resultado] = await conexao.promise().execute(`
+            UPDATE usuarios
+
+            SET
+                passport_arquetipo = ?,
+                passport_generos = ?,
+                passport_plataforma = ?,
+                passport_estilo = ?,
+                passport_lema = ?
+
+            WHERE id = ?
+        `, [
+            passport.arquetipo,
+            passport.generos,
+            passport.plataforma,
+            passport.estilo,
+            passport.lema,
+            usuarioId
+        ]);
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({
+                mensagem: "Usuário não encontrado."
+            });
+        }
+
+        res.json({
+            mensagem: "Gamer Passport salvo com sucesso!",
+            passport
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao salvar Gamer Passport:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem: "Não foi possível salvar o Gamer Passport."
+        });
+
+    }
+
+});
+
+
+// ==========================================
+// BREAK TEC - GAME VAULT
+// ==========================================
+
+const slotsGameVault = [
+    "favorito",
+    "jogando",
+    "quero_jogar"
+];
+
+
+// ==========================================
+// CONSULTAR MEU GAME VAULT
+// ==========================================
+
+app.get("/api/perfil/game-vault", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+    }
+
+    try {
+
+        const usuarioId = req.session.usuario.id;
+
+        const [resultados] = await conexao.promise().execute(`
+            SELECT
+                slot,
+                rawg_id,
+                titulo,
+                imagem
+            FROM game_vault
+            WHERE usuario_id = ?
+        `, [usuarioId]);
+
+        const vault = {
+            favorito: null,
+            jogando: null,
+            quero_jogar: null
+        };
+
+        resultados.forEach(jogo => {
+
+            if (slotsGameVault.includes(jogo.slot)) {
+
+                vault[jogo.slot] = {
+                    id_externo: jogo.rawg_id,
+                    titulo: jogo.titulo,
+                    imagem: jogo.imagem
+                };
+
+            }
+
+        });
+
+        res.json({ vault });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar Game Vault:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem: "Não foi possível carregar o Game Vault."
+        });
+
+    }
+
+});
+
+
+// ==========================================
+// SALVAR OU ALTERAR JOGO DO GAME VAULT
+// ==========================================
+
+app.put("/api/perfil/game-vault/:slot", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+    }
+
+    const slot = req.params.slot;
+
+    if (!slotsGameVault.includes(slot)) {
+        return res.status(400).json({
+            mensagem: "Espaço do Game Vault inválido."
+        });
+    }
+
+    const rawgId = validarIdJogoOficial(
+        req.body?.rawg_id
+    );
+
+    if (!rawgId) {
+        return res.status(400).json({
+            mensagem: "Selecione um jogo válido."
+        });
+    }
+
+    // CONSULTAR O JOGO REAL NA RAWG
+
+    let jogo;
+
+    try {
+
+        jogo = await consultarRawg(
+            `games/${rawgId}`
+        );
+
+    } catch (erro) {
+
+        return tratarErroRawg(res, erro);
+
+    }
+
+    if (
+        !jogo ||
+        jogo.id !== rawgId ||
+        typeof jogo.name !== "string" ||
+        !jogo.name.trim()
+    ) {
+        return res.status(502).json({
+            mensagem: "Não foi possível validar esse jogo."
+        });
+    }
+
+    const titulo = jogo.name.trim().slice(0, 200);
+
+    const imagem =
+        typeof jogo.background_image === "string"
+            ? jogo.background_image.slice(0, 500)
+            : null;
+
+    try {
+
+        const usuarioId = req.session.usuario.id;
+
+        await conexao.promise().execute(`
+            INSERT INTO game_vault (
+                usuario_id,
+                slot,
+                rawg_id,
+                titulo,
+                imagem
+            )
+            VALUES (?, ?, ?, ?, ?)
+
+            ON DUPLICATE KEY UPDATE
+                rawg_id = VALUES(rawg_id),
+                titulo = VALUES(titulo),
+                imagem = VALUES(imagem)
+        `, [
+            usuarioId,
+            slot,
+            rawgId,
+            titulo,
+            imagem
+        ]);
+
+        res.json({
+            mensagem: "Jogo salvo no Game Vault!",
+            slot,
+            jogo: {
+                id_externo: rawgId,
+                titulo,
+                imagem
+            }
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao salvar Game Vault:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem: "Não foi possível salvar o jogo."
+        });
+
+    }
+
+});
+
+
+// ==========================================
+// REMOVER JOGO DO GAME VAULT
+// ==========================================
+
+app.delete("/api/perfil/game-vault/:slot", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+    }
+
+    const slot = req.params.slot;
+
+    if (!slotsGameVault.includes(slot)) {
+        return res.status(400).json({
+            mensagem: "Espaço do Game Vault inválido."
+        });
+    }
+
+    try {
+
+        const usuarioId = req.session.usuario.id;
+
+        await conexao.promise().execute(`
+            DELETE FROM game_vault
+            WHERE usuario_id = ?
+              AND slot = ?
+        `, [usuarioId, slot]);
+
+        res.json({
+            mensagem: "Jogo removido do Game Vault.",
+            slot
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao remover jogo do Game Vault:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem: "Não foi possível remover o jogo."
+        });
+
+    }
+
+});
+
+
+// ==========================================
+// BREAK TEC - FOTO DE PERFIL
+// ==========================================
+
+// CONSULTAR MINHA FOTO
+
+app.get("/api/perfil/foto", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+    }
+
+    try {
+
+        const id = req.session.usuario.id;
+
+        const [usuarios] =
+            await conexao.promise().execute(
+                `SELECT foto_perfil
+                 FROM usuarios
+                 WHERE id = ?
+                 LIMIT 1`,
+                [id]
+            );
+
+        if (!usuarios.length) {
+            return res.status(404).json({
+                mensagem: "Usuário não encontrado."
+            });
+        }
+
+        res.json({
+            foto_url: usuarios[0].foto_perfil
+                ? `/api/usuarios/${id}/foto`
+                : null
+        });
+
+    } catch (erro) {
+
+        console.error("Erro ao consultar foto:", erro);
+
+        res.status(500).json({
+            mensagem: "Não foi possível carregar a foto."
+        });
+
+    }
+
+});
+
+
+// ==========================================
+// ENTREGAR FOTO COM CONTROLE DE PRIVACIDADE
+// ==========================================
+
+app.get("/api/usuarios/:id/foto", async (req, res) => {
+
+    const id = Number(req.params.id);
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+        return res.status(404).end();
+    }
+
+    try {
+
+        const [usuarios] =
+            await conexao.promise().execute(
+                `SELECT foto_perfil, perfil_publico
+                 FROM usuarios
+                 WHERE id = ?
+                 LIMIT 1`,
+                [id]
+            );
+
+        const usuario = usuarios[0];
+
+        const proprio =
+            Number(req.session.usuario?.id) === id;
+
+        if (
+            !usuario ||
+            (!proprio && Number(usuario.perfil_publico) !== 1)
+        ) {
+            return res.status(404).end();
+        }
+
+        const arquivo = usuario.foto_perfil || "";
+
+        if (!/^[a-f0-9-]{36}\.webp$/.test(arquivo)) {
+            return res.status(404).end();
+        }
+
+        res.set("Cache-Control", "private, no-store");
+        res.type("webp");
+
+        res.sendFile(
+            path.join(pastaFotos, arquivo),
+            erro => {
+                if (erro && !res.headersSent) {
+                    res.status(404).end();
+                }
+            }
+        );
+
+    } catch (erro) {
+
+        console.error("Erro ao entregar foto:", erro);
+
+        if (!res.headersSent) {
+            res.status(500).end();
+        }
+
+    }
+
+});
+
+
+// ==========================================
+// ENVIAR OU TROCAR FOTO
+// ==========================================
+
+app.post("/api/perfil/foto", (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Faça login para enviar sua foto."
+        });
+    }
+
+    receberFoto(req, res, async erroUpload => {
+
+        if (erroUpload) {
+            return res.status(400).json({
+                mensagem:
+                    "Selecione uma imagem JPG, PNG ou WebP de até 3 MB."
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                mensagem: "Selecione uma imagem."
+            });
+        }
+
+        let novoCaminho = null;
+        let arquivoCriado = false;
+
+        try {
+
+            // VERIFICAR O FORMATO REAL DA IMAGEM
+
+            const metadados = await sharp(
+                req.file.buffer,
+                { limitInputPixels: 16000000 }
+            ).metadata();
+
+            if (
+                !["jpeg", "png", "webp"].includes(
+                    metadados.format
+                )
+            ) {
+                return res.status(400).json({
+                    mensagem:
+                        "Formato inválido. Envie JPG, PNG ou WebP."
+                });
+            }
+
+            // REDIMENSIONAR E CONVERTER
+
+            const imagem = await sharp(
+                req.file.buffer,
+                { limitInputPixels: 16000000 }
+            )
+                .rotate()
+                .resize(384, 384, {
+                    fit: "cover",
+                    position: "attention"
+                })
+                .webp({ quality: 82 })
+                .toBuffer();
+
+            const id = req.session.usuario.id;
+            const banco = conexao.promise();
+
+            const [usuarios] = await banco.execute(
+                `SELECT foto_perfil
+                 FROM usuarios
+                 WHERE id = ?
+                 LIMIT 1`,
+                [id]
+            );
+
+            if (!usuarios.length) {
+                return res.status(404).json({
+                    mensagem: "Usuário não encontrado."
+                });
+            }
+
+            await fs.mkdir(pastaFotos, {
+                recursive: true
+            });
+
+            const nomeArquivo =
+                `${randomUUID()}.webp`;
+
+            novoCaminho =
+                path.join(pastaFotos, nomeArquivo);
+
+            await fs.writeFile(
+                novoCaminho,
+                imagem,
+                { flag: "wx" }
+            );
+
+            arquivoCriado = true;
+
+            // SALVAR REFERÊNCIA NO MYSQL
+
+            await banco.execute(
+                `UPDATE usuarios
+                 SET foto_perfil = ?
+                 WHERE id = ?`,
+                [nomeArquivo, id]
+            );
+
+            // REMOVER A FOTO ANTERIOR
+
+            const anterior = usuarios[0].foto_perfil;
+
+            if (
+                anterior &&
+                /^[a-f0-9-]{36}\.webp$/.test(anterior)
+            ) {
+                await fs.unlink(
+                    path.join(pastaFotos, anterior)
+                ).catch(() => {});
+            }
+
+            res.json({
+                mensagem: "Foto atualizada!",
+                foto_url: `/api/usuarios/${id}/foto`
+            });
+
+        } catch (erro) {
+
+            if (arquivoCriado) {
+                await fs.unlink(novoCaminho)
+                    .catch(() => {});
+            }
+
+            console.error("Erro ao salvar foto:", erro);
+
+            res.status(500).json({
+                mensagem:
+                    "Não foi possível salvar a foto."
+            });
+
+        }
+
+    });
+
+});
+
+
+// ==========================================
+// REMOVER MINHA FOTO
+// ==========================================
+
+app.delete("/api/perfil/foto", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Usuário não autenticado."
+        });
+    }
+
+    try {
+
+        const id = req.session.usuario.id;
+        const banco = conexao.promise();
+
+        const [usuarios] = await banco.execute(
+            `SELECT foto_perfil
+             FROM usuarios
+             WHERE id = ?
+             LIMIT 1`,
+            [id]
+        );
+
+        if (!usuarios.length) {
+            return res.status(404).json({
+                mensagem: "Usuário não encontrado."
+            });
+        }
+
+        await banco.execute(
+            `UPDATE usuarios
+             SET foto_perfil = NULL
+             WHERE id = ?`,
+            [id]
+        );
+
+        const anterior = usuarios[0].foto_perfil;
+
+        if (
+            anterior &&
+            /^[a-f0-9-]{36}\.webp$/.test(anterior)
+        ) {
+            await fs.unlink(
+                path.join(pastaFotos, anterior)
+            ).catch(() => {});
+        }
+
+        res.json({
+            mensagem: "Foto removida.",
+            foto_url: null
+        });
+
+    } catch (erro) {
+
+        console.error("Erro ao remover foto:", erro);
+
+        res.status(500).json({
+            mensagem: "Não foi possível remover a foto."
+        });
+
+    }
+
+});
+
+
+// ==========================================
+// BREAK TEC - CONFIGURAÇÕES PRIVADAS
+// ==========================================
+
+// CONSULTAR OS DADOS DA CONTA
+
+app.get("/api/configuracoes", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Faça login para continuar."
+        });
+    }
+
+    res.set("Cache-Control", "no-store");
+
+    try {
+
+        const [usuarios] =
+            await conexao.promise().execute(`
+                SELECT
+                    nome,
+                    email,
+                    telefone,
+                    telefone_verificado,
+                    criado_em
+                FROM usuarios
+                WHERE id = ?
+                LIMIT 1
+            `, [req.session.usuario.id]);
+
+        if (!usuarios.length) {
+            return res.status(404).json({
+                mensagem: "Conta não encontrada."
+            });
+        }
+
+        const usuario = usuarios[0];
+
+        res.json({
+            nome: usuario.nome,
+            email: usuario.email,
+            telefone: usuario.telefone,
+            telefone_verificado:
+                Boolean(usuario.telefone_verificado),
+            criado_em: usuario.criado_em
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro em configurações:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem:
+                "Não foi possível carregar seus dados."
+        });
+
+    }
+
+});
+
+
+// ==========================================
+// CADASTRAR OU REMOVER TELEFONE
+// ==========================================
+
+app.put("/api/configuracoes/telefone", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Faça login para continuar."
+        });
+    }
+
+    const { telefone, senhaAtual } =
+        req.body || {};
+
+    if (
+        typeof telefone !== "string" ||
+        typeof senhaAtual !== "string" ||
+        !senhaAtual
+    ) {
+        return res.status(400).json({
+            mensagem:
+                "Informe o telefone e sua senha atual."
+        });
+    }
+
+    // ACEITA CELULAR BRASILEIRO COM DDD
+
+    let numeros = telefone.replace(/\D/g, "");
+
+    // REMOVE O CÓDIGO DO BRASIL, SE INFORMADO
+
+    if (
+        numeros.startsWith("55") &&
+        numeros.length === 13
+    ) {
+        numeros = numeros.slice(2);
+    }
+
+    if (
+        numeros &&
+        !/^[1-9]{2}9\d{8}$/.test(numeros)
+    ) {
+        return res.status(400).json({
+            mensagem:
+                "Informe um celular brasileiro válido com DDD."
+        });
+    }
+
+    const normalizado =
+        numeros ? `+55${numeros}` : null;
+
+    try {
+
+        const banco = conexao.promise();
+
+        const [usuarios] = await banco.execute(
+            `SELECT senha
+             FROM usuarios
+             WHERE id = ?
+             LIMIT 1`,
+            [req.session.usuario.id]
+        );
+
+        if (!usuarios.length) {
+            return res.status(404).json({
+                mensagem: "Conta não encontrada."
+            });
+        }
+
+        // CONFIRMAR A IDENTIDADE COM A SENHA
+
+        const senhaCorreta = await bcrypt.compare(
+            senhaAtual,
+            usuarios[0].senha
+        );
+
+        if (!senhaCorreta) {
+            return res.status(403).json({
+                mensagem: "Senha atual incorreta."
+            });
+        }
+
+        await banco.execute(`
+            UPDATE usuarios
+            SET
+                telefone = ?,
+                telefone_verificado = 0
+            WHERE id = ?
+        `, [
+            normalizado,
+            req.session.usuario.id
+        ]);
+
+        res.json({
+            mensagem: normalizado
+                ? "Telefone salvo. Verificação por SMS ainda não disponível."
+                : "Telefone removido.",
+            telefone: normalizado,
+            telefone_verificado: false
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao atualizar telefone:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem:
+                "Não foi possível salvar o telefone."
+        });
+
+    }
+
+});
+
+
+// ==========================================
+// ALTERAR SENHA DA CONTA
+// ==========================================
+
+app.put("/api/configuracoes/senha", async (req, res) => {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Faça login para continuar."
+        });
+    }
+
+    const { senhaAtual, novaSenha } =
+        req.body || {};
+
+    if (
+        typeof senhaAtual !== "string" ||
+        typeof novaSenha !== "string" ||
+        novaSenha.length < 10 ||
+        Buffer.byteLength(novaSenha, "utf8") > 72
+    ) {
+        return res.status(400).json({
+            mensagem:
+                "A nova senha deve ter pelo menos 10 caracteres e no máximo 72 bytes."
+        });
+    }
+
+    try {
+
+        const banco = conexao.promise();
+
+        const [usuarios] = await banco.execute(
+            `SELECT senha
+             FROM usuarios
+             WHERE id = ?
+             LIMIT 1`,
+            [req.session.usuario.id]
+        );
+
+        if (!usuarios.length) {
+            return res.status(404).json({
+                mensagem: "Conta não encontrada."
+            });
+        }
+
+        // VERIFICAR A SENHA ANTIGA
+
+        const senhaCorreta = await bcrypt.compare(
+            senhaAtual,
+            usuarios[0].senha
+        );
+
+        if (!senhaCorreta) {
+            return res.status(403).json({
+                mensagem: "Senha atual incorreta."
+            });
+        }
+
+        // IMPEDIR REPETIR A SENHA ANTERIOR
+
+        const mesmaSenha = await bcrypt.compare(
+            novaSenha,
+            usuarios[0].senha
+        );
+
+        if (mesmaSenha) {
+            return res.status(400).json({
+                mensagem:
+                    "Escolha uma senha diferente da atual."
+            });
+        }
+
+        // GERAR NOVO HASH
+
+        const novoHash =
+            await bcrypt.hash(novaSenha, 12);
+
+        await banco.execute(
+            `UPDATE usuarios
+             SET senha = ?
+             WHERE id = ?`,
+            [novoHash, req.session.usuario.id]
+        );
+
+        // ENCERRAR A SESSÃO ATUAL
+
+        req.session.destroy(erroSessao => {
+
+            if (erroSessao) {
+
+                console.error(
+                    "Senha trocada; falha ao encerrar sessão:",
+                    erroSessao
+                );
+
+                return res.status(500).json({
+                    mensagem:
+                        "Senha alterada, mas houve erro ao encerrar a sessão. Faça login novamente."
+                });
+            }
+
+            res.clearCookie("connect.sid", {
+                path: "/"
+            });
+
+            res.json({
+                mensagem:
+                    "Senha alterada. Entre novamente com a nova senha.",
+                entrarNovamente: true
+            });
+
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao alterar senha:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem:
+                "Não foi possível alterar a senha."
         });
 
     }

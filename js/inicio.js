@@ -397,6 +397,95 @@ function criarResultado(jogo, origem) {
 }
 
 
+// ==========================================
+// CRIAR RESULTADO DE MEMBRO
+// ==========================================
+
+function criarResultadoMembro(membro) {
+
+    const id = Number(membro.id);
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+        return null;
+    }
+
+    const nome =
+        typeof membro.nome === "string" &&
+        membro.nome.trim()
+            ? membro.nome.trim()
+            : "Jogador";
+
+    // LINK DO PERFIL
+
+    const item = document.createElement("a");
+
+    item.className =
+        "search-result-item search-member-item";
+
+    item.href = `Pages/usuario.html?id=${id}`;
+
+    // AVATAR
+
+    const avatar = document.createElement("div");
+
+    avatar.className =
+        "search-result-image search-member-avatar";
+
+    avatar.textContent =
+        nome.charAt(0).toUpperCase();
+
+    avatar.setAttribute("aria-hidden", "true");
+
+    // INFORMAÇÕES
+
+    const informacoes = document.createElement("div");
+
+    informacoes.className = "search-result-info";
+
+    const titulo = document.createElement("strong");
+    titulo.textContent = nome;
+
+    const descricao = document.createElement("span");
+    descricao.textContent = "Ver perfil público";
+
+    informacoes.append(titulo, descricao);
+
+    // ETIQUETA
+
+    const etiqueta = document.createElement("span");
+
+    etiqueta.className =
+        "search-result-badge membro";
+
+    etiqueta.textContent = "MEMBRO";
+
+    item.append(
+        avatar,
+        informacoes,
+        etiqueta
+    );
+
+    return item;
+
+}
+
+
+// ==========================================
+// TÍTULOS DOS GRUPOS DA PESQUISA
+// ==========================================
+
+function criarTituloGrupoPesquisa(texto) {
+
+    const titulo = document.createElement("h3");
+
+    titulo.className = "search-group-title";
+    titulo.textContent = texto;
+
+    return titulo;
+
+}
+
+
 // ================================
 // PESQUISAR NOS DOIS CATÁLOGOS
 // ================================
@@ -461,11 +550,40 @@ async function pesquisarJogos() {
     });
 
 
-    const [resultadoComunidade, resultadoOficial] =
-        await Promise.allSettled([
-            requisicaoComunidade,
-            requisicaoOficial
-        ]);
+    
+// ==========================================
+// PESQUISAR MEMBROS PÚBLICOS
+// ==========================================
+
+    const requisicaoMembros = fetch(
+        `/api/usuarios/publicos?busca=${encodeURIComponent(termo)}&pagina=1`,
+        { signal: sinal }
+    ).then(async resposta => {
+
+        if (!resposta.ok) {
+            throw new Error(
+            "Erro na pesquisa de membros."
+            );
+        }
+
+    return resposta.json();
+
+});
+
+// ==========================================
+// CONSULTAR AS TRÊS FONTES
+// ==========================================
+
+    const [
+        resultadoComunidade,
+        resultadoOficial,
+        resultadoMembros
+    ] = await Promise.allSettled([
+        requisicaoComunidade,
+        requisicaoOficial,
+        requisicaoMembros
+    ]);
+
 
 
     // IGNORA PESQUISAS ANTIGAS
@@ -520,6 +638,25 @@ async function pesquisarJogos() {
         ).slice(0, 6);
     }
 
+    
+// ==========================================
+// RESULTADOS DE MEMBROS
+// ==========================================
+
+let membros = [];
+
+if (resultadoMembros.status === "fulfilled") {
+
+    const dados = resultadoMembros.value;
+
+    membros = (
+        Array.isArray(dados?.usuarios)
+            ? dados.usuarios
+            : []
+    ).slice(0, 5);
+
+}
+
 
     // EXIBIR RESULTADOS
 
@@ -550,33 +687,81 @@ async function pesquisarJogos() {
     }
 
 
+    
+// ==========================================
+// MOSTRAR RESULTADOS UNIFICADOS
+// ==========================================
+
     searchResultsTitle.textContent =
         `Resultados para "${termo}"`;
 
 
-    if (resultados.length === 0) {
+// ==========================================
+// GRUPO: MEMBROS
+// ==========================================
+
+    if (membros.length > 0) {
+
+        searchResultsContent.appendChild(
+            criarTituloGrupoPesquisa("MEMBROS")
+    );
+
+        membros.forEach(membro => {
+
+        const card = criarResultadoMembro(membro);
+
+        if (card) {
+            searchResultsContent.appendChild(card);
+        }
+
+    });
+
+}
+
+
+// ==========================================
+// GRUPO: JOGOS E PROJETOS
+// ==========================================
+
+    if (resultados.length > 0) {
+
+        searchResultsContent.appendChild(
+            criarTituloGrupoPesquisa(
+                "JOGOS E PROJETOS"
+            )
+    );
+
+    searchResultsContent.append(...resultados);
+
+}
+
+
+// ==========================================
+// NENHUM RESULTADO
+// ==========================================
+
+    if (
+        membros.length === 0 &&
+        resultados.length === 0
+    ) {
 
         const mensagem = document.createElement("p");
 
         mensagem.className = "search-empty";
 
         mensagem.textContent =
-            "Nenhum jogo ou projeto encontrado.";
+            "Nenhum membro, jogo ou projeto encontrado.";
 
         searchResultsContent.appendChild(mensagem);
 
-    } else {
-
-        searchResultsContent.append(...resultados);
-
     }
-
 
     // SE ALGUMA FONTE FALHAR
 
     if (
         resultadoComunidade.status === "rejected" ||
-        resultadoOficial.status === "rejected"
+        resultadoOficial.status === "rejected" ||
+        resultadoMembros.status === "rejected"
     ) {
 
         const aviso = document.createElement("p");
@@ -584,7 +769,7 @@ async function pesquisarJogos() {
         aviso.className = "search-warning";
 
         aviso.textContent =
-            "Parte do catálogo está temporariamente indisponível.";
+        "Alguns resultados estão temporariamente indisponíveis.";
 
         searchResultsContent.appendChild(aviso);
     }
@@ -707,10 +892,6 @@ async function verificarSessao() {
     const usuarioLogado =
         document.getElementById("usuarioLogado");
 
-    const nomeUsuario =
-        document.getElementById("nomeUsuario");
-
-
     try {
 
         const resposta =
@@ -733,8 +914,7 @@ async function verificarSessao() {
         usuarioDeslogado.hidden = true;
         usuarioLogado.hidden = false;
 
-        nomeUsuario.textContent =
-            dados.usuario.nome;
+        configurarMenuUsuario(dados.usuario);
 
 
     } catch (erro) {
@@ -743,6 +923,9 @@ async function verificarSessao() {
             "Erro ao verificar sessão:",
             erro
         );
+
+        usuarioDeslogado.hidden = false;
+        usuarioLogado.hidden = true;
 
     }
 
@@ -754,6 +937,205 @@ async function verificarSessao() {
 
 // CHAMA A FUNÇÃO UMA ÚNICA VEZ
 verificarSessao();
+
+
+// ==========================================
+// BREAK TEC - MENU DE USUÁRIO
+// ==========================================
+
+const botaoMenuUsuario =
+    document.getElementById("botaoMenuUsuario");
+
+const menuUsuario =
+    document.getElementById("menuUsuario");
+
+const fotoCabecalhoUsuario =
+    document.getElementById("fotoCabecalhoUsuario");
+
+const inicialCabecalhoUsuario =
+    document.getElementById("inicialCabecalhoUsuario");
+
+const nomeMenuUsuario =
+    document.getElementById("nomeMenuUsuario");
+
+
+// ==========================================
+// CONFIGURAR IDENTIDADE DO USUÁRIO
+// ==========================================
+
+function configurarMenuUsuario(usuario) {
+
+    if (!usuario) return;
+
+    const nome =
+        typeof usuario.nome === "string" &&
+        usuario.nome.trim()
+            ? usuario.nome.trim()
+            : "Usuário";
+
+    nomeMenuUsuario.textContent = nome;
+
+    inicialCabecalhoUsuario.textContent =
+        nome.charAt(0).toUpperCase();
+
+    botaoMenuUsuario.setAttribute(
+        "aria-label",
+        `Abrir menu da conta de ${nome}`
+    );
+
+    carregarFotoCabecalhoUsuario();
+
+}
+
+
+// ==========================================
+// FOTO SALVA NO PERFIL
+// ==========================================
+
+async function carregarFotoCabecalhoUsuario() {
+
+    // O AVATAR PADRÃO APARECE PRIMEIRO
+
+    fotoCabecalhoUsuario.hidden = true;
+    inicialCabecalhoUsuario.hidden = false;
+
+    fotoCabecalhoUsuario.removeAttribute("src");
+
+    try {
+
+        const resposta = await fetch(
+            "/api/perfil/foto",
+            {
+                credentials: "same-origin",
+                cache: "no-store"
+            }
+        );
+
+        if (!resposta.ok) return;
+
+        const dados = await resposta.json();
+
+        if (!dados.foto_url) return;
+
+
+        // MOSTRAR A FOTO SOMENTE QUANDO CARREGAR
+
+        fotoCabecalhoUsuario.onload = () => {
+
+            fotoCabecalhoUsuario.hidden = false;
+
+            inicialCabecalhoUsuario.hidden = true;
+
+        };
+
+
+        // SE A IMAGEM FALHAR, MOSTRAR A INICIAL
+
+        fotoCabecalhoUsuario.onerror = () => {
+
+            fotoCabecalhoUsuario.hidden = true;
+
+            inicialCabecalhoUsuario.hidden = false;
+
+        };
+
+
+        fotoCabecalhoUsuario.src =
+            `${dados.foto_url}?v=${Date.now()}`;
+
+    } catch (erro) {
+
+        console.warn(
+            "Não foi possível carregar a foto do cabeçalho.",
+            erro
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// ABRIR E FECHAR MENU
+// ==========================================
+
+function fecharMenuUsuario() {
+
+    menuUsuario.hidden = true;
+
+    botaoMenuUsuario.setAttribute(
+        "aria-expanded",
+        "false"
+    );
+
+}
+
+
+botaoMenuUsuario.addEventListener("click", () => {
+
+    const vaiAbrir = menuUsuario.hidden;
+
+    menuUsuario.hidden = !vaiAbrir;
+
+    botaoMenuUsuario.setAttribute(
+        "aria-expanded",
+        String(vaiAbrir)
+    );
+
+    if (vaiAbrir) {
+
+        // EVITAR QUE A PESQUISA CUBRA O MENU
+
+        if (
+            searchResults &&
+            !searchResults.hidden
+        ) {
+            fecharResultados();
+        }
+
+    }
+
+});
+
+
+// ==========================================
+// FECHAR AO CLICAR FORA
+// ==========================================
+
+document.addEventListener("click", evento => {
+
+    const area = document.getElementById(
+        "usuarioLogado"
+    );
+
+    if (
+        !menuUsuario.hidden &&
+        !area.contains(evento.target)
+    ) {
+        fecharMenuUsuario();
+    }
+
+});
+
+
+// ==========================================
+// FECHAR COM ESC
+// ==========================================
+
+document.addEventListener("keydown", evento => {
+
+    if (
+        evento.key === "Escape" &&
+        !menuUsuario.hidden
+    ) {
+
+        fecharMenuUsuario();
+
+        botaoMenuUsuario.focus();
+
+    }
+
+});
 
 // ================================
 // PROJETOS EM DESTAQUE
@@ -1480,48 +1862,88 @@ function formatarDataAtividade(data) {
 
 carregarComunidade();
 
+
 // ==========================
-// LOGOUT
+// SAIR E TROCAR DE CONTA
 // ==========================
 
 const botaoSair =
     document.getElementById("botaoSair");
 
-botaoSair.addEventListener(
-    "click",
-    async function () {
+const botaoTrocarConta =
+    document.getElementById("botaoTrocarConta");
 
-        try {
+let encerrandoSessao = false;
 
-            const resposta =
-                await fetch("/api/logout", {
-                    method: "POST"
-                });
 
-            if (!resposta.ok) {
+// FINALIZAR A SESSÃO ATUAL
 
-                alert(
-                    "Não foi possível sair da conta."
-                );
+async function encerrarSessaoUsuario(destino) {
 
-                return;
+    if (encerrandoSessao) return;
+
+    encerrandoSessao = true;
+
+    botaoSair.disabled = true;
+    botaoTrocarConta.disabled = true;
+
+    try {
+
+        const resposta = await fetch(
+            "/api/logout",
+            {
+                method: "POST",
+                credentials: "same-origin"
             }
+        );
 
-            window.location.href =
-                "/index.html";
+        if (!resposta.ok) {
 
-
-        } catch (erro) {
-
-            console.error(
-                "Erro ao sair:",
-                erro
+            throw new Error(
+                "Não foi possível encerrar a sessão."
             );
 
         }
 
+        window.location.href = destino;
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao sair da conta:",
+            erro
+        );
+
+        alert(
+            "Não foi possível sair da conta. Tente novamente."
+        );
+
+        encerrandoSessao = false;
+
+        botaoSair.disabled = false;
+        botaoTrocarConta.disabled = false;
+
     }
-);
+
+}
+
+
+// SAIR: VOLTAR PARA A HOME
+
+botaoSair.addEventListener("click", () => {
+
+    encerrarSessaoUsuario("/index.html");
+
+});
+
+
+// TROCAR DE CONTA: ABRIR LOGIN
+
+botaoTrocarConta.addEventListener("click", () => {
+
+    encerrarSessaoUsuario("/Pages/login.html");
+
+});
 
 
 // ==========================================

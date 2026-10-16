@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Explorar Perfis | Break Tec</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/usuarios.css"
+    >
+
+    <script
+        src="../js/usuarios.js"
+        defer
+    ></script>
+
+</head>
+
+<body>
+
+    <!-- ==================================
+         CABEÇALHO
+    =================================== -->
+
+    <header class="usuarios-header">
+
+        <a
+            href="../index.html"
+            class="usuarios-logo"
+        >
+
+            <img
+                src="../assets/logo-breaktec.png"
+                alt=""
+            >
+
+            <span>BREAKTEC</span>
+
+        </a>
+
+        <a
+            href="../index.html"
+            class="usuarios-voltar"
+        >
+            Voltar ao início
+        </a>
+
+    </header>
+
+
+    <main class="usuarios-container">
+
+        <!-- ==================================
+             APRESENTAÇÃO
+        =================================== -->
+
+        <section class="usuarios-apresentacao">
+
+            <span class="usuarios-etiqueta">
+                COMUNIDADE BREAK TEC
+            </span>
+
+            <h1>Explorar perfis</h1>
+
+            <p>
+                Conheça outros jogadores, descubra
+                suas avaliações e explore os projetos
+                criados pela comunidade.
+            </p>
+
+        </section>
+
+
+        <!-- ==================================
+             PESQUISA DE MEMBROS
+        =================================== -->
+
+        <section
+            class="usuarios-pesquisa"
+            aria-label="Pesquisar membros"
+        >
+
+            <label for="pesquisaUsuarios">
+                Encontrar jogadores
+            </label>
+
+            <div class="usuarios-pesquisa-campo">
+
+                <input
+                    type="search"
+                    id="pesquisaUsuarios"
+                    placeholder="Pesquisar pelo nome..."
+                    autocomplete="off"
+                    maxlength="60"
+                >
+
+                <button
+                    type="button"
+                    id="limparPesquisaUsuarios"
+                    aria-label="Limpar pesquisa"
+                    hidden
+                >
+                    ×
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================
+             RESULTADOS
+        =================================== -->
+
+        <section
+            class="usuarios-resultados"
+            aria-labelledby="usuariosResultadosTitulo"
+        >
+
+            <div class="usuarios-resultados-topo">
+
+                <div>
+
+                    <span class="usuarios-etiqueta">
+                        MEMBROS
+                    </span>
+
+                    <h2 id="usuariosResultadosTitulo">
+                        Jogadores da comunidade
+                    </h2>
+
+                </div>
+
+                <span
+                    id="usuariosQuantidade"
+                    aria-live="polite"
+                >
+                    Carregando...
+                </span>
+
+            </div>
+
+
+            <!-- CARDS GERADOS PELO JS -->
+
+            <div
+                class="usuarios-grid"
+                id="usuariosGrid"
+            >
+
+                <div class="usuarios-carregando">
+
+                    Carregando perfis públicos...
+
+                </div>
+
+            </div>
+
+
+            <!-- MENSAGENS DE ERRO -->
+
+            <p
+                id="usuariosMensagem"
+                class="usuarios-mensagem"
+                role="status"
+                aria-live="polite"
+                hidden
+            ></p>
+
+
+            <!-- ==================================
+                 PAGINAÇÃO
+            =================================== -->
+
+            <nav
+                class="usuarios-paginacao"
+                aria-label="Páginas de usuários"
+                id="usuariosPaginacao"
+                hidden
+            >
+
+                <button
+                    type="button"
+                    id="usuariosAnterior"
+                    disabled
+                >
+                    Anterior
+                </button>
+
+                <span id="usuariosPagina">
+                    Página 1
+                </span>
+
+                <button
+                    type="button"
+                    id="usuariosProximo"
+                    disabled
+                >
+                    Próxima 
+                </button>
+
+            </nav>
+
+        </section>
+
+
+        <!-- ==================================
+             INFORMAÇÃO DE PRIVACIDADE
+        =================================== -->
+
+        <aside class="usuarios-privacidade">
+
+            <h2>Quer aparecer na comunidade?</h2>
+
+            <p>
+                Os perfis exibidos aqui pertencem
+                aos membros que autorizaram sua
+                visualização pública.
+            </p>
+
+            <p>
+                Você pode ativar ou desativar essa
+                opção nas configurações do seu perfil.
+            </p>
+
+            <a href="perfil.html">
+                Gerenciar meu perfil
+            </a>
+
+        </aside>
+
+    </main>
+
+
+    <!-- ==================================
+         RODAPÉ
+    =================================== -->
+
+    <footer class="usuarios-footer">
+
+        <p>
+            BREAK TEC — Uma comunidade feita
+            para quem ama jogos.
+        </p>
+
+    </footer>
+
+</body>
+
+</html>

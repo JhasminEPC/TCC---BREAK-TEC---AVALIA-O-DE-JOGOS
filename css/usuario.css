@@ -1,0 +1,1250 @@
+
+/* ==========================================
+   BREAK TEC - PERFIL PÚBLICO
+========================================== */
+
+/* CONFIGURAÇÕES GERAIS */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #090707;
+    color: #ffffff;
+
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+    text-decoration: none;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+/* ==========================================
+   CABEÇALHO
+========================================== */
+
+.usuario-header {
+    min-height: 85px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+    padding: 14px 7%;
+
+    background: linear-gradient(
+        90deg,
+        #8e1d10,
+        #470c08
+    );
+
+    border-bottom: 1px solid #68251c;
+}
+
+.usuario-logo {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    color: #ffffff;
+
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.usuario-logo img {
+    width: 53px;
+    height: 53px;
+
+    object-fit: cover;
+
+    border: 2px solid #ef4b35;
+    border-radius: 50%;
+}
+
+.usuario-voltar {
+    color: #eeeeee;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    transition: color 0.25s ease;
+}
+
+.usuario-voltar:hover {
+    color: #ff9988;
+}
+
+/* ==========================================
+   CONTEÚDO PRINCIPAL
+========================================== */
+
+.usuario-container {
+    width: min(90%, 1120px);
+
+    flex: 1;
+
+    margin: 0 auto;
+    padding: 70px 0 95px;
+}
+
+/* ==========================================
+   ESTADOS DE CARREGAMENTO E ERRO
+========================================== */
+
+.usuario-estado {
+    max-width: 650px;
+
+    margin: 60px auto;
+    padding: 45px 30px;
+
+    color: #b4a5a0;
+    background: #17100e;
+
+    border: 1px solid #493029;
+    border-radius: 14px;
+
+    font-size: 14px;
+    line-height: 1.8;
+
+    text-align: center;
+}
+
+.usuario-erro h1 {
+    margin-bottom: 15px;
+
+    color: #ffffff;
+
+    font-size: 25px;
+}
+
+.usuario-erro p {
+    margin-bottom: 20px;
+
+    color: #a99b97;
+}
+
+.usuario-erro a {
+    display: inline-block;
+
+    padding: 12px 19px;
+
+    color: #ffffff;
+    background: #b72b1c;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.usuario-erro a:hover {
+    background: #f23820;
+}
+
+/* ==========================================
+   APRESENTAÇÃO DO JOGADOR
+========================================== */
+
+.usuario-apresentacao {
+    position: relative;
+
+    padding: 38px;
+
+    overflow: hidden;
+
+    background: linear-gradient(
+        135deg,
+        #241310,
+        #120c0b 75%
+    );
+
+    border: 1px solid #573027;
+    border-radius: 17px;
+}
+
+.usuario-apresentacao::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 4px;
+
+    background: linear-gradient(
+        90deg,
+        #f23820,
+        #862216,
+        transparent
+    );
+}
+
+.usuario-etiqueta {
+    display: block;
+
+    margin-bottom: 18px;
+
+    color: #ff624b;
+
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.6px;
+}
+
+/* ==========================================
+   IDENTIDADE E AVATAR
+========================================== */
+
+.usuario-identidade {
+    display: flex;
+    align-items: center;
+
+    gap: 28px;
+}
+
+.usuario-avatar {
+    width: 112px;
+    height: 112px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    background: linear-gradient(
+        135deg,
+        #a33b2d,
+        #3b1712
+    );
+
+    border: 3px solid #dc5541;
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 25px rgba(242, 56, 32, 0.15);
+}
+
+#usuarioInicial {
+    color: #ffffff;
+
+    font-size: 47px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+}
+
+.usuario-informacoes {
+    min-width: 0;
+}
+
+.usuario-membro {
+    display: inline-block;
+
+    margin-bottom: 10px;
+
+    color: #ff9c8a;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+#usuarioNome {
+    margin-bottom: 13px;
+
+    color: #ffffff;
+
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+
+    line-height: 1.2;
+
+    overflow-wrap: anywhere;
+}
+
+#usuarioBiografia {
+    max-width: 700px;
+
+    color: #b4a5a0;
+
+    font-size: 14px;
+    line-height: 1.9;
+
+    overflow-wrap: anywhere;
+
+    white-space: pre-line;
+}
+
+/* ==========================================
+   ESTATÍSTICAS DO JOGADOR
+========================================== */
+
+.usuario-estatisticas {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 22px;
+
+    margin-top: 26px;
+}
+
+.usuario-estatistica {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    min-height: 120px;
+    padding: 25px;
+
+    background: linear-gradient(
+        145deg,
+        #211411,
+        #120c0b
+    );
+
+    border: 1px solid #4a2922;
+    border-radius: 13px;
+}
+
+.usuario-estatistica strong {
+    color: #ffffff;
+
+    font-size: 34px;
+    font-weight: 800;
+}
+
+.usuario-estatistica span {
+    color: #a99b97;
+
+    font-size: 13px;
+
+    text-align: center;
+}
+
+/* ==========================================
+   SEÇÕES DO PERFIL
+========================================== */
+
+.usuario-secao {
+    margin-top: 70px;
+}
+
+.usuario-secao-topo {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 26px;
+}
+
+.usuario-secao-topo h2 {
+    margin-bottom: 10px;
+
+    color: #ffffff;
+
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+}
+
+.usuario-secao-topo p {
+    color: #a99b97;
+
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+/* ==========================================
+   AVALIAÇÕES RECENTES
+========================================== */
+
+.usuario-avaliacoes-lista {
+    display: flex;
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+.usuario-avaliacao-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 22px;
+
+    padding: 22px 25px;
+
+    background: linear-gradient(
+        145deg,
+        #1e1210,
+        #100b0a
+    );
+
+    border: 1px solid #4b2c25;
+    border-radius: 11px;
+
+    transition:
+        border-color 0.25s ease,
+        transform 0.25s ease;
+}
+
+.usuario-avaliacao-card:hover {
+    border-color: #9e3a2b;
+    transform: translateY(-2px);
+}
+
+.usuario-avaliacao-info {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 9px;
+}
+
+.usuario-avaliacao-titulo {
+    color: #ffffff;
+
+    font-size: 17px;
+    font-weight: 700;
+
+    overflow-wrap: anywhere;
+}
+
+.usuario-avaliacao-titulo:hover {
+    color: #ff806d;
+}
+
+.usuario-avaliacao-origem {
+    display: inline-block;
+
+    width: fit-content;
+
+    padding: 6px 9px;
+
+    border-radius: 5px;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 0.6px;
+}
+
+.usuario-avaliacao-origem.oficial {
+    color: #ff8874;
+
+    background: #3b1914;
+
+    border: 1px solid #8e3b2e;
+}
+
+.usuario-avaliacao-origem.comunidade {
+    color: #c9b6ff;
+
+    background: #291e40;
+
+    border: 1px solid #674b9a;
+}
+
+.usuario-avaliacao-data {
+    color: #8e817d;
+
+    font-size: 11px;
+}
+
+.usuario-avaliacao-nota {
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    color: #ffbb74;
+
+    font-size: 19px;
+    font-weight: 800;
+}
+
+/* ==========================================
+   PROJETOS PUBLICADOS
+========================================== */
+
+.usuario-projetos-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 23px;
+}
+
+.usuario-projeto-card {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+
+    overflow: hidden;
+
+    background: linear-gradient(
+        145deg,
+        #1e1210,
+        #100b0a
+    );
+
+    border: 1px solid #493029;
+    border-radius: 13px;
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.usuario-projeto-card:hover {
+    transform: translateY(-5px);
+
+    border-color: #a63a2c;
+}
+
+/* CAPA */
+
+.usuario-projeto-imagem {
+    width: 100%;
+    height: 185px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    background: linear-gradient(
+        135deg,
+        #3e1811,
+        #170c0a
+    );
+
+    color: #9a665c;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    letter-spacing: 2px;
+}
+
+.usuario-projeto-imagem img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+}
+
+/* CONTEÚDO */
+
+.usuario-projeto-conteudo {
+    display: flex;
+    flex-direction: column;
+
+    flex: 1;
+
+    gap: 12px;
+
+    padding: 22px;
+}
+
+.usuario-projeto-categoria {
+    color: #ff6c56;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+}
+
+.usuario-projeto-conteudo h3 {
+    color: #ffffff;
+
+    font-size: 19px;
+
+    line-height: 1.4;
+
+    overflow-wrap: anywhere;
+}
+
+.usuario-projeto-descricao {
+    color: #a99b97;
+
+    font-size: 13px;
+    line-height: 1.7;
+
+    overflow-wrap: anywhere;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+
+    overflow: hidden;
+}
+
+.usuario-projeto-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 43px;
+
+    margin-top: auto;
+    padding: 12px;
+
+    color: #ffffff;
+    background: #b72b1c;
+
+    border-radius: 7px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition: background 0.25s ease;
+}
+
+.usuario-projeto-link:hover {
+    background: #f23820;
+}
+
+/* ==========================================
+   ESTADOS VAZIOS
+========================================== */
+
+.usuario-vazio {
+    grid-column: 1 / -1;
+
+    padding: 45px 25px;
+
+    color: #a99b97;
+    background: #150e0c;
+
+    border: 1px dashed #50342c;
+    border-radius: 11px;
+
+    text-align: center;
+
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+/* ==========================================
+   NAVEGAÇÃO FINAL
+========================================== */
+
+.usuario-navegacao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 15px;
+
+    margin-top: 70px;
+    padding-top: 30px;
+
+    border-top: 1px solid #34211c;
+}
+
+.usuario-navegacao-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 45px;
+
+    padding: 13px 20px;
+
+    color: #ffffff;
+    background: #b72b1c;
+
+    border: 1px solid #c93b29;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.usuario-navegacao-link:hover {
+    background: #f23820;
+}
+
+.usuario-navegacao-link.secundario {
+    background: #201411;
+    border-color: #5b362c;
+}
+
+.usuario-navegacao-link.secundario:hover {
+    background: #392019;
+    border-color: #bc5543;
+}
+
+/* ==========================================
+   RODAPÉ
+========================================== */
+
+.usuario-footer {
+    padding: 27px 20px;
+
+    color: #827673;
+
+    border-top: 1px solid #33211c;
+
+    font-size: 12px;
+    text-align: center;
+}
+
+/* ==========================================
+   ACESSIBILIDADE
+========================================== */
+
+a:focus-visible {
+    outline: 3px solid #ffad8b;
+    outline-offset: 3px;
+}
+
+/* ==========================================
+   RESPONSIVIDADE
+========================================== */
+
+@media (max-width: 950px) {
+
+    .usuario-projetos-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+@media (max-width: 650px) {
+
+    .usuario-header {
+        padding: 14px 5%;
+    }
+
+    .usuario-logo {
+        gap: 9px;
+        font-size: 16px;
+    }
+
+    .usuario-logo img {
+        width: 43px;
+        height: 43px;
+    }
+
+    .usuario-voltar {
+        font-size: 11px;
+    }
+
+    .usuario-container {
+        padding: 42px 0 70px;
+    }
+
+    .usuario-apresentacao {
+        padding: 25px 20px;
+    }
+
+    .usuario-identidade {
+        flex-direction: column;
+        align-items: flex-start;
+
+        gap: 20px;
+    }
+
+    .usuario-avatar {
+        width: 85px;
+        height: 85px;
+    }
+
+    #usuarioInicial {
+        font-size: 35px;
+    }
+
+    .usuario-estatisticas {
+        gap: 12px;
+    }
+
+    .usuario-estatistica {
+        min-height: 105px;
+        padding: 17px 10px;
+    }
+
+    .usuario-estatistica strong {
+        font-size: 27px;
+    }
+
+    .usuario-estatistica span {
+        font-size: 11px;
+    }
+
+    .usuario-secao {
+        margin-top: 50px;
+    }
+
+    .usuario-avaliacao-card {
+        padding: 18px;
+        gap: 12px;
+    }
+
+    .usuario-avaliacao-titulo {
+        font-size: 14px;
+    }
+
+    .usuario-avaliacao-nota {
+        font-size: 15px;
+    }
+
+    .usuario-projetos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .usuario-navegacao {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .usuario-navegacao-link {
+        width: 100%;
+    }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+
+}
+
+
+
+/* ==========================================
+   GAMER PASSPORT - PERFIL PÚBLICO
+========================================== */
+
+.usuario-passport {
+    margin-top: 28px;
+    padding: 28px;
+
+    background: linear-gradient(
+        135deg,
+        #27130f,
+        #120a09
+    );
+
+    border: 1px solid #733d31;
+    border-radius: 15px;
+}
+
+/* CABEÇALHO */
+
+.usuario-passport-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.usuario-passport-topo .usuario-etiqueta {
+    margin-bottom: 9px;
+}
+
+.usuario-passport-topo h2 {
+    color: #ffffff;
+    font-size: 23px;
+}
+
+.usuario-passport-topo p {
+    margin-top: 8px;
+
+    color: #ab9994;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* SELO */
+
+.usuario-passport-selo {
+    padding: 9px 12px;
+
+    color: #ff917e;
+    background: #3a1c17;
+
+    border: 1px solid #71392d;
+    border-radius: 6px;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+/* GRID DAS INFORMAÇÕES */
+
+.usuario-passport-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+.usuario-passport-campo {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+    min-width: 0;
+    padding: 17px;
+
+    background: #150c0a;
+
+    border: 1px solid #503026;
+    border-radius: 9px;
+}
+
+.usuario-passport-campo span {
+    color: #ff947e;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.usuario-passport-campo strong {
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.6;
+
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+}
+
+/* LEMA OCUPANDO A LARGURA INTEIRA */
+
+.usuario-passport-lema {
+    grid-column: 1 / -1;
+}
+
+.usuario-passport-lema strong {
+    font-style: italic;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 650px) {
+
+    .usuario-passport {
+        padding: 20px;
+    }
+
+    .usuario-passport-topo {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .usuario-passport-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .usuario-passport-lema {
+        grid-column: auto;
+    }
+
+}
+
+
+/* ==========================================
+   GAME VAULT - PERFIL PÚBLICO
+========================================== */
+
+.usuario-game-vault {
+    margin-top: 28px;
+    padding: 28px;
+
+    background: linear-gradient(
+        135deg,
+        #24130f,
+        #110a09
+    );
+
+    border: 1px solid #63392e;
+    border-radius: 15px;
+}
+
+
+/* CABEÇALHO */
+
+.usuario-vault-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.usuario-vault-topo .usuario-etiqueta {
+    margin-bottom: 9px;
+}
+
+.usuario-vault-topo h2 {
+    color: #ffffff;
+    font-size: 24px;
+}
+
+.usuario-vault-topo p {
+    margin-top: 8px;
+
+    color: #ad9992;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.usuario-vault-selo {
+    padding: 9px 12px;
+
+    background: #3b2019;
+    color: #ff917e;
+
+    border: 1px solid #704033;
+    border-radius: 6px;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+
+/* GRID DOS TRÊS JOGOS */
+
+.usuario-vault-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 15px;
+}
+
+
+/* CARD */
+
+.usuario-vault-card {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+    padding: 15px;
+    gap: 11px;
+
+    background: #170e0c;
+
+    border: 1px solid #503026;
+    border-radius: 11px;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.usuario-vault-card:hover {
+    transform: translateY(-3px);
+    border-color: #a74735;
+}
+
+
+/* NÚMERO */
+
+.usuario-vault-numero {
+    color: #80574d;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+
+/* CAPA */
+
+.usuario-vault-capa {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    background: linear-gradient(
+        135deg,
+        #3a2019,
+        #1b0c09
+    );
+
+    border-radius: 8px;
+
+    color: #bb6c59;
+    font-size: 30px;
+}
+
+.usuario-vault-capa img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+    object-fit: cover;
+}
+
+
+/* INFORMAÇÕES */
+
+.usuario-vault-tipo {
+    color: #ff8068;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+}
+
+.usuario-vault-card h3 {
+    color: #ffffff;
+
+    font-size: 15px;
+    line-height: 1.4;
+
+    overflow-wrap: anywhere;
+}
+
+.usuario-vault-card p {
+    color: #aa9892;
+
+    font-size: 12px;
+    line-height: 1.6;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* LINK PARA O JOGO */
+
+.usuario-vault-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 38px;
+
+    margin-top: auto;
+    padding: 10px;
+
+    color: #ffffff;
+    background: #a82e20;
+
+    border-radius: 7px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition: background 0.2s ease;
+}
+
+.usuario-vault-link:hover {
+    background: #f23820;
+}
+
+.usuario-vault-link:focus-visible {
+    outline: 3px solid #ffad8b;
+    outline-offset: 3px;
+}
+
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 800px) {
+
+    .usuario-vault-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .usuario-game-vault {
+        padding: 20px;
+    }
+
+    .usuario-vault-topo {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .usuario-vault-grid {
+        grid-template-columns: 1fr;
+    }
+
+}

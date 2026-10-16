@@ -94,3 +94,28 @@ window.location.href =
 
     }
 );
+
+// ==========================================
+// MOSTRAR / OCULTAR SENHA NO LOGIN
+// ==========================================
+
+const botaoMostrarSenha =
+    document.getElementById("showPassword");
+
+botaoMostrarSenha.addEventListener("click", function () {
+
+    const senhaVisivel = password.type === "password";
+
+    password.type = senhaVisivel ? "text" : "password";
+
+    botaoMostrarSenha.setAttribute(
+        "aria-label",
+        senhaVisivel ? "Ocultar senha" : "Mostrar senha"
+    );
+
+    botaoMostrarSenha.setAttribute(
+        "aria-pressed",
+        String(senhaVisivel)
+    );
+
+});

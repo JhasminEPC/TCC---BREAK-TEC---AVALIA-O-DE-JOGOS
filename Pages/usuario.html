@@ -1,0 +1,459 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Perfil Público | Break Tec</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/usuario.css"
+    >
+
+    <script
+        src="../js/usuario.js"
+        defer
+    ></script>
+
+</head>
+
+<body>
+
+    <!-- =====================================
+         CABEÇALHO
+    ====================================== -->
+
+    <header class="usuario-header">
+
+        <a
+            href="../index.html"
+            class="usuario-logo"
+        >
+
+            <img
+                src="../assets/logo-breaktec.png"
+                alt=""
+            >
+
+            <span>BREAKTEC</span>
+
+        </a>
+
+        <a
+            href="usuarios.html"
+            class="usuario-voltar"
+        >
+            ← Explorar perfis
+        </a>
+
+    </header>
+
+
+    <main class="usuario-container">
+
+        <!-- =====================================
+             STATUS DE CARREGAMENTO
+        ====================================== -->
+
+        <div
+            id="usuarioCarregando"
+            class="usuario-estado"
+            role="status"
+        >
+            Carregando perfil público...
+        </div>
+
+
+        <!-- =====================================
+             MENSAGEM DE ERRO
+        ====================================== -->
+
+        <div
+            id="usuarioErro"
+            class="usuario-estado usuario-erro"
+            role="alert"
+            hidden
+        >
+
+            <h1>Perfil indisponível</h1>
+
+            <p id="usuarioErroMensagem">
+                Não foi possível carregar este perfil.
+            </p>
+
+            <a href="usuarios.html">
+                Voltar para Explorar Perfis
+            </a>
+
+        </div>
+
+
+        <!-- =====================================
+             CONTEÚDO DO PERFIL
+        ====================================== -->
+
+        <div id="usuarioConteudo" hidden>
+
+
+            <!-- APRESENTAÇÃO -->
+
+            <section class="usuario-apresentacao">
+
+                <span class="usuario-etiqueta">
+                    COMUNIDADE BREAK TEC
+                </span>
+
+                <div class="usuario-identidade">
+
+                    <!-- AVATAR -->
+
+                    <div
+                        class="usuario-avatar"
+                        aria-hidden="true"
+                    >
+
+                        <span id="usuarioInicial">
+                            J
+                        </span>
+
+                    </div>
+
+
+                    <!-- NOME E BIOGRAFIA -->
+
+                    <div class="usuario-informacoes">
+
+                        <span class="usuario-membro">
+                            MEMBRO DA COMUNIDADE
+                        </span>
+
+                        <h1 id="usuarioNome">
+                            Jogador
+                        </h1>
+
+                        <p id="usuarioBiografia">
+                            Este jogador ainda não
+                            adicionou uma biografia.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            
+<!-- =====================================
+     GAMER PASSPORT PÚBLICO
+====================================== -->
+
+<section
+    class="usuario-passport"
+    id="usuarioPassport"
+    aria-labelledby="usuarioPassportTitulo"
+    hidden
+>
+
+    <div class="usuario-passport-topo">
+
+        <div>
+            <span class="usuario-etiqueta">
+                BREAK TEC — PLAYER IDENTITY
+            </span>
+
+            <h2 id="usuarioPassportTitulo">
+                Gamer Passport
+            </h2>
+
+            <p>
+                Conheça a identidade gamer deste jogador.
+            </p>
+        </div>
+
+        <span class="usuario-passport-selo">
+            PLAYER ID
+        </span>
+
+    </div>
+
+    <div class="usuario-passport-grid">
+
+        <!-- ARQUÉTIPO -->
+
+        <div class="usuario-passport-campo">
+            <span>Arquétipo gamer</span>
+            <strong id="usuarioPassportArquetipo">
+                Não informado
+            </strong>
+        </div>
+
+        <!-- GÊNEROS -->
+
+        <div class="usuario-passport-campo">
+            <span>Gêneros favoritos</span>
+            <strong id="usuarioPassportGeneros">
+                Não informado
+            </strong>
+        </div>
+
+        <!-- PLATAFORMA -->
+
+        <div class="usuario-passport-campo">
+            <span>Plataforma favorita</span>
+            <strong id="usuarioPassportPlataforma">
+                Não informado
+            </strong>
+        </div>
+
+        <!-- ESTILO -->
+
+        <div class="usuario-passport-campo">
+            <span>Estilo de jogo</span>
+            <strong id="usuarioPassportEstilo">
+                Não informado
+            </strong>
+        </div>
+
+        <!-- LEMA -->
+
+        <div class="usuario-passport-campo usuario-passport-lema">
+            <span>Lema gamer</span>
+            <strong id="usuarioPassportLema">
+                Não informado
+            </strong>
+        </div>
+
+        </div>
+
+    </section>
+
+    
+<!-- ==========================================
+     GAME VAULT PÚBLICO
+========================================== -->
+
+    <section
+        class="usuario-game-vault"
+        id="usuarioGameVault"
+        aria-labelledby="usuarioVaultTitulo"
+        hidden>
+
+        <div class="usuario-vault-topo">
+
+        <div>
+
+            <span class="usuario-etiqueta">
+                COLEÇÃO PESSOAL
+            </span>
+
+            <h2 id="usuarioVaultTitulo">
+                Game Vault
+            </h2>
+
+            <p>
+                Conheça os jogos escolhidos por este membro.
+            </p>
+
+        </div>
+
+        <span class="usuario-vault-selo">
+            GAME COLLECTION
+        </span>
+
+    </div>
+
+
+    <!-- OS TRÊS JOGOS SERÃO GERADOS PELO JS -->
+
+    <div
+        class="usuario-vault-grid"
+        id="usuarioVaultGrid"
+    ></div>
+
+    </section>
+
+
+            <!-- =====================================
+                 ESTATÍSTICAS
+            ====================================== -->
+
+            <section
+                class="usuario-estatisticas"
+                aria-label="Estatísticas do jogador"
+            >
+
+                <div class="usuario-estatistica">
+
+                    <strong id="usuarioTotalProjetos">
+                        0
+                    </strong>
+
+                    <span>
+                        Projetos publicados
+                    </span>
+
+                </div>
+
+
+                <div class="usuario-estatistica">
+
+                    <strong id="usuarioTotalAvaliacoes">
+                        0
+                    </strong>
+
+                    <span>
+                        Avaliações realizadas
+                    </span>
+
+                </div>
+
+            </section>
+
+
+            <!-- =====================================
+                 AVALIAÇÕES RECENTES
+            ====================================== -->
+
+            <section
+                class="usuario-secao"
+                aria-labelledby="usuarioAvaliacoesTitulo"
+            >
+
+                <div class="usuario-secao-topo">
+
+                    <div>
+
+                        <span class="usuario-etiqueta">
+                            ATIVIDADE
+                        </span>
+
+                        <h2 id="usuarioAvaliacoesTitulo">
+                            Avaliações recentes
+                        </h2>
+
+                        <p>
+                            Veja os jogos que este
+                            membro avaliou na Break Tec.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- GERADO PELO JAVASCRIPT -->
+
+                <div
+                    id="usuarioAvaliacoes"
+                    class="usuario-avaliacoes-lista"
+                >
+
+                    <p class="usuario-vazio">
+                        Nenhuma avaliação disponível.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =====================================
+                 PROJETOS PUBLICADOS
+            ====================================== -->
+
+            <section
+                class="usuario-secao"
+                aria-labelledby="usuarioProjetosTitulo"
+            >
+
+                <div class="usuario-secao-topo">
+
+                    <div>
+
+                        <span class="usuario-etiqueta">
+                            CRIAÇÕES
+                        </span>
+
+                        <h2 id="usuarioProjetosTitulo">
+                            Projetos publicados
+                        </h2>
+
+                        <p>
+                            Conheça os projetos que
+                            este membro compartilhou
+                            com a comunidade.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- GERADO PELO JAVASCRIPT -->
+
+                <div
+                    id="usuarioProjetos"
+                    class="usuario-projetos-grid"
+                >
+
+                    <p class="usuario-vazio">
+                        Este membro ainda não
+                        publicou projetos.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =====================================
+                 NAVEGAÇÃO
+            ====================================== -->
+
+            <div class="usuario-navegacao">
+
+                <a
+                    href="usuarios.html"
+                    class="usuario-navegacao-link"
+                >
+                    ← Conhecer outros jogadores
+                </a>
+
+                <a
+                    href="catalogo.html"
+                    class="usuario-navegacao-link secundario"
+                >
+                    Explorar jogos →
+                </a>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================
+         RODAPÉ
+    ====================================== -->
+
+    <footer class="usuario-footer">
+
+        <p>
+            BREAK TEC — Uma comunidade para
+            quem ama jogos.
+        </p>
+
+    </footer>
+
+</body>
+
+</html>

@@ -1,0 +1,340 @@
+
+/* ==========================================
+   BREAK TEC - CONFIGURAÇÕES
+========================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+body {
+    min-height: 100vh;
+
+    font-family: Arial, sans-serif;
+
+    background: #080808;
+    color: #ffffff;
+}
+
+/* CABEÇALHO */
+
+.config-header {
+    min-height: 85px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 20px 6%;
+    gap: 20px;
+
+    background: linear-gradient(
+        90deg,
+        #8f160d,
+        #3a0d08
+    );
+
+    border-bottom: 1px solid #67251c;
+}
+
+.config-logo {
+    color: #ffffff;
+
+    font-size: 24px;
+    font-weight: 900;
+
+    text-decoration: none;
+}
+
+.config-logo span {
+    color: #ff8068;
+}
+
+.config-header nav {
+    display: flex;
+    gap: 20px;
+}
+
+.config-header nav a {
+    color: #f1dcd7;
+
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.config-header nav a:hover {
+    color: #ffffff;
+}
+
+/* CONTEÚDO */
+
+.config-container {
+    width: min(900px, 92%);
+    margin: 0 auto;
+
+    padding: 55px 0 90px;
+}
+
+.config-apresentacao {
+    margin-bottom: 32px;
+}
+
+.config-etiqueta,
+.config-card-etiqueta {
+    color: #ff6654;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 1.4px;
+}
+
+.config-apresentacao h1 {
+    margin-top: 12px;
+
+    font-size: clamp(28px, 5vw, 38px);
+}
+
+.config-apresentacao p {
+    margin-top: 12px;
+
+    color: #aaa;
+    line-height: 1.6;
+}
+
+/* CARDS */
+
+.config-card {
+    margin-bottom: 22px;
+    padding: 30px;
+
+    background: linear-gradient(
+        135deg,
+        #1a110f,
+        #100b0a
+    );
+
+    border: 1px solid #482920;
+    border-radius: 14px;
+}
+
+.config-card-topo {
+    margin-bottom: 25px;
+}
+
+.config-card-topo h2 {
+    margin-top: 9px;
+    font-size: 23px;
+}
+
+.config-card-topo p {
+    margin-top: 9px;
+
+    color: #a99c98;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* DADOS PESSOAIS */
+
+.config-dados {
+    display: grid;
+    gap: 12px;
+}
+
+.config-dados > div {
+    padding: 16px;
+
+    background: #120d0b;
+
+    border: 1px solid #35231e;
+    border-radius: 8px;
+}
+
+.config-dados dt {
+    margin-bottom: 8px;
+
+    color: #a89b96;
+
+    font-size: 11px;
+    font-weight: bold;
+
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.config-dados dd {
+    color: #ffffff;
+
+    font-size: 15px;
+    overflow-wrap: anywhere;
+}
+
+.config-observacao,
+.config-ajuda {
+    margin-top: 15px;
+
+    color: #a99c98;
+
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* ALERTA SOBRE TELEFONE */
+
+.config-alerta {
+    padding: 16px;
+    margin-bottom: 20px;
+
+    background: #2b1b12;
+
+    border: 1px solid #80502c;
+    border-radius: 9px;
+}
+
+.config-alerta strong {
+    color: #ffc18a;
+    font-size: 13px;
+}
+
+.config-alerta p {
+    margin-top: 8px;
+
+    color: #d4bca9;
+
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.config-estado {
+    margin-bottom: 18px;
+
+    color: #ffad91;
+    font-size: 12px;
+}
+
+/* FORMULÁRIOS */
+
+.config-card form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 11px;
+}
+
+.config-card label {
+    margin-top: 7px;
+
+    color: #e9d8d4;
+
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.config-card input {
+    width: 100%;
+    max-width: 470px;
+
+    padding: 13px 14px;
+
+    background: #0e0908;
+    color: #ffffff;
+
+    border: 1px solid #493129;
+    border-radius: 7px;
+
+    font: inherit;
+    font-size: 14px;
+}
+
+.config-card input:focus {
+    outline: 2px solid #f23820;
+    outline-offset: 1px;
+}
+
+.config-card form button {
+    margin-top: 12px;
+    padding: 13px 20px;
+
+    background: #d23320;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.config-card form button:hover {
+    background: #f23820;
+}
+
+.config-card form button:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+
+.config-mensagem,
+.config-erro {
+    color: #ffad91;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* PRIVACIDADE */
+
+.config-privacidade {
+    padding: 22px;
+
+    border: 1px solid #37241f;
+    border-radius: 10px;
+
+    background: #100c0b;
+}
+
+.config-privacidade h2 {
+    font-size: 17px;
+}
+
+.config-privacidade p {
+    margin-top: 10px;
+
+    color: #aaa;
+
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+/* CELULAR */
+
+@media (max-width: 600px) {
+
+    .config-header {
+        padding: 18px 4%;
+    }
+
+    .config-logo {
+        font-size: 19px;
+    }
+
+    .config-header nav {
+        gap: 12px;
+    }
+
+    .config-card {
+        padding: 20px;
+    }
+
+}

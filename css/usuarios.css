@@ -1,0 +1,802 @@
+
+/* ==========================================
+   BREAK TEC - EXPLORAR PERFIS
+========================================== */
+
+/* CONFIGURAÇÕES GERAIS */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #090707;
+    color: #ffffff;
+
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+/* ==========================================
+   CABEÇALHO
+========================================== */
+
+.usuarios-header {
+    min-height: 85px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 14px 7%;
+
+    background: linear-gradient(
+        90deg,
+        #8e1d10,
+        #470c08
+    );
+
+    border-bottom: 1px solid #68251c;
+}
+
+.usuarios-logo {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    color: #ffffff;
+    text-decoration: none;
+
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.usuarios-logo img {
+    width: 53px;
+    height: 53px;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+    border: 2px solid #ef4b35;
+}
+
+.usuarios-voltar {
+    color: #eeeeee;
+
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    transition: color 0.25s ease;
+}
+
+.usuarios-voltar:hover {
+    color: #ff9988;
+}
+
+/* ==========================================
+   CONTEÚDO PRINCIPAL
+========================================== */
+
+.usuarios-container {
+    width: min(90%, 1120px);
+
+    flex: 1;
+
+    margin: 0 auto;
+
+    padding: 70px 0 95px;
+}
+
+/* ==========================================
+   APRESENTAÇÃO
+========================================== */
+
+.usuarios-apresentacao {
+    margin-bottom: 42px;
+}
+
+.usuarios-etiqueta {
+    display: block;
+
+    margin-bottom: 13px;
+
+    color: #f23820;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 1.6px;
+}
+
+.usuarios-apresentacao h1 {
+    margin-bottom: 17px;
+
+    font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.usuarios-apresentacao p {
+    max-width: 680px;
+
+    color: #a89d99;
+
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+/* ==========================================
+   PESQUISA DE USUÁRIOS
+========================================== */
+
+.usuarios-pesquisa {
+    padding: 25px;
+
+    background: linear-gradient(
+        145deg,
+        #1d110f,
+        #110b0a
+    );
+
+    border: 1px solid #49271f;
+    border-radius: 13px;
+
+    margin-bottom: 52px;
+}
+
+.usuarios-pesquisa label {
+    display: block;
+
+    margin-bottom: 12px;
+
+    color: #e9dfdc;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.usuarios-pesquisa-campo {
+    position: relative;
+}
+
+#pesquisaUsuarios {
+    width: 100%;
+    height: 50px;
+
+    padding: 0 52px 0 17px;
+
+    background: #0d0908;
+    color: #ffffff;
+
+    border: 1px solid #59352c;
+    border-radius: 9px;
+
+    outline: none;
+
+    font-size: 14px;
+
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+#pesquisaUsuarios::placeholder {
+    color: #80736e;
+}
+
+#pesquisaUsuarios:focus {
+    border-color: #f23820;
+
+    box-shadow:
+        0 0 0 3px rgba(242, 56, 32, 0.12);
+}
+
+/* BOTÃO LIMPAR PESQUISA */
+
+#limparPesquisaUsuarios {
+    position: absolute;
+
+    top: 50%;
+    right: 10px;
+
+    transform: translateY(-50%);
+
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: transparent;
+
+    color: #aaa09d;
+
+    border: none;
+    border-radius: 6px;
+
+    font-size: 24px;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+#limparPesquisaUsuarios:hover {
+    background: #38201a;
+    color: #ff7663;
+}
+
+/* ==========================================
+   CABEÇALHO DOS RESULTADOS
+========================================== */
+
+.usuarios-resultados-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    flex-wrap: wrap;
+
+    gap: 20px;
+
+    margin-bottom: 27px;
+}
+
+.usuarios-resultados-topo h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.3;
+}
+
+#usuariosQuantidade {
+    color: #a99b97;
+
+    font-size: 13px;
+}
+
+/* ==========================================
+   GRID DE PERFIS
+========================================== */
+
+.usuarios-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 23px;
+}
+
+/* ==========================================
+   CARD DO USUÁRIO
+========================================== */
+
+.usuario-card {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 20px;
+
+    min-width: 0;
+    min-height: 295px;
+
+    padding: 25px;
+
+    overflow: hidden;
+
+    background: linear-gradient(
+        150deg,
+        #1d1110,
+        #100b0b
+    );
+
+    border: 1px solid #473028;
+    border-radius: 14px;
+
+    transition:
+        transform 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.usuario-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background: linear-gradient(
+        90deg,
+        #f23820,
+        #8d2117,
+        transparent
+    );
+}
+
+.usuario-card:hover {
+    transform: translateY(-5px);
+
+    border-color: #a63a2c;
+
+    box-shadow:
+        0 16px 35px rgba(0, 0, 0, 0.35);
+}
+
+/* ==========================================
+   IDENTIDADE DO USUÁRIO
+========================================== */
+
+.usuario-card-identidade {
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+}
+
+.usuario-card-avatar {
+    width: 60px;
+    height: 60px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    color: #ffe2d9;
+
+    background: linear-gradient(
+        135deg,
+        #8a3025,
+        #361611
+    );
+
+    border: 2px solid #a34a3a;
+    border-radius: 50%;
+
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.usuario-card-avatar img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+.usuario-card-dados {
+    min-width: 0;
+}
+
+.usuario-card-nome {
+    color: #ffffff;
+
+    font-size: 18px;
+    font-weight: 800;
+
+    overflow-wrap: anywhere;
+
+    line-height: 1.4;
+}
+
+.usuario-card-etiqueta {
+    display: inline-block;
+
+    margin-top: 7px;
+
+    color: #ff8776;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+/* ==========================================
+   BIOGRAFIA
+========================================== */
+
+.usuario-card-biografia {
+    color: #a99c98;
+
+    font-size: 13px;
+    line-height: 1.8;
+
+    overflow-wrap: anywhere;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+
+    overflow: hidden;
+}
+
+/* ==========================================
+   ESTATÍSTICAS DOS PERFIS
+========================================== */
+
+.usuario-card-estatisticas {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 12px;
+
+    margin-top: auto;
+}
+
+.usuario-card-estatistica {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+
+    padding: 13px;
+
+    background: #211513;
+
+    border: 1px solid #39241f;
+    border-radius: 8px;
+}
+
+.usuario-card-estatistica strong {
+    color: #ffffff;
+
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.usuario-card-estatistica span {
+    color: #9e8f8a;
+
+    font-size: 11px;
+}
+
+/* ==========================================
+   BOTÃO VER PERFIL
+========================================== */
+
+.usuario-card-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 44px;
+
+    padding: 12px 16px;
+
+    color: #ffffff;
+    background: #b72b1c;
+
+    border: 1px solid #d9422f;
+    border-radius: 8px;
+
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition:
+        background 0.25s ease,
+        transform 0.25s ease;
+}
+
+.usuario-card-link:hover {
+    background: #f23820;
+    transform: translateY(-2px);
+}
+
+/* ==========================================
+   ESTADOS DA LISTAGEM
+========================================== */
+
+.usuarios-carregando,
+.usuarios-vazio,
+.usuarios-erro {
+    grid-column: 1 / -1;
+
+    padding: 65px 25px;
+
+    color: #a99c98;
+    background: #140e0d;
+
+    border: 1px dashed #57382f;
+    border-radius: 12px;
+
+    text-align: center;
+
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.usuarios-erro {
+    color: #ff9587;
+}
+
+.usuarios-mensagem {
+    margin-top: 20px;
+
+    padding: 15px;
+
+    color: #ffb19d;
+
+    background: #291511;
+
+    border: 1px solid #603229;
+    border-radius: 9px;
+
+    font-size: 13px;
+}
+
+/* ==========================================
+   PAGINAÇÃO
+========================================== */
+
+.usuarios-paginacao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 23px;
+
+    margin-top: 45px;
+}
+
+.usuarios-paginacao button {
+    min-height: 42px;
+
+    padding: 12px 20px;
+
+    color: #ffffff;
+    background: #211411;
+
+    border: 1px solid #62362b;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.usuarios-paginacao button:hover:not(:disabled) {
+    background: #a82a1c;
+    border-color: #f23820;
+}
+
+.usuarios-paginacao button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+#usuariosPagina {
+    color: #c3b6b1;
+
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* ==========================================
+   AVISO DE PRIVACIDADE
+========================================== */
+
+.usuarios-privacidade {
+    margin-top: 75px;
+    padding: 30px;
+
+    background: linear-gradient(
+        135deg,
+        #211310,
+        #130d0b
+    );
+
+    border: 1px solid #513027;
+    border-left: 4px solid #f23820;
+    border-radius: 12px;
+}
+
+.usuarios-privacidade h2 {
+    margin-bottom: 13px;
+
+    font-size: 20px;
+}
+
+.usuarios-privacidade p {
+    max-width: 760px;
+
+    margin-bottom: 10px;
+
+    color: #a99c98;
+
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.usuarios-privacidade a {
+    display: inline-block;
+
+    margin-top: 12px;
+
+    color: #ff806d;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+.usuarios-privacidade a:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================
+   RODAPÉ
+========================================== */
+
+.usuarios-footer {
+    padding: 27px 20px;
+
+    color: #827673;
+
+    border-top: 1px solid #33211c;
+
+    text-align: center;
+
+    font-size: 12px;
+}
+
+/* ==========================================
+   ACESSIBILIDADE
+========================================== */
+
+button:focus-visible,
+a:focus-visible {
+    outline: 3px solid #ffad8b;
+    outline-offset: 3px;
+}
+
+/* ==========================================
+   RESPONSIVIDADE
+========================================== */
+
+@media (max-width: 950px) {
+
+    .usuarios-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+@media (max-width: 650px) {
+
+    .usuarios-header {
+        padding: 14px 5%;
+    }
+
+    .usuarios-logo {
+        font-size: 16px;
+        gap: 9px;
+    }
+
+    .usuarios-logo img {
+        width: 43px;
+        height: 43px;
+    }
+
+    .usuarios-voltar {
+        font-size: 11px;
+    }
+
+    .usuarios-container {
+        padding: 43px 0 70px;
+    }
+
+    .usuarios-apresentacao {
+        margin-bottom: 30px;
+    }
+
+    .usuarios-pesquisa {
+        padding: 19px;
+        margin-bottom: 38px;
+    }
+
+    .usuarios-resultados-topo {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .usuarios-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .usuario-card {
+        min-height: 270px;
+        padding: 22px;
+    }
+
+    .usuarios-paginacao {
+        gap: 12px;
+    }
+
+    .usuarios-paginacao button {
+        padding: 11px 13px;
+    }
+
+    .usuarios-privacidade {
+        margin-top: 55px;
+        padding: 24px;
+    }
+
+}
+
+/* REDUÇÃO DE ANIMAÇÕES */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+
+}
+
+
+/* ==========================================
+   REMOVER X PADRÃO DO CAMPO DE PESQUISA
+========================================== */
+
+#pesquisaUsuarios::-webkit-search-cancel-button,
+#pesquisaUsuarios::-webkit-search-decoration {
+    display: none;
+    -webkit-appearance: none;
+    appearance: none;
+}

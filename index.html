@@ -197,6 +197,7 @@
         >
     </button>
 
+
     <!-- RESULTADOS DA PESQUISA -->
 
 <div class="search-results" id="searchResults" hidden>
@@ -266,27 +267,110 @@
 
 
     <!-- Aparece quando estiver LOGADO -->
-    <div
-        id="usuarioLogado"
-        class="usuario-logado"
+    
+<!-- Aparece quando estiver LOGADO -->
+
+<div
+    id="usuarioLogado"
+    class="usuario-logado"
+    hidden
+>
+
+    <!-- BOTÃO CIRCULAR DO AVATAR -->
+
+    <button
+        type="button"
+        id="botaoMenuUsuario"
+        class="usuario-avatar-botao"
+        aria-label="Abrir menu do usuário"
+        aria-expanded="false"
+        aria-controls="menuUsuario"
+    >
+
+        <img
+            id="fotoCabecalhoUsuario"
+            alt=""
+            hidden
+        >
+
+        <span
+            id="inicialCabecalhoUsuario"
+            aria-hidden="true"
+        >
+            U
+        </span>
+
+    </button>
+
+
+    <!-- MENU SUSPENSO -->
+
+    <nav
+        id="menuUsuario"
+        class="menu-usuario"
+        aria-label="Opções da conta"
         hidden
     >
 
-        <a
-            href="pages/perfil.html"
-            id="nomeUsuario"
-            class="nome-usuario"
-        ></a>
+        <div class="menu-usuario-identidade">
+
+            <strong id="nomeMenuUsuario">
+                Usuário
+            </strong>
+
+            <small>
+                Conta conectada
+            </small>
+
+        </div>
+
+        <div class="menu-usuario-divisor"></div>
+
+
+        <!-- MEU PERFIL -->
+
+        <a href="Pages/perfil.html">
+            <span aria-hidden="true">◉</span>
+            Meu perfil
+        </a>
+
+
+        <!-- CONFIGURAÇÕES -->
+
+        <a href="Pages/configuracoes.html">
+            <span aria-hidden="true">⚙</span>
+            Configurações
+        </a>
+
+
+        <div class="menu-usuario-divisor"></div>
+
+
+        <!-- TROCAR DE CONTA -->
+
+        <button
+            type="button"
+            id="botaoTrocarConta"
+        >
+            <span aria-hidden="true">⇄</span>
+            Trocar de conta
+        </button>
+
+
+        <!-- SAIR -->
 
         <button
             type="button"
             id="botaoSair"
-            class="botao-sair"
+            class="menu-usuario-sair"
         >
+            <span aria-hidden="true">↪</span>
             Sair
         </button>
 
-    </div>
+    </nav>
+
+</div>
 
 </div>
 

@@ -91,13 +91,24 @@
 
         <section class="perfil-cabecalho">
 
-            <div class="perfil-avatar">
+            
+        <div class="perfil-avatar">
 
-                <span id="perfilInicial">
-                    U
-                </span>
+    <!-- FOTO ENVIADA PELO USUÁRIO -->
 
-            </div>
+        <img
+            id="perfilFoto"
+            alt="Minha foto de perfil"
+            hidden>
+
+    <!-- AVATAR PADRÃO -->
+
+        <span id="perfilInicial">
+            U
+        </span>
+
+    </div>
+
 
 
             <div class="perfil-identidade">
@@ -113,72 +124,441 @@
                 <p id="perfilEmail">
                     email@exemplo.com
                 </p>
+                
+<!-- ==========================================
+     PERSONALIZAÇÃO DA FOTO
+========================================== -->
 
-            </div>
+        <div class="perfil-foto-controles" id="configuracoes">
 
-        </section>
+        <label for="perfilFotoArquivo">
+        Escolher foto de perfil
+        </label>
 
+        <input
+            type="file"
+            id="perfilFotoArquivo"
+            accept="image/jpeg,image/png,image/webp">
 
-<!-- ====================================
-     VISIBILIDADE DO PERFIL
-==================================== -->
-
-<section
-    class="perfil-visibilidade"
-    aria-labelledby="perfilVisibilidadeTitulo"
->
-
-    <div class="perfil-visibilidade-info">
-
-        <span class="perfil-visibilidade-etiqueta">
-            COMUNIDADE BREAK TEC
-        </span>
-
-        <h2 id="perfilVisibilidadeTitulo">
-            Visibilidade do perfil
-        </h2>
-
-        <p>
-            Escolha se outros jogadores poderão encontrar
-            e visualizar seu perfil na comunidade.
-        </p>
-
-        <p class="perfil-visibilidade-privacidade">
-            Seu e-mail, senha e favoritos privados
-            não serão exibidos publicamente.
-        </p>
-
-    </div>
-
-    <div class="perfil-visibilidade-controle">
-
-        <span
-            id="perfilVisibilidadeEstado"
-            class="perfil-visibilidade-estado"
-        >
-            Verificando...
-        </span>
+        <div class="perfil-foto-botoes">
 
         <button
             type="button"
-            id="perfilVisibilidadeBotao"
-            class="perfil-visibilidade-botao"
-            aria-pressed="false"
-            disabled
-        >
-            Carregando...
+            id="perfilFotoSalvar"
+            disabled>
+            Salvar foto
+        </button>
+
+        <button
+            type="button"
+            id="perfilFotoRemover"
+            hidden>
+            Remover foto
         </button>
 
     </div>
+
+      <p
+        id="perfilFotoMensagem"
+        role="status"
+        aria-live="polite"
+    ></p>
+
+</div>
+
+
+        </div>
+
+            
+<!-- VISIBILIDADE AO LADO DO USUÁRIO -->
+
+<div class="perfil-visibilidade-resumo">
+
+    <span
+        id="perfilVisibilidadeEstado"
+        class="perfil-visibilidade-estado">
+        Verificando...
+    </span>
+
+    <button
+        type="button"
+        id="perfilVisibilidadeBotao"
+        class="perfil-visibilidade-botao"
+        aria-pressed="false"
+        disabled>
+        Carregando...
+    </button>
 
     <p
         id="perfilVisibilidadeMensagem"
         class="perfil-visibilidade-mensagem"
         role="status"
-        aria-live="polite"
-    ></p>
+        aria-live="polite">
+    </p>
+
+</div>
+
+
+    </section>
+
+        
+<!-- ==========================================
+     GAMER PASSPORT
+========================================== -->
+
+<section class="gamer-passport" aria-labelledby="passportTitulo">
+
+    <div class="passport-topo">
+
+        <div class="passport-identidade">
+
+            <div class="passport-icone" aria-hidden="true">
+                ◈
+            </div>
+
+            <div>
+                <span class="passport-etiqueta">
+                    BREAK TEC — PLAYER IDENTITY
+                </span>
+
+                <h2 id="passportTitulo">
+                    Gamer Passport
+                </h2>
+
+                <p>
+                    Crie sua identidade dentro da comunidade.
+                </p>
+            </div>
+
+        </div>
+
+        <span class="passport-selo">
+            PLAYER ID
+        </span>
+
+    </div>
+
+    <!-- CAMPOS DO PASSPORT -->
+
+    <form id="passportForm">
+
+        <div class="passport-grid">
+
+            <!-- ARQUÉTIPO -->
+
+            <div class="passport-campo">
+
+                <label for="passportArquetipo">
+                    Arquétipo gamer
+                </label>
+
+                <input
+                    type="text"
+                    id="passportArquetipo"
+                    placeholder="Ex.: Explorador do Horror"
+                    maxlength="50"
+                    disabled
+                >
+
+            </div>
+
+            <!-- GÊNEROS -->
+
+            <div class="passport-campo">
+
+                <label for="passportGeneros">
+                    Gêneros favoritos
+                </label>
+
+                <input
+                    type="text"
+                    id="passportGeneros"
+                    placeholder="Ex.: Terror, RPG, Mistério"
+                    maxlength="100"
+                    disabled
+                >
+
+            </div>
+
+            <!-- PLATAFORMA -->
+
+            <div class="passport-campo">
+
+                <label for="passportPlataforma">
+                    Plataforma favorita
+                </label>
+
+                <select id="passportPlataforma" disabled>
+
+                    <option value="">
+                        Selecione sua plataforma
+                    </option>
+
+                    <option value="PC">PC</option>
+                    <option value="PlayStation">PlayStation</option>
+                    <option value="Xbox">Xbox</option>
+                    <option value="Nintendo">Nintendo</option>
+                    <option value="Mobile">Mobile</option>
+                    <option value="Multiplataforma">
+                        Multiplataforma
+                    </option>
+
+                </select>
+
+            </div>
+
+            <!-- ESTILO -->
+
+            <div class="passport-campo">
+
+                <label for="passportEstilo">
+                    Estilo de jogo
+                </label>
+
+                <select id="passportEstilo" disabled>
+
+                    <option value="">
+                        Selecione seu estilo
+                    </option>
+
+                    <option value="Solo">Solo</option>
+                    <option value="Cooperativo">Cooperativo</option>
+                    <option value="Competitivo">Competitivo</option>
+                    <option value="Casual">Casual</option>
+                    <option value="Variado">Variado</option>
+
+                </select>
+
+            </div>
+
+            <!-- LEMA -->
+
+            <div class="passport-campo passport-campo-completo">
+
+                <label for="passportLema">
+                    Lema gamer
+                </label>
+
+                <input
+                    type="text"
+                    id="passportLema"
+                    placeholder="Ex.: Sempre em busca do próximo desafio."
+                    maxlength="120"
+                    disabled
+                >
+
+            </div>
+
+        </div>
+
+        <div class="passport-rodape">
+
+            <p id="passportMensagem" role="status">
+                Personalização disponível em breve.
+            </p>
+
+            <button
+                type="submit"
+                id="passportSalvar"
+                disabled
+            >
+                Salvar Passport
+            </button>
+
+        </div>
+
+    </form>
 
 </section>
+
+<!-- BIOGRAFIA + GAME VAULT -->
+
+<div class="perfil-personalizacao-grid">
+
+<!-- =========================
+     MINHA BIOGRAFIA
+========================= -->
+
+<section class="perfil-biografia" aria-labelledby="perfilBiografiaTitulo">
+
+    <div class="perfil-biografia-cabecalho">
+
+        <div>
+            <span class="perfil-biografia-etiqueta">
+                PERSONALIZAÇÃO
+            </span>
+
+            <h2 id="perfilBiografiaTitulo">
+                Minha biografia
+            </h2>
+
+            <p>
+                Conte um pouco sobre você, seus jogos favoritos
+                e seus interesses na comunidade.
+            </p>
+        </div>
+
+    </div>
+
+    <form id="perfilBiografiaForm">
+
+        <label for="perfilBiografiaTexto" class="perfil-biografia-label">
+            Sobre mim
+        </label>
+
+        <textarea
+            id="perfilBiografiaTexto"
+            name="biografia"
+            rows="5"
+            maxlength="280"
+            placeholder="Ex.: Gosto de jogos de terror, RPGs e de conhecer novos projetos independentes..."
+            disabled
+        ></textarea>
+
+        <div class="perfil-biografia-rodape">
+
+            <span id="perfilBiografiaContador">
+                0/280 caracteres
+            </span>
+
+            <button
+                type="submit"
+                id="perfilBiografiaSalvar"
+                disabled
+            >
+                Carregando...
+            </button>
+
+        </div>
+
+        <p
+            id="perfilBiografiaMensagem"
+            class="perfil-biografia-mensagem"
+            role="status"
+            aria-live="polite"
+        ></p>
+
+    </form>
+
+</section>
+
+
+<!-- ==========================================
+     GAME VAULT
+========================================== -->
+
+<section class="game-vault" aria-labelledby="vaultTitulo">
+
+    <div class="vault-topo">
+
+        <span class="vault-etiqueta">
+            MINHA COLEÇÃO
+        </span>
+
+        <h2 id="vaultTitulo">
+            Game Vault
+        </h2>
+
+        <p>
+            Escolha três jogos que representam
+            sua jornada como jogador.
+        </p>
+
+    </div>
+
+    <div class="vault-grid">
+
+        <!-- FAVORITO -->
+
+        <article class="vault-slot">
+
+            <span class="vault-slot-numero">
+                01
+            </span>
+
+            <div class="vault-capa" aria-hidden="true">
+                +
+            </div>
+
+            <h3>Favorito</h3>
+
+            <p>Seu jogo favorito de todos os tempos.</p>
+
+            <button
+                type="button"
+                id="vaultFavorito"
+                disabled
+            >
+                Selecionar jogo
+            </button>
+
+        </article>
+
+
+        <!-- JOGANDO -->
+
+        <article class="vault-slot">
+
+            <span class="vault-slot-numero">
+                02
+            </span>
+
+            <div class="vault-capa" aria-hidden="true">
+                +
+            </div>
+
+            <h3>Jogando</h3>
+
+            <p>O jogo que está na sua lista atual.</p>
+
+            <button
+                type="button"
+                id="vaultJogando"
+                disabled
+            >
+                Selecionar jogo
+            </button>
+
+        </article>
+
+
+        <!-- QUERO JOGAR -->
+
+        <article class="vault-slot">
+
+            <span class="vault-slot-numero">
+                03
+            </span>
+
+            <div class="vault-capa" aria-hidden="true">
+                +
+            </div>
+
+            <h3>Quero jogar</h3>
+
+            <p>Sua próxima aventura.</p>
+
+            <button
+                type="button"
+                id="vaultDesejados"
+                disabled
+            >
+                Selecionar jogo
+            </button>
+
+        </article>
+
+    </div>
+
+    <p class="vault-observacao">
+        Escolha seus jogos favoritos do catálogo oficial da Break Tec.
+        Você pode trocar ou remover suas escolhas quando quiser.
+    </p>
+
+</section>
+
+</div> <!-- FIM DO GRID DE PERSONALIZAÇÃO -->
+
 
 
         <!-- ESTATÍSTICAS -->
@@ -390,9 +770,194 @@
 
     </main>
 
+    
+<!-- ==========================================
+     GAME VAULT - JANELA DE SELEÇÃO
+========================================== -->
+
+<dialog
+    id="vaultModal"
+    class="vault-modal"
+    aria-labelledby="vaultModalTitulo"
+>
+
+    <div class="vault-modal-topo">
+
+        <div>
+            <span class="vault-modal-etiqueta">
+                BREAK TEC — GAME VAULT
+            </span>
+
+            <h2 id="vaultModalTitulo">
+                Selecionar jogo
+            </h2>
+
+            <p id="vaultModalDescricao">
+                Pesquise um jogo oficial do catálogo.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            id="vaultFecharModal"
+            class="vault-modal-fechar"
+            aria-label="Fechar seleção de jogos"
+        >
+            ×
+        </button>
+
+    </div>
+
+    <!-- CAMPO DE PESQUISA -->
+
+    <label for="vaultBusca" class="vault-busca-label">
+        Nome do jogo
+    </label>
+
+    <input
+        type="search"
+        id="vaultBusca"
+        class="vault-busca"
+        placeholder="Ex.: Silent Hill, Minecraft, Resident Evil..."
+        maxlength="80"
+        autocomplete="off"
+    >
+
+    <!-- RESULTADOS DA RAWG -->
+
+    <div
+        id="vaultResultados"
+        class="vault-resultados"
+        aria-live="polite"
+    >
+        <p class="vault-estado">
+            Digite pelo menos duas letras para pesquisar.
+        </p>
+    </div>
+
+    <p
+        id="vaultModalMensagem"
+        class="vault-modal-mensagem"
+        role="status"
+        aria-live="polite"
+    ></p>
+
+</dialog>
+
+
+<!-- ==========================================
+     EDITOR DE FOTO DE PERFIL
+========================================== -->
+
+<dialog
+    id="fotoEditorModal"
+    class="foto-editor-modal"
+    aria-labelledby="fotoEditorTitulo"
+>
+
+    <div class="foto-editor-topo">
+
+        <div>
+            <span class="foto-editor-etiqueta">
+                BREAK TEC — PERSONALIZAÇÃO
+            </span>
+
+            <h2 id="fotoEditorTitulo">
+                Ajustar foto de perfil
+            </h2>
+
+            <p>
+                Arraste a imagem para escolher
+                o melhor enquadramento.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            id="fotoEditorFechar"
+            class="foto-editor-fechar"
+            aria-label="Fechar editor"
+        >
+            ×
+        </button>
+
+    </div>
+
+    <!-- PRÉVIA CIRCULAR -->
+
+    <div class="foto-editor-area">
+
+        <canvas
+            id="fotoEditorCanvas"
+            width="320"
+            height="320"
+            tabindex="0"
+            aria-label="Prévia circular. Arraste a foto ou use as teclas de seta para reposicionar."
+        ></canvas>
+
+    </div>
+
+    <!-- CONTROLE DE ZOOM -->
+
+    <div class="foto-editor-zoom">
+
+        <label for="fotoEditorZoom">
+            Zoom
+        </label>
+
+        <input
+            type="range"
+            id="fotoEditorZoom"
+            min="1"
+            max="3"
+            step="0.05"
+            value="1"
+        >
+
+        <span id="fotoEditorZoomValor">
+            100%
+        </span>
+
+    </div>
+
+    <!-- BOTÕES -->
+
+    <div class="foto-editor-acoes">
+
+        <button
+            type="button"
+            id="fotoEditorCancelar"
+            class="foto-editor-cancelar"
+        >
+            Cancelar
+        </button>
+
+        <button
+            type="button"
+            id="fotoEditorAplicar"
+            class="foto-editor-aplicar"
+        >
+            Aplicar ajuste
+        </button>
+
+    </div>
+
+    <p
+        id="fotoEditorMensagem"
+        class="foto-editor-mensagem"
+        role="status"
+    ></p>
+
+</dialog>
+
 
     <script src="../js/perfil.js"></script>
     <script src="../js/perfil-publico.js"></script>
+    <script src="../js/perfil-biografia.js"></script>
+    <script src="../js/perfil-passport.js"></script>
+    <script src="../js/perfil-game-vault.js"></script>
+    <script src="../js/editor-foto.js"></script>
+    <script src="../js/perfil-foto.js"></script>
 
 </body>
 

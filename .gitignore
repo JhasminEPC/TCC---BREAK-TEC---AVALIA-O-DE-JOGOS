@@ -2,3 +2,23 @@ node_modules/
 .env
 .DS_Store
 Thumbs.db
+
+# Dependências
+node_modules/
+
+# Senhas e chaves
+.env
+.env.*
+!.env.example
+
+# Arquivos privados dos usuários
+breaktec-uploads/
+uploads/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Backups locais
+*.bak
+*.sql.bak

@@ -1,0 +1,315 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Configurações da Conta | Break Tec</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/configuracoes.css"
+    >
+
+    <script
+        src="../js/configuracoes.js"
+        defer
+    ></script>
+</head>
+
+<body>
+
+    <!-- CABEÇALHO -->
+
+    <header class="config-header">
+
+        <a href="../index.html" class="config-logo">
+            BREAK<span>TEC</span>
+        </a>
+
+        <nav aria-label="Navegação">
+            <a href="perfil.html">Meu perfil</a>
+            <a href="../index.html">Início</a>
+        </nav>
+
+    </header>
+
+
+    <main class="config-container">
+
+        <div class="config-apresentacao">
+
+            <span class="config-etiqueta">
+                BREAK TEC — ÁREA PRIVADA
+            </span>
+
+            <h1>Configurações da conta</h1>
+
+            <p>
+                Gerencie suas informações pessoais,
+                métodos de contato e segurança.
+            </p>
+
+        </div>
+
+
+        <!-- CARREGAMENTO E ERROS -->
+
+        <p id="configCarregando" role="status">
+            Carregando informações da conta...
+        </p>
+
+        <p
+            id="configErro"
+            class="config-erro"
+            role="alert"
+        ></p>
+
+
+        <div id="configConteudo" hidden>
+
+
+            <!-- INFORMAÇÕES PESSOAIS -->
+
+            <section class="config-card">
+
+                <div class="config-card-topo">
+                    <span class="config-card-etiqueta">
+                        IDENTIDADE
+                    </span>
+
+                    <h2>Informações pessoais</h2>
+
+                    <p>
+                        Estes dados são exclusivos da
+                        sua conta.
+                    </p>
+                </div>
+
+                <dl class="config-dados">
+
+                    <div>
+                        <dt>Nome de usuário</dt>
+
+                        <dd id="configNome">—</dd>
+                    </div>
+
+                    <div>
+                        <dt>E-mail</dt>
+
+                        <dd id="configEmail">—</dd>
+                    </div>
+
+                    <div>
+                        <dt>Conta criada em</dt>
+
+                        <dd id="configCriacao">—</dd>
+                    </div>
+
+                </dl>
+
+                <p class="config-observacao">
+                    Seu e-mail é privado e não aparece
+                    no perfil público.
+                </p>
+
+            </section>
+
+
+            <!-- TELEFONE -->
+
+            <section class="config-card">
+
+                <div class="config-card-topo">
+
+                    <span class="config-card-etiqueta">
+                        RECUPERAÇÃO
+                    </span>
+
+                    <h2>Número de telefone</h2>
+
+                    <p>
+                        Cadastre um celular para preparar
+                        uma futura opção de recuperação.
+                    </p>
+
+                </div>
+
+                <div class="config-alerta">
+
+                    <strong>
+                        Verificação necessária
+                    </strong>
+
+                    <p>
+                        O cadastro do telefone não ativa
+                        a recuperação da conta.
+                        Essa função dependerá de
+                        confirmação por SMS.
+                    </p>
+
+                </div>
+
+                <p
+                    id="configEstadoTelefone"
+                    class="config-estado"
+                    role="status"
+                >
+                    Verificando...
+                </p>
+
+                <form id="formConfigTelefone">
+
+                    <label for="configTelefone">
+                        Celular com DDD
+                    </label>
+
+                    <input
+                        id="configTelefone"
+                        type="tel"
+                        inputmode="tel"
+                        autocomplete="tel"
+                        placeholder="(11) 99999-9999"
+                        maxlength="20"
+                    >
+
+                    <label for="configSenhaTelefone">
+                        Confirme sua senha atual
+                    </label>
+
+                    <input
+                        id="configSenhaTelefone"
+                        type="password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <p class="config-ajuda">
+                        Para remover o número, deixe
+                        o campo do telefone vazio
+                        e salve.
+                    </p>
+
+                    <button type="submit">
+                        Salvar telefone
+                    </button>
+
+                    <p
+                        id="configMensagemTelefone"
+                        class="config-mensagem"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+
+                </form>
+
+            </section>
+
+
+            <!-- ALTERAR SENHA -->
+
+            <section class="config-card">
+
+                <div class="config-card-topo">
+
+                    <span class="config-card-etiqueta">
+                        SEGURANÇA
+                    </span>
+
+                    <h2>Alterar senha</h2>
+
+                    <p>
+                        Sua senha é protegida e
+                        não pode ser visualizada.
+                    </p>
+
+                </div>
+
+                <form id="formConfigSenha">
+
+                    <label for="configSenhaAtual">
+                        Senha atual
+                    </label>
+
+                    <input
+                        id="configSenhaAtual"
+                        type="password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <label for="configSenhaNova">
+                        Nova senha
+                    </label>
+
+                    <input
+                        id="configSenhaNova"
+                        type="password"
+                        autocomplete="new-password"
+                        minlength="10"
+                        required
+                    >
+
+                    <label for="configSenhaConfirmacao">
+                        Confirmar nova senha
+                    </label>
+
+                    <input
+                        id="configSenhaConfirmacao"
+                        type="password"
+                        autocomplete="new-password"
+                        minlength="10"
+                        required
+                    >
+
+                    <p class="config-ajuda">
+                        Use uma senha exclusiva,
+                        com pelo menos 10 caracteres.
+                        Depois da alteração, será
+                        necessário entrar novamente.
+                    </p>
+
+                    <button type="submit">
+                        Alterar senha
+                    </button>
+
+                    <p
+                        id="configMensagemSenha"
+                        class="config-mensagem"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+
+                </form>
+
+            </section>
+
+
+            <!-- PRIVACIDADE -->
+
+            <section class="config-privacidade">
+
+                <h2>Sua privacidade importa</h2>
+
+                <p>
+                    Seu e-mail, telefone e dados de
+                    segurança não são exibidos para
+                    outros membros da Break Tec.
+                    A página de configurações requer
+                    uma sessão autenticada.
+                </p>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</body>
+</html>

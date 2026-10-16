@@ -33,6 +33,8 @@ mostrarSenha.addEventListener("click", function () {
             "Ocultar senha"
         );
 
+        mostrarSenha.setAttribute("aria-pressed", "true");
+
     } else {
 
         senha.type = "password";
@@ -41,6 +43,8 @@ mostrarSenha.addEventListener("click", function () {
             "aria-label",
             "Mostrar senha"
         );
+
+        mostrarSenha.setAttribute("aria-pressed", "false");
 
     }
 
@@ -67,6 +71,8 @@ mostrarConfirmacao.addEventListener(
                 "Ocultar confirmação de senha"
             );
 
+            mostrarConfirmacao.setAttribute("aria-pressed", "true");
+
         } else {
 
             confirmarSenha.type = "password";
@@ -75,6 +81,8 @@ mostrarConfirmacao.addEventListener(
                 "aria-label",
                 "Mostrar confirmação de senha"
             );
+
+            mostrarConfirmacao.setAttribute("aria-pressed", "false");
 
         }
 
