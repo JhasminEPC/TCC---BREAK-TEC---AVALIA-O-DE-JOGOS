@@ -33,6 +33,7 @@ CREATE TABLE `avaliacoes` (
   `visual` tinyint NOT NULL DEFAULT '1',
   `som` tinyint NOT NULL DEFAULT '1',
   `originalidade` tinyint NOT NULL DEFAULT '1',
+  `comentario` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_avaliacao` (`usuario_id`,`projeto_id`),
   KEY `fk_avaliacao_projeto` (`projeto_id`),
@@ -47,7 +48,7 @@ CREATE TABLE `avaliacoes` (
 
 LOCK TABLES `avaliacoes` WRITE;
 /*!40000 ALTER TABLE `avaliacoes` DISABLE KEYS */;
-INSERT INTO `avaliacoes` VALUES (1,4,10,1,'2026-10-01 01:24:50',5,5,5,5,2);
+INSERT INTO `avaliacoes` VALUES (1,4,10,1,'2026-10-01 01:24:50',5,5,5,5,2,NULL);
 /*!40000 ALTER TABLE `avaliacoes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -69,12 +70,13 @@ CREATE TABLE `avaliacoes_oficiais` (
   `som` tinyint NOT NULL,
   `originalidade` tinyint NOT NULL,
   `criado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `comentario` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_avaliacao_oficial_usuario_jogo` (`usuario_id`,`jogo_oficial_id`),
   KEY `fk_av_oficial_jogo` (`jogo_oficial_id`),
   CONSTRAINT `fk_av_oficial_jogo` FOREIGN KEY (`jogo_oficial_id`) REFERENCES `jogos_oficiais` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_av_oficial_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -83,7 +85,7 @@ CREATE TABLE `avaliacoes_oficiais` (
 
 LOCK TABLES `avaliacoes_oficiais` WRITE;
 /*!40000 ALTER TABLE `avaliacoes_oficiais` DISABLE KEYS */;
-INSERT INTO `avaliacoes_oficiais` VALUES (1,10,1,4.60,5,5,5,3,5,'2026-10-10 19:04:52');
+INSERT INTO `avaliacoes_oficiais` VALUES (1,10,1,4.60,5,5,5,3,5,'2026-10-10 19:04:52',NULL),(6,10,6,4.60,4,4,5,5,5,'2026-10-26 19:32:02','Eu gostei muito');
 /*!40000 ALTER TABLE `avaliacoes_oficiais` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -164,7 +166,7 @@ CREATE TABLE `favoritos_oficiais` (
   KEY `fk_fav_oficial_jogo` (`jogo_oficial_id`),
   CONSTRAINT `fk_fav_oficial_jogo` FOREIGN KEY (`jogo_oficial_id`) REFERENCES `jogos_oficiais` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_fav_oficial_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -173,6 +175,7 @@ CREATE TABLE `favoritos_oficiais` (
 
 LOCK TABLES `favoritos_oficiais` WRITE;
 /*!40000 ALTER TABLE `favoritos_oficiais` DISABLE KEYS */;
+INSERT INTO `favoritos_oficiais` VALUES (10,10,15,'2026-11-16 23:07:10'),(14,10,1,'2026-11-17 00:17:34');
 /*!40000 ALTER TABLE `favoritos_oficiais` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -214,16 +217,18 @@ DROP TABLE IF EXISTS `jogos_oficiais`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `jogos_oficiais` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `rawg_id` int NOT NULL,
+  `rawg_id` int DEFAULT NULL,
   `titulo` varchar(200) NOT NULL,
   `imagem` varchar(500) DEFAULT NULL,
   `desenvolvedor` varchar(255) DEFAULT NULL,
   `genero` varchar(255) DEFAULT NULL,
   `fonte_url` varchar(500) DEFAULT NULL,
   `criado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `igdb_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_jogos_oficiais_rawg_id` (`rawg_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `uq_jogos_oficiais_rawg_id` (`rawg_id`),
+  UNIQUE KEY `uq_jogos_oficiais_igdb_id` (`igdb_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -232,7 +237,7 @@ CREATE TABLE `jogos_oficiais` (
 
 LOCK TABLES `jogos_oficiais` WRITE;
 /*!40000 ALTER TABLE `jogos_oficiais` DISABLE KEYS */;
-INSERT INTO `jogos_oficiais` VALUES (1,654,'Stardew Valley','https://media.rawg.io/media/games/713/713269608dc8f2f40f5a670a14b2de94.jpg','Chucklefish, ConcernedApe','RPG, Simulation, Indie','https://rawg.io/games/stardew-valley','2026-10-10 19:04:52'),(6,3498,'Grand Theft Auto V','https://media.rawg.io/media/games/20a/20aa03a10cda45239fe22d035c0ebe64.jpg','Rockstar North, Rockstar Games','Action','https://rawg.io/games/grand-theft-auto-v','2026-10-10 19:57:45'),(13,3328,'The Witcher 3: Wild Hunt','https://media.rawg.io/media/games/618/618c2031a07bbff6b4f611f10b6bcdbc.jpg','CD PROJEKT RED','Action, RPG','https://rawg.io/games/the-witcher-3-wild-hunt','2026-10-10 19:58:42');
+INSERT INTO `jogos_oficiais` VALUES (1,654,'Stardew Valley','https://media.rawg.io/media/games/713/713269608dc8f2f40f5a670a14b2de94.jpg','Chucklefish, ConcernedApe','RPG, Simulation, Indie','https://rawg.io/games/stardew-valley','2026-10-10 19:04:52',NULL),(6,3498,'Grand Theft Auto V','https://media.rawg.io/media/games/20a/20aa03a10cda45239fe22d035c0ebe64.jpg','Rockstar North, Rockstar Games','Action','https://rawg.io/games/grand-theft-auto-v','2026-10-10 19:57:45',NULL),(13,3328,'The Witcher 3: Wild Hunt','https://media.rawg.io/media/games/618/618c2031a07bbff6b4f611f10b6bcdbc.jpg','CD PROJEKT RED','Action, RPG','https://rawg.io/games/the-witcher-3-wild-hunt','2026-10-10 19:58:42',NULL),(15,284039,'Wingy Pop','https://media.rawg.io/media/screenshots/034/03466c17611b5fa1be1c78e03fa46238.jpg','Happymagenta UAB','Action, Arcade','https://rawg.io/games/wingy-pop','2026-11-16 23:06:58',NULL),(17,NULL,'Pico Valley','https://images.igdb.com/igdb/image/upload/t_cover_big/co7o9z.jpg','taxicomics','Role-playing (RPG), Simulator','https://www.igdb.com/games/pico-valley','2026-11-16 23:59:27',284039);
 /*!40000 ALTER TABLE `jogos_oficiais` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -314,4 +319,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-10-16 19:39:07
+-- Dump completed on 2026-11-16 22:50:50
