@@ -1248,3 +1248,39 @@ a:focus-visible {
     }
 
 }
+
+
+/* ==========================================
+   BREAK TEC - CARDS TOTALMENTE CLICÁVEIS
+========================================== */
+
+.card-clicavel {
+    position: relative;
+    cursor: pointer;
+}
+
+.card-clicavel .card-link-total {
+    color: inherit;
+    text-decoration: none;
+}
+
+.card-clicavel .card-link-total::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.card-clicavel:focus-within {
+    outline: 2px solid #ff5038;
+    outline-offset: 3px;
+}
+
+.card-clicavel button,
+.card-clicavel a:not(.card-link-total),
+.card-clicavel input,
+.card-clicavel select,
+.card-clicavel textarea {
+    position: relative;
+    z-index: 2;
+}

@@ -309,9 +309,10 @@ function criarResultado(jogo, origem) {
 
     item.className = "search-result-item";
 
+    
     item.href = oficial
-        ? `Pages/jogo-oficial.html?id=${encodeURIComponent(jogo.id_externo)}`
-        : `Pages/jogos.html?id=${encodeURIComponent(jogo.id)}`;
+     ? `Pages/jogo-oficial.html?id=${encodeURIComponent(jogo.id_externo)}${jogo.fonte === "IGDB" ? "&fonte=igdb" : ""}`
+     : `Pages/jogos.html?id=${encodeURIComponent(jogo.id)}`;
 
 
     // IMAGEM
@@ -549,7 +550,21 @@ async function pesquisarJogos() {
         return resposta.json();
     });
 
+// =============================
+// PESQUISAR TAMBÉM NA IGDB
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+const requisicaoIGDB = fetch(
+    `/api/igdb/buscar?busca=${encodeURIComponent(termo)}`,
+    { signal: sinal }
+).then(async resposta => {
+
+    if (!resposta.ok) {
+        throw new Error("Erro na pesquisa da IGDB.");
+    }
+
+    return resposta.json();
+});
     
 // ==========================================
 // PESQUISAR MEMBROS PÚBLICOS
@@ -577,10 +592,12 @@ async function pesquisarJogos() {
     const [
         resultadoComunidade,
         resultadoOficial,
+        resultadoIGDB,
         resultadoMembros
     ] = await Promise.allSettled([
         requisicaoComunidade,
         requisicaoOficial,
+        requisicaoIGDB,
         requisicaoMembros
     ]);
 
@@ -638,6 +655,35 @@ async function pesquisarJogos() {
         ).slice(0, 6);
     }
 
+// ==========================================
+// RESULTADOS DOS JOGOS DA IGDB         =====
+// ==========================================
+
+let jogosIGDB = [];
+
+if (resultadoIGDB.status === "fulfilled") {
+
+    const dados = resultadoIGDB.value;
+
+    jogosIGDB = (
+        Array.isArray(dados.jogos)
+            ? dados.jogos
+            : []
+    ).filter(jogo => {
+
+        // Evita repetir títulos já exibidos pela RAWG
+        const nome = String(jogo.titulo || "")
+            .trim()
+            .toLocaleLowerCase("pt-BR");
+
+        return !jogosOficiais.some(outro =>
+            String(outro.titulo || "")
+                .trim()
+                .toLocaleLowerCase("pt-BR") === nome
+        );
+
+    }).slice(0, 6);
+}
     
 // ==========================================
 // RESULTADOS DE MEMBROS
@@ -666,27 +712,32 @@ if (resultadoMembros.status === "fulfilled") {
 
     const quantidadeMaxima = Math.max(
         projetos.length,
-        jogosOficiais.length
+        jogosOficiais.length,
+        jogosIGDB.length
     );
 
     // Alterna os tipos de jogo na listagem.
 
     for (let i = 0; i < quantidadeMaxima; i++) {
 
-        if (jogosOficiais[i]) {
-            resultados.push(
-                criarResultado(jogosOficiais[i], "oficial")
-            );
-        }
-
-        if (projetos[i]) {
-            resultados.push(
-                criarResultado(projetos[i], "comunidade")
-            );
-        }
+    if (jogosOficiais[i]) {
+        resultados.push(
+            criarResultado(jogosOficiais[i], "oficial")
+        );
     }
 
+    if (jogosIGDB[i]) {
+        resultados.push(
+            criarResultado(jogosIGDB[i], "oficial")
+        );
+    }
 
+    if (projetos[i]) {
+        resultados.push(
+            criarResultado(projetos[i], "comunidade")
+        );
+    }
+}
     
 // ==========================================
 // MOSTRAR RESULTADOS UNIFICADOS
@@ -761,9 +812,11 @@ if (resultadoMembros.status === "fulfilled") {
     if (
         resultadoComunidade.status === "rejected" ||
         resultadoOficial.status === "rejected" ||
-        resultadoMembros.status === "rejected"
-    ) {
-
+        resultadoMembros.status === "rejected" ||
+        resultadoIGDB.status === "rejected"
+        )
+        
+        {
         const aviso = document.createElement("p");
 
         aviso.className = "search-warning";
@@ -1236,15 +1289,22 @@ function criarCardDestaque(jogo) {
             ? `${Number(jogo.break_score).toFixed(1)}/10`
             : "Novo";
 
+    
+    const parametroFonte =
+        oficial && jogo.fonte === "IGDB"
+            ? "&fonte=igdb"
+            : "";
+
     const link = oficial
-        ? `Pages/jogo-oficial.html?id=${id}`
+        ? `Pages/jogo-oficial.html?id=${id}${parametroFonte}`
         : `Pages/jogos.html?id=${id}`;
+
 
     const imagem = imagemSegura(jogo.imagem);
 
     const card = document.createElement("article");
 
-    card.className = "projeto-home-card";
+    card.className = "projeto-home-card card-clicavel";
 
     card.innerHTML = `
 
@@ -1276,7 +1336,10 @@ function criarCardDestaque(jogo) {
                 ${categoria}
             </span>
 
-            <h3>${titulo}</h3>
+            <h3>
+            <a href="${link}" class="card-link-total">
+            ${titulo} </a>
+            </h3>
 
             <span class="projeto-home-autor">
                 ${oficial ? "Desenvolvido por" : "Criado por"}
@@ -1316,15 +1379,6 @@ function criarCardDestaque(jogo) {
                 </div>
 
             </div>
-
-
-            <a
-                href="${link}"
-                class="projeto-home-link"
-            >
-                ${oficial ? "Ver jogo" : "Ver projeto"}
-                <span>→</span>
-            </a>
 
         </div>
     `;
@@ -1591,7 +1645,7 @@ async function carregarRanking() {
                 const item =
                     document.createElement("div");
 
-                item.classList.add("ranking-item");
+                item.classList.add("ranking-item", "card-clicavel");
 
 
                 item.innerHTML = `
@@ -1603,8 +1657,12 @@ async function carregarRanking() {
 
                     <div class="ranking-jogo">
 
-                        <strong>
-                            ${projeto.titulo}
+                       <strong>
+                        <a
+                            href="Pages/jogos.html?id=${projeto.id}"
+                            class="card-link-total">
+                                ${projeto.titulo}
+                        </a>
                         </strong>
 
                         <span>

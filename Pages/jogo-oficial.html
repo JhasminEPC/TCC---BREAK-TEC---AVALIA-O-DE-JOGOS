@@ -343,6 +343,19 @@ BREAK SCORE - JOGOS OFICIAIS
 
             </div>
 
+            <label
+        for="comentarioAvaliacaoOficial"
+        class="comentario-avaliacao-label">
+        Sua opinião sobre o jogo (opcional)
+    </label>
+
+    <textarea
+        id="comentarioAvaliacaoOficial"
+        class="comentario-avaliacao-campo"
+        maxlength="1000"
+        rows="4"
+        placeholder="Compartilhe sua experiência com este jogo...">
+    </textarea>
 
             <button
                 type="submit"
@@ -355,6 +368,34 @@ BREAK SCORE - JOGOS OFICIAIS
         </form>
 
     </div>
+
+</section>
+
+    <section class="comentarios-breaktec">
+
+    <span class="section-tag">
+        COMUNIDADE
+    </span>
+
+    <h2>Comentários das avaliações</h2>
+
+    <p>
+        Confira as opiniões dos jogadores da Break Tec.
+    </p>
+
+    <div
+        id="comentariosListaBreakTec"
+        class="comentarios-breaktec-lista"
+        aria-live="polite"
+    >
+        Carregando comentários...
+    </div>
+
+    <p
+        id="comentariosAvisoBreakTec"
+        class="comentarios-breaktec-aviso"
+        role="status"
+    ></p>
 
 </section>
 

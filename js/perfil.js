@@ -316,7 +316,8 @@ async function carregarMeusProjetos() {
                     document.createElement("article");
 
                 card.classList.add(
-                    "projeto-card"
+                    "projeto-card",
+                    "card-clicavel"
                 );
 
 
@@ -335,22 +336,17 @@ async function carregarMeusProjetos() {
             ${categoria}
             </span>
 
-               <h3>
-                   ${projeto.titulo}
-               </h3>
+        <h3>
+            <a
+                href="jogos.html?id=${projeto.id}"
+                class="card-link-total">
+                ${projeto.titulo}
+            </a>
+        </h3>
 
-                <p>
-                   ${descricao}
-                </p>
+                <p>${descricao}</p>
 
         <div class="acoes-projeto">
-
-         <a
-        href="jogos.html?id=${projeto.id}"
-        class="ver-projeto"
-        >
-        Ver projeto →
-        </a>
 
         <button
             type="button"
@@ -529,7 +525,7 @@ function criarCardFavorito(item, origem) {
 
     const card = document.createElement("article");
 
-    card.className = "projeto-card favorito-card";
+    card.className = "projeto-card favorito-card card-clicavel";
 
 
     // IMAGEM DO JOGO
@@ -632,22 +628,30 @@ function criarCardFavorito(item, origem) {
     acoes.className = "favorito-acoes";
 
 
-    // ABRIR JOGO
+ // ABRIR JOGO OU PROJETO FAVORITADO //
 
-    const link = document.createElement("a");
+ // CRIA O ELEMENTO DE LINK
+ const link = document.createElement("a");
 
-    link.className = "favorito-ver";
+ link.className = "card-link-total";
 
-    link.href = oficial
-        ? `jogo-oficial.html?id=${id}`
-        : `jogos.html?id=${id}`;
+ // IDENTIFICA A FONTE DO JOGO OFICIAL
+ const parametroFonte =
+     oficial && item.fonte === "IGDB"
+         ? "&fonte=igdb"
+         : "";
 
-    link.textContent = oficial
-        ? "Ver jogo →"
-        : "Ver projeto →";
+ // CONFIGURA O DESTINO
+ link.href = oficial
+     ? `jogo-oficial.html?id=${id}${parametroFonte}`
+     : `jogos.html?id=${id}`;
+
+ link.textContent = titulo;
+// Coloca o link dentro do título do card
+nome.replaceChildren(link);
 
 
-    // REMOVER FAVORITO
+    // REMOVER FAVORITO //
 
     const botaoRemover = document.createElement("button");
 
@@ -683,8 +687,12 @@ function criarCardFavorito(item, origem) {
         status.textContent = "";
 
         const endereco = oficial
-            ? `/api/jogos-oficiais/${id}/favoritos`
+            ? `/api/jogos-oficiais/${id}/favoritos${
+            item.fonte === "IGDB" ? "?fonte=igdb" : ""
+        }`
             : `/api/favoritos/${id}`;
+
+
 
         try {
 
@@ -726,8 +734,8 @@ function criarCardFavorito(item, origem) {
         }
     });
 
-
-    acoes.append(link, botaoRemover);
+    acoes.append(botaoRemover);
+    
 
     card.append(
         capa,
@@ -736,7 +744,7 @@ function criarCardFavorito(item, origem) {
         autor,
         descricao,
         acoes,
-        status
+        
     );
 
     return card;

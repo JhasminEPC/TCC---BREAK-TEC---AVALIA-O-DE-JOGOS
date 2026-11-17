@@ -230,7 +230,7 @@ function criarCardCatalogo(jogo, origem) {
 
     const card = document.createElement("article");
 
-    card.className = "catalogo-card";
+    card.className = "catalogo-card card-clicavel";
 
 
     // =====================================
@@ -380,19 +380,22 @@ function criarCardCatalogo(jogo, origem) {
         : "★ Ainda sem avaliações na Break Tec";
 
 
-    // LINK PARA A PÁGINA CORRETA
+ // LINK QUE ABRE O CARD INTEIRO //
 
-    const link = document.createElement("a");
+        const link = document.createElement("a");
 
-    link.className = "catalogo-card-link";
+        link.className = "card-link-total";
 
-    link.href = oficial
-        ? `jogo-oficial.html?id=${id}`
-        : `jogos.html?id=${id}`;
+        const fonteIGDB = oficial &&
+         String(jogo.fonte || "").toUpperCase() === "IGDB";
 
-    link.textContent = oficial
-        ? "Ver jogo →"
-        : "Ver projeto →";
+        link.href = oficial
+            ? `jogo-oficial.html?id=${id}${fonteIGDB ? "&fonte=igdb" : ""}`
+            : `jogos.html?id=${id}`;
+
+        link.textContent = jogo.titulo || "Sem título";
+
+        titulo.replaceChildren(link);
 
 
     conteudo.append(
@@ -400,8 +403,7 @@ function criarCardCatalogo(jogo, origem) {
         titulo,
         autor,
         descricao,
-        score,
-        link
+        score
     );
 
     card.append(

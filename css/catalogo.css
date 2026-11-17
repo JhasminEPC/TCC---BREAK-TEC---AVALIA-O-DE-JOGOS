@@ -743,3 +743,53 @@ button {
 
     margin-top: auto;
 }
+
+
+/* ==========================================
+   BREAK TEC - CARDS INTEIROS CLICÁVEIS
+========================================== */
+
+.catalogo-card.card-clicavel {
+    position: relative;
+    cursor: pointer;
+}
+
+/* TÍTULO COMO LINK */
+.catalogo-card .card-link-total {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* LINK OCUPA TODA A ÁREA DO CARD */
+.catalogo-card .card-link-total::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+/* FOCO VISÍVEL PARA NAVEGAÇÃO POR TECLADO */
+.catalogo-card:focus-within {
+    outline: 3px solid #f23820;
+    outline-offset: 3px;
+}
+
+/* DESTACA O TÍTULO AO PASSAR O MOUSE */
+.catalogo-card:hover .card-link-total {
+    color: #ff806e;
+}
+
+/* RESPEITA A PREFERÊNCIA POR MENOS ANIMAÇÕES */
+@media (prefers-reduced-motion: reduce) {
+    .catalogo-card {
+        transition: none;
+    }
+
+    .catalogo-card:hover {
+        transform: none;
+    }
+
+    .catalogo-card-imagem img {
+        transition: none;
+    }
+}

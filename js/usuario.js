@@ -530,7 +530,7 @@ function criarAvaliacaoUsuario(avaliacao) {
         document.createElement("article");
 
     card.className =
-        "usuario-avaliacao-card";
+        "usuario-avaliacao-card card-clicavel";
 
 
     // INFORMAÇÕES
@@ -547,18 +547,25 @@ function criarAvaliacaoUsuario(avaliacao) {
     const titulo =
         criarElementoUsuario(
             "a",
-            "usuario-avaliacao-titulo",
+            "usuario-avaliacao-titulo card-link-total",
             avaliacao.titulo || "Jogo sem título"
         );
 
+    
+ // IDENTIFICA INTERNAMENTE A API DO JOGO
+
+    const parametroFonte =
+         oficial && avaliacao.fonte === "IGDB"
+            ? "&fonte=igdb"
+            : "";
+
     titulo.href = oficial
+    ? `jogo-oficial.html?id=${id}${
+        avaliacao.fonte === "IGDB" ? "&fonte=igdb" : ""
+      }`
+    : `jogos.html?id=${id}`;
 
-        ? `jogo-oficial.html?id=${id}`
-
-        : `jogos.html?id=${id}`;
-
-
-    // ORIGEM
+// ORIGEM
 
     const origem =
         criarElementoUsuario(
@@ -728,7 +735,7 @@ function criarProjetoUsuario(projeto) {
         document.createElement("article");
 
     card.className =
-        "usuario-projeto-card";
+        "usuario-projeto-card card-clicavel";
 
 
     // ======================================
@@ -817,24 +824,25 @@ function criarProjetoUsuario(projeto) {
         );
 
 
-    // LINK
+    
+ // LINK ACESSÍVEL DO PROJETO //
 
-    const link =
-        criarElementoUsuario(
-            "a",
-            "usuario-projeto-link",
-            "Conhecer projeto →"
-        );
+    const link = criarElementoUsuario(
+        "a",
+        "card-link-total",
+        projeto.titulo || "Projeto sem título"
+    );
 
-    link.href =
-        `jogos.html?id=${id}`;
+    link.href = `jogos.html?id=${id}`;
+
+    titulo.replaceChildren(link);
+
 
 
     conteudo.append(
         categoria,
         titulo,
-        descricao,
-        link
+        descricao
     );
 
 

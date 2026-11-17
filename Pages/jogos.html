@@ -199,16 +199,33 @@
 
 </section>
 
-        <section class="comentarios">
+        <section class="comentarios comentarios-breaktec">
 
-            <span class="secao-label">COMUNIDADE</span>
-            <h2>Comentários</h2>
+    <span class="secao-label">
+        COMUNIDADE
+    </span>
 
-            <p>
-                Os comentários deste projeto aparecerão aqui.
-            </p>
+    <h2>Comentários das avaliações</h2>
 
-        </section>
+    <p>
+        Veja o que outros jogadores acharam deste projeto.
+    </p>
+
+    <div
+        id="comentariosListaBreakTec"
+        class="comentarios-breaktec-lista"
+        aria-live="polite"
+    >
+        Carregando comentários...
+    </div>
+
+    <p
+        id="comentariosAvisoBreakTec"
+        class="comentarios-breaktec-aviso"
+        role="status"
+    ></p>
+
+</section>
 
         <!-- =========================
      MODAL DE AVALIAÇÃO
@@ -284,6 +301,20 @@
                     data-categoria="originalidade"
                 ></div>
             </div>
+
+            <label
+        for="comentarioAvaliacaoProjeto"
+        class="comentario-avaliacao-label">
+        Sua opinião sobre o projeto (opcional)
+    </label>
+
+    <textarea
+        id="comentarioAvaliacaoProjeto"
+        class="comentario-avaliacao-campo"
+        maxlength="1000"
+        rows="4"
+        placeholder="Conte o que achou deste projeto...">
+    </textarea>
 
             <p
                 class="mensagem-avaliacao"

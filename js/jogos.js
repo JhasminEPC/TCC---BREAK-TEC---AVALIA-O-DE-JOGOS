@@ -199,6 +199,10 @@ async function carregarMinhaAvaliacao() {
         const avaliacao =
             dados.avaliacao;
 
+        document.getElementById(
+        "comentarioAvaliacaoProjeto"
+        ).value = avaliacao.comentario || "";
+
         notas.jogabilidade =
             Number(avaliacao.jogabilidade);
 
@@ -327,20 +331,24 @@ formAvaliacao.addEventListener(
 
         try {
 
-            const resposta =
-                await fetch(
-                    `/api/projetos/${projetoId}/avaliacoes`,
-                    {
-                        method: "POST",
+            const resposta = await fetch(
+    `/api/projetos/${projetoId}/avaliacoes`,
+    {
+        method: "POST",
 
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
+        headers: {
+            "Content-Type": "application/json"
+        },
 
-                        body: JSON.stringify(notas)
-                    }
-                );
+        body: JSON.stringify({
+            ...notas,
+            comentario: document.getElementById(
+                "comentarioAvaliacaoProjeto"
+            ).value.trim()
+        })
+    }
+);
+                
 
             const dados =
                 await resposta.json();
@@ -354,6 +362,7 @@ formAvaliacao.addEventListener(
 
             carregarDNA();
             carregarMinhaAvaliacao();
+            carregarComentariosBreakTec();
 
             setTimeout(
                 fecharModalAvaliacao,
@@ -626,3 +635,339 @@ botaoFavoritar.addEventListener(
 
 // Verifica o favorito assim que a página abre
 verificarFavorito();
+
+
+/* ==========================================
+   BREAK TEC - EXIBIÇÃO DE COMENTÁRIOS
+========================================== */
+
+(function () {
+
+    const listaComentarios = document.getElementById(
+        "comentariosListaBreakTec"
+    );
+
+    const avisoComentarios = document.getElementById(
+        "comentariosAvisoBreakTec"
+    );
+
+    if (!listaComentarios || !avisoComentarios) return;
+
+    const paginaOficial = Boolean(
+        document.getElementById("avaliacaoOficialForm")
+    );
+
+    const idJogo = Number(
+        new URLSearchParams(window.location.search).get("id")
+    );
+
+    const rotaBase = paginaOficial
+        ? `/api/jogos-oficiais/${idJogo}`
+        : `/api/projetos/${idJogo}`;
+
+    const idCampo = paginaOficial
+        ? "comentarioAvaliacaoOficial"
+        : "comentarioAvaliacaoProjeto";
+
+
+    function criarElemento(tag, classe, conteudo = "") {
+
+        const elemento = document.createElement(tag);
+
+        if (classe) {
+            elemento.className = classe;
+        }
+
+        elemento.textContent = conteudo;
+
+        return elemento;
+    }
+
+
+    function editarComentarioBreakTec() {
+
+        const campo = document.getElementById(idCampo);
+
+        if (!campo) return;
+
+        if (!paginaOficial) {
+            document.getElementById("avaliarProjeto")?.click();
+        } else {
+            campo.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+        }
+
+        campo.focus();
+    }
+
+
+    async function excluirComentarioBreakTec() {
+
+        const confirmar = confirm(
+            "Excluir seu comentário? Suas estrelas serão mantidas."
+        );
+
+        if (!confirmar) return;
+
+        avisoComentarios.textContent = "Excluindo comentário...";
+
+        try {
+
+            const resposta = await fetch(
+                `${rotaBase}/comentario`,
+                {
+                    method: "DELETE",
+                    credentials: "same-origin"
+                }
+            );
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(
+                    dados.mensagem || "Erro ao excluir comentário."
+                );
+            }
+
+            const campo = document.getElementById(idCampo);
+
+            if (campo) {
+                campo.value = "";
+            }
+
+            avisoComentarios.textContent = dados.mensagem;
+
+            await carregarComentariosBreakTec();
+
+        } catch (erro) {
+
+            avisoComentarios.textContent = erro.message;
+        }
+    }
+
+
+    async function carregarComentariosBreakTec() {
+
+        if (!Number.isSafeInteger(idJogo) || idJogo <= 0) {
+            listaComentarios.textContent = "Jogo inválido.";
+            return;
+        }
+
+        listaComentarios.textContent = "Carregando comentários...";
+
+        try {
+
+            const resposta = await fetch(
+                `${rotaBase}/comentarios`,
+                { cache: "no-store" }
+            );
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error("Erro ao carregar comentários.");
+            }
+
+            listaComentarios.replaceChildren();
+
+            const comentarios = Array.isArray(dados.comentarios)
+                ? dados.comentarios
+                : [];
+
+            if (comentarios.length === 0) {
+
+                listaComentarios.appendChild(
+                    criarElemento(
+                        "p",
+                        "comentarios-breaktec-vazio",
+                        "Ainda não há comentários. Seja o primeiro a compartilhar sua opinião!"
+                    )
+                );
+
+                return;
+            }
+
+
+            comentarios.forEach(comentario => {
+
+                const card = criarElemento(
+                    "article",
+                    "comentarios-breaktec-card"
+                );
+
+                const cabecalho = criarElemento(
+                    "div",
+                    "comentarios-breaktec-cabecalho"
+                );
+
+                const avatar = criarElemento(
+                    "div",
+                    "comentarios-breaktec-avatar"
+                );
+
+                const nome = typeof comentario.nome === "string"
+                    ? comentario.nome.trim() || "Jogador"
+                    : "Jogador";
+
+                const inicial = criarElemento(
+                    "span",
+                    "",
+                    nome.charAt(0).toUpperCase()
+                );
+
+                avatar.appendChild(inicial);
+
+                // Foto pública do jogador
+                if (comentario.perfil_publico || comentario.meu) {
+
+                    const imagem = document.createElement("img");
+
+                    imagem.alt = "";
+                    imagem.loading = "lazy";
+
+                    imagem.onload = () => {
+                        inicial.hidden = true;
+                    };
+
+                    imagem.onerror = () => {
+                        imagem.remove();
+                        inicial.hidden = false;
+                    };
+
+                    imagem.src =
+                        `/api/usuarios/${comentario.autor_id}/foto`;
+
+                    avatar.appendChild(imagem);
+                }
+
+
+                const dadosAutor = criarElemento(
+                    "div",
+                    "comentarios-breaktec-autor"
+                );
+
+                if (comentario.perfil_publico) {
+
+                    const link = criarElemento("a", "", nome);
+
+                    link.href =
+                        `usuario.html?id=${comentario.autor_id}`;
+
+                    dadosAutor.appendChild(link);
+
+                } else {
+
+                    dadosAutor.appendChild(
+                        criarElemento("strong", "", nome)
+                    );
+                }
+
+
+                const data = new Date(comentario.criado_em);
+
+                dadosAutor.appendChild(
+                    criarElemento(
+                        "small",
+                        "",
+                        Number.isNaN(data.getTime())
+                            ? ""
+                            : data.toLocaleDateString("pt-BR")
+                    )
+                );
+
+                cabecalho.appendChild(avatar);
+                cabecalho.appendChild(dadosAutor);
+
+
+                const nota = Number(comentario.nota) * 2;
+
+                const pontuacao = Number.isFinite(nota)
+                    ? nota.toFixed(1)
+                    : "—";
+
+                const notaElemento = criarElemento(
+                    "span",
+                    "comentarios-breaktec-nota",
+                    `★ ${pontuacao}/10`
+                );
+
+                const textoComentario = criarElemento(
+                    "p",
+                    "comentarios-breaktec-texto",
+                    comentario.comentario || ""
+                );
+
+
+                card.appendChild(cabecalho);
+                card.appendChild(notaElemento);
+                card.appendChild(textoComentario);
+
+
+                // Somente o autor visualiza estes botões
+                if (comentario.meu) {
+
+                    const acoes = criarElemento(
+                        "div",
+                        "comentarios-breaktec-acoes"
+                    );
+
+                    const editar = criarElemento(
+                        "button",
+                        "",
+                        "Editar comentário"
+                    );
+
+                    editar.type = "button";
+
+                    editar.addEventListener(
+                        "click",
+                        editarComentarioBreakTec
+                    );
+
+
+                    const excluir = criarElemento(
+                        "button",
+                        "excluir",
+                        "Excluir comentário"
+                    );
+
+                    excluir.type = "button";
+
+                    excluir.addEventListener(
+                        "click",
+                        excluirComentarioBreakTec
+                    );
+
+                    acoes.appendChild(editar);
+                    acoes.appendChild(excluir);
+
+                    card.appendChild(acoes);
+                }
+
+                listaComentarios.appendChild(card);
+
+            });
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao carregar comentários:",
+                erro
+            );
+
+            listaComentarios.textContent =
+                "Não foi possível carregar os comentários.";
+        }
+    }
+
+
+    // Disponibilizar atualização para o formulário de avaliação
+    window.carregarComentariosBreakTec =
+        carregarComentariosBreakTec;
+
+    // Carregar as opiniões quando a página abrir
+    carregarComentariosBreakTec();
+
+})();

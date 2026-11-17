@@ -49,6 +49,27 @@ const jogoId =
     parametrosURL.get("id");
 
 
+ // IDENTIFICA INTERNAMENTE A FONTE DO JOGO //
+
+ const fonteJogoOficial =
+     parametrosURL.get("fonte") === "igdb"
+         ? "igdb"
+         : "rawg";
+
+ const consultaFonte =
+     fonteJogoOficial === "igdb"
+         ? "?fonte=igdb"
+         : "";
+
+
+ // GERA AS ROTAS DA API DE JOGOS OFICIAIS //
+
+ function urlApiOficial(sufixo = "") {
+
+     return `/api/jogos-oficiais/${Number(jogoId)}${sufixo}${consultaFonte}`;
+ }
+
+
 // ====================================
 // FORMATAR DATA DE LANÇAMENTO
 // ====================================
@@ -141,11 +162,11 @@ async function carregarJogoOficial() {
 
     try {
 
-        // CONSULTAR NOSSO SERVIDOR
+        // CONSULTAR NOSSO SERVIDOR //
 
         const resposta = await fetch(
-            `/api/jogos-oficiais/${idNumerico}`
-        );
+        urlApiOficial()
+    );
 
 
         if (!resposta.ok) {
@@ -219,9 +240,7 @@ async function carregarJogoOficial() {
         }
 
 
-        // ====================================
-        // DESENVOLVEDORA E PUBLICADORA
-        // ====================================
+        // DESENVOLVEDORA E PUBLICADORA //
 
         jogoDesenvolvedora.textContent =
             formatarLista(jogo.desenvolvedores);
@@ -230,48 +249,48 @@ async function carregarJogoOficial() {
             formatarLista(jogo.publicadoras);
 
 
-        // ====================================
-        // GÊNERO
-        // ====================================
-
+        // GÊNERO //
         jogoGenero.textContent =
             jogo.genero || "Não informado";
 
 
-        // ====================================
-        // DATA DE LANÇAMENTO
-        // ====================================
+        // DATA DE LANÇAMENTO //
 
         jogoLancamento.textContent =
             formatarLancamento(jogo.lancamento);
 
 
-        // ====================================
-        // DESCRIÇÃO
-        // ====================================
+        // DESCRIÇÃO //
 
         jogoDescricao.textContent =
             jogo.descricao ||
             "Este jogo ainda não possui uma descrição disponível.";
 
 
-        // ====================================
-        // FONTE DOS DADOS
-        // ====================================
+        // FONTE DOS DADOS //
 
         const fonte = jogo.fonte_url;
 
-        if (
-            typeof fonte === "string" &&
-            /^https:\/\/(www\.)?rawg\.io\//.test(fonte)
-        ) {
+        const linkIgdb = fonteJogoOficial === "igdb";
 
-            jogoFonteLink.href = fonte;
+        const dominioPermitido = linkIgdb
+            ? /^https:\/\/(www\.)?igdb\.com\//
+            : /^https:\/\/(www\.)?rawg\.io\//;
 
-        } else {
+        jogoFonteLink.textContent = linkIgdb
+            ? "IGDB"
+            : "RAWG";
 
-            jogoFonteLink.href = "https://rawg.io/";
-        }
+        jogoFonteLink.href =
+        typeof fonte === "string" &&
+        dominioPermitido.test(fonte)
+            ? fonte
+            : (
+                linkIgdb
+                 ? "https://www.igdb.com/"
+                 : "https://rawg.io/"
+            );
+
 
 
         // ====================================
@@ -430,7 +449,7 @@ function criarEstrelasOficiais() {
 async function carregarBreakScoreOficial() {
 
     const resposta = await fetch(
-        `/api/jogos-oficiais/${idOficial}/dna`
+        urlApiOficial("/dna")
     );
 
     if (!resposta.ok) {
@@ -545,7 +564,7 @@ async function verificarSessaoAvaliacaoOficial() {
 async function carregarMinhaAvaliacaoOficial() {
 
     const resposta = await fetch(
-        `/api/jogos-oficiais/${idOficial}/minha-avaliacao`
+        urlApiOficial("/minha-avaliacao")
     );
 
     if (!resposta.ok) {
@@ -564,6 +583,10 @@ async function carregarMinhaAvaliacaoOficial() {
 
         return;
     }
+
+    document.getElementById(
+    "comentarioAvaliacaoOficial"
+    ).value = dados.avaliacao.comentario || "";
 
     // RECUPERA AS NOTAS SALVAS NO MYSQL
 
@@ -625,9 +648,9 @@ async function enviarAvaliacaoOficial(event) {
     try {
 
         const resposta = await fetch(
-            `/api/jogos-oficiais/${idOficial}/avaliacoes`,
-            {
-                method: "POST",
+            urlApiOficial("/avaliacoes"),
+        {
+            method: "POST",
 
                 headers: {
                     "Content-Type": "application/json"
@@ -635,7 +658,10 @@ async function enviarAvaliacaoOficial(event) {
 
                 credentials: "same-origin",
 
-                body: JSON.stringify(notasOficiais)
+                body: JSON.stringify({...notasOficiais,
+                comentario: document.getElementById(
+                "comentarioAvaliacaoOficial").value.trim()
+                })
             }
         );
 
@@ -671,6 +697,7 @@ async function enviarAvaliacaoOficial(event) {
         botaoEnviarOficial.textContent =
             "Atualizar avaliação";
 
+            carregarComentariosBreakTec();
 
         // ATUALIZA A PONTUAÇÃO SEM RECARREGAR A PÁGINA
 
@@ -842,7 +869,7 @@ async function verificarFavoritoOficial() {
     try {
 
         const resposta = await fetch(
-            `/api/jogos-oficiais/${idOficial}/favoritos/status`
+            urlApiOficial("/favoritos/status")
         );
 
         if (resposta.status === 401) {
@@ -900,15 +927,15 @@ async function alternarFavoritoOficial() {
     try {
 
         const resposta = await fetch(
-            `/api/jogos-oficiais/${idOficial}/favoritos`,
-            {
-                method: estavaFavoritado
-                    ? "DELETE"
-                    : "POST",
+            urlApiOficial("/favoritos"),
+        {
+            method: estavaFavoritado
+                ? "DELETE"
+                : "POST",
 
-                credentials: "same-origin"
-            }
-        );
+            credentials: "same-origin"
+        }
+    );
 
         if (resposta.status === 401) {
 
@@ -988,3 +1015,343 @@ function iniciarFavoritosOficiais() {
 // INICIAR FAVORITOS
 
 iniciarFavoritosOficiais();
+
+
+/* ==========================================
+   BREAK TEC - EXIBIÇÃO DE COMENTÁRIOS
+========================================== */
+
+(function () {
+
+    const listaComentarios = document.getElementById(
+        "comentariosListaBreakTec"
+    );
+
+    const avisoComentarios = document.getElementById(
+        "comentariosAvisoBreakTec"
+    );
+
+    if (!listaComentarios || !avisoComentarios) return;
+
+    const paginaOficial = Boolean(
+        document.getElementById("avaliacaoOficialForm")
+    );
+
+    const idJogo = Number(
+        new URLSearchParams(window.location.search).get("id")
+    );
+
+    const rotaBase = paginaOficial
+        ? `/api/jogos-oficiais/${idJogo}`
+        : `/api/projetos/${idJogo}`;
+
+        const consultaComentarios = paginaOficial
+        ? consultaFonte
+        : "";
+
+    const idCampo = paginaOficial
+        ? "comentarioAvaliacaoOficial"
+        : "comentarioAvaliacaoProjeto";
+
+
+    function criarElemento(tag, classe, conteudo = "") {
+
+        const elemento = document.createElement(tag);
+
+        if (classe) {
+            elemento.className = classe;
+        }
+
+        elemento.textContent = conteudo;
+
+        return elemento;
+    }
+
+
+    function editarComentarioBreakTec() {
+
+        const campo = document.getElementById(idCampo);
+
+        if (!campo) return;
+
+        if (!paginaOficial) {
+            document.getElementById("avaliarProjeto")?.click();
+        } else {
+            campo.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+        }
+
+        campo.focus();
+    }
+
+
+    async function excluirComentarioBreakTec() {
+
+        const confirmar = confirm(
+            "Excluir seu comentário? Suas estrelas serão mantidas."
+        );
+
+        if (!confirmar) return;
+
+        avisoComentarios.textContent = "Excluindo comentário...";
+
+        try {
+
+            const resposta = await fetch(
+                `${rotaBase}/comentario${consultaComentarios}`,
+                {
+                    method: "DELETE",
+                    credentials: "same-origin"
+                }
+            );
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(
+                    dados.mensagem || "Erro ao excluir comentário."
+                );
+            }
+
+            const campo = document.getElementById(idCampo);
+
+            if (campo) {
+                campo.value = "";
+            }
+
+            avisoComentarios.textContent = dados.mensagem;
+
+            await carregarComentariosBreakTec();
+
+        } catch (erro) {
+
+            avisoComentarios.textContent = erro.message;
+        }
+    }
+
+
+    async function carregarComentariosBreakTec() {
+
+        if (!Number.isSafeInteger(idJogo) || idJogo <= 0) {
+            listaComentarios.textContent = "Jogo inválido.";
+            return;
+        }
+
+        listaComentarios.textContent = "Carregando comentários...";
+
+        try {
+
+            const resposta = await fetch(
+                `${rotaBase}/comentarios${consultaComentarios}`,
+                { cache: "no-store" }
+            );
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error("Erro ao carregar comentários.");
+            }
+
+            listaComentarios.replaceChildren();
+
+            const comentarios = Array.isArray(dados.comentarios)
+                ? dados.comentarios
+                : [];
+
+            if (comentarios.length === 0) {
+
+                listaComentarios.appendChild(
+                    criarElemento(
+                        "p",
+                        "comentarios-breaktec-vazio",
+                        "Ainda não há comentários. Seja o primeiro a compartilhar sua opinião!"
+                    )
+                );
+
+                return;
+            }
+
+
+            comentarios.forEach(comentario => {
+
+                const card = criarElemento(
+                    "article",
+                    "comentarios-breaktec-card"
+                );
+
+                const cabecalho = criarElemento(
+                    "div",
+                    "comentarios-breaktec-cabecalho"
+                );
+
+                const avatar = criarElemento(
+                    "div",
+                    "comentarios-breaktec-avatar"
+                );
+
+                const nome = typeof comentario.nome === "string"
+                    ? comentario.nome.trim() || "Jogador"
+                    : "Jogador";
+
+                const inicial = criarElemento(
+                    "span",
+                    "",
+                    nome.charAt(0).toUpperCase()
+                );
+
+                avatar.appendChild(inicial);
+
+                // Foto pública do jogador
+                if (comentario.perfil_publico || comentario.meu) {
+
+                    const imagem = document.createElement("img");
+
+                    imagem.alt = "";
+                    imagem.loading = "lazy";
+
+                    imagem.onload = () => {
+                        inicial.hidden = true;
+                    };
+
+                    imagem.onerror = () => {
+                        imagem.remove();
+                        inicial.hidden = false;
+                    };
+
+                    imagem.src =
+                        `/api/usuarios/${comentario.autor_id}/foto`;
+
+                    avatar.appendChild(imagem);
+                }
+
+
+                const dadosAutor = criarElemento(
+                    "div",
+                    "comentarios-breaktec-autor"
+                );
+
+                if (comentario.perfil_publico) {
+
+                    const link = criarElemento("a", "", nome);
+
+                    link.href =
+                        `usuario.html?id=${comentario.autor_id}`;
+
+                    dadosAutor.appendChild(link);
+
+                } else {
+
+                    dadosAutor.appendChild(
+                        criarElemento("strong", "", nome)
+                    );
+                }
+
+
+                const data = new Date(comentario.criado_em);
+
+                dadosAutor.appendChild(
+                    criarElemento(
+                        "small",
+                        "",
+                        Number.isNaN(data.getTime())
+                            ? ""
+                            : data.toLocaleDateString("pt-BR")
+                    )
+                );
+
+                cabecalho.appendChild(avatar);
+                cabecalho.appendChild(dadosAutor);
+
+
+                const nota = Number(comentario.nota) * 2;
+
+                const pontuacao = Number.isFinite(nota)
+                    ? nota.toFixed(1)
+                    : "—";
+
+                const notaElemento = criarElemento(
+                    "span",
+                    "comentarios-breaktec-nota",
+                    `★ ${pontuacao}/10`
+                );
+
+                const textoComentario = criarElemento(
+                    "p",
+                    "comentarios-breaktec-texto",
+                    comentario.comentario || ""
+                );
+
+
+                card.appendChild(cabecalho);
+                card.appendChild(notaElemento);
+                card.appendChild(textoComentario);
+
+
+                // Somente o autor visualiza estes botões
+                if (comentario.meu) {
+
+                    const acoes = criarElemento(
+                        "div",
+                        "comentarios-breaktec-acoes"
+                    );
+
+                    const editar = criarElemento(
+                        "button",
+                        "",
+                        "Editar comentário"
+                    );
+
+                    editar.type = "button";
+
+                    editar.addEventListener(
+                        "click",
+                        editarComentarioBreakTec
+                    );
+
+
+                    const excluir = criarElemento(
+                        "button",
+                        "excluir",
+                        "Excluir comentário"
+                    );
+
+                    excluir.type = "button";
+
+                    excluir.addEventListener(
+                        "click",
+                        excluirComentarioBreakTec
+                    );
+
+                    acoes.appendChild(editar);
+                    acoes.appendChild(excluir);
+
+                    card.appendChild(acoes);
+                }
+
+                listaComentarios.appendChild(card);
+
+            });
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao carregar comentários:",
+                erro
+            );
+
+            listaComentarios.textContent =
+                "Não foi possível carregar os comentários.";
+        }
+    }
+
+
+    // Disponibilizar atualização para o formulário de avaliação
+    window.carregarComentariosBreakTec =
+        carregarComentariosBreakTec;
+
+    // Carregar as opiniões quando a página abrir
+    carregarComentariosBreakTec();
+
+})();

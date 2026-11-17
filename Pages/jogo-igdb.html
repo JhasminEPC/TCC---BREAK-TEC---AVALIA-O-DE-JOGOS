@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Jogo IGDB | Break Tec</title>
+
+    <link rel="stylesheet" href="../css/jogo-oficial.css">
+</head>
+
+<body>
+
+    <header class="jogo-header">
+
+        <a href="../index.html" class="jogo-logo">
+            <span>BREAKTEC</span>
+        </a>
+
+        <a href="../index.html" class="voltar-home">
+            ← Voltar ao início
+        </a>
+
+    </header>
+
+    <main class="jogo-container">
+
+        <p id="igdbAviso" role="status">
+            Carregando informações do jogo...
+        </p>
+
+        <div id="igdbConteudo" hidden>
+
+            <section class="jogo-apresentacao">
+
+                <div class="jogo-capa">
+
+                    <img
+                        id="igdbImagem"
+                        alt="Imagem do jogo"
+                        hidden
+                    >
+
+                    <p id="igdbSemCapa" hidden>
+                        Imagem indisponível
+                    </p>
+
+                </div>
+
+                <div class="jogo-detalhes">
+
+                    <span class="jogo-origem">
+                        JOGO OFICIAL • IGDB
+                    </span>
+
+                    <h1 id="igdbTitulo"></h1>
+
+                    <div class="jogo-metadados">
+
+                        <div>
+                            <span>Desenvolvedora</span>
+                            <strong id="igdbDev">—</strong>
+                        </div>
+
+                        <div>
+                            <span>Publicadora</span>
+                            <strong id="igdbPublisher">—</strong>
+                        </div>
+
+                        <div>
+                            <span>Gêneros</span>
+                            <strong id="igdbGenero">—</strong>
+                        </div>
+
+                        <div>
+                            <span>Lançamento</span>
+                            <strong id="igdbLancamento">—</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="jogo-descricao-section">
+
+                <span class="section-tag">
+                    CONHEÇA O JOGO
+                </span>
+
+                <h2>Sobre o jogo</h2>
+
+                <p id="igdbDescricao"></p>
+
+            </section>
+
+            <div class="jogo-fonte">
+
+                Informações fornecidas pela
+
+                <a
+                    id="igdbFonte"
+                    href="https://www.igdb.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    IGDB
+                </a>.
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="../js/jogo-igdb.js"></script>
+
+</body>
+</html>

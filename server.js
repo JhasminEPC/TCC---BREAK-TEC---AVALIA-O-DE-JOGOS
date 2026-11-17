@@ -1070,12 +1070,33 @@ app.post("/api/projetos/:id/avaliacoes", (req, res) => {
     const usuarioId = req.session.usuario.id;
 
     const {
-        jogabilidade,
-        historia,
-        visual,
-        som,
-        originalidade
-    } = req.body;
+    jogabilidade,
+    historia,
+    visual,
+    som,
+    originalidade,
+    comentario: comentarioRecebido
+} = req.body;
+
+if (
+    comentarioRecebido !== undefined &&
+    typeof comentarioRecebido !== "string"
+) {
+    return res.status(400).json({
+        mensagem: "Comentário inválido."
+    });
+}
+
+const comentario =
+    typeof comentarioRecebido === "string"
+        ? comentarioRecebido.trim()
+        : null;
+
+if (comentario && comentario.length > 1000) {
+    return res.status(400).json({
+        mensagem: "O comentário deve ter até 1000 caracteres."
+    });
+}
 
     const notas = [
         jogabilidade,
@@ -1104,40 +1125,43 @@ app.post("/api/projetos/:id/avaliacoes", (req, res) => {
         / notas.length;
 
     const sql = `
-        INSERT INTO avaliacoes
-        (
-            nota,
-            jogabilidade,
-            historia,
-            visual,
-            som,
-            originalidade,
-            usuario_id,
-            projeto_id
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO avaliacoes
+    (
+        nota,
+        jogabilidade,
+        historia,
+        visual,
+        som,
+        originalidade,
+        comentario,
+        usuario_id,
+        projeto_id
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 
-        ON DUPLICATE KEY UPDATE
-            nota = VALUES(nota),
-            jogabilidade = VALUES(jogabilidade),
-            historia = VALUES(historia),
-            visual = VALUES(visual),
-            som = VALUES(som),
-            originalidade = VALUES(originalidade)
-    `;
+    ON DUPLICATE KEY UPDATE
+        nota = VALUES(nota),
+        jogabilidade = VALUES(jogabilidade),
+        historia = VALUES(historia),
+        visual = VALUES(visual),
+        som = VALUES(som),
+        originalidade = VALUES(originalidade),
+        comentario = COALESCE(VALUES(comentario), comentario)
+`;
 
     conexao.query(
         sql,
         [
-            notaGeral,
-            jogabilidade,
-            historia,
-            visual,
-            som,
-            originalidade,
-            usuarioId,
-            projetoId
-        ],
+        notaGeral,
+        jogabilidade,
+        historia,
+        visual,
+        som,
+        originalidade,
+        comentario,
+        usuarioId,
+        projetoId
+    ],
         (erro) => {
 
             if (erro) {
@@ -1164,8 +1188,7 @@ app.post("/api/projetos/:id/avaliacoes", (req, res) => {
 // MINHA AVALIAÇÃO DO PROJETO
 // ==========================
 
-app.get(
-    "/api/projetos/:id/minha-avaliacao",
+app.get("/api/projetos/:id/minha-avaliacao",
     (req, res) => {
 
         if (!req.session.usuario) {
@@ -1183,7 +1206,8 @@ app.get(
                 historia,
                 visual,
                 som,
-                originalidade
+                originalidade,
+                comentario
             FROM avaliacoes
             WHERE usuario_id = ?
             AND projeto_id = ?
@@ -1587,7 +1611,7 @@ const TEMPO_CACHE_RAWG = 5 * 60 * 1000;
 // CONSULTAR A API
 // ==========================
 
-async function consultarRawg(caminho, parametros = {}) {
+async function consultarRawgRemota(caminho, parametros = {}) {
 
     if (!process.env.RAWG_API_KEY) {
 
@@ -1632,7 +1656,7 @@ async function consultarRawg(caminho, parametros = {}) {
 
     const temporizador = setTimeout(() => {
         controlador.abort();
-    }, 8000);
+    }, 15000);
 
     try {
 
@@ -1669,6 +1693,208 @@ async function consultarRawg(caminho, parametros = {}) {
         clearTimeout(temporizador);
     }
 }
+
+
+ // ==========================================
+ // RAWG - MODO DE EMERGÊNCIA VIA MYSQL
+ // ==========================================
+
+ let rawgIndisponivelAte = 0;
+
+ function jogoLocalParaRawg(registro) {
+     const listaNomes = valor => String(valor || "")
+         .split(",")
+         .map(nome => nome.trim())
+         .filter(Boolean)
+         .map(name => ({ name }));
+
+     return {
+         id: Number(registro.rawg_id),
+         name: registro.titulo,
+         background_image: registro.imagem || null,
+         genres: listaNomes(registro.genero),
+         developers: listaNomes(registro.desenvolvedor),
+         publishers: [],
+         released: null,
+         description_raw:
+             "Informações carregadas do catálogo local da Break Tec. A descrição completa depende da RAWG.",
+         fonte_url: registro.fonte_url || null,
+         modoLocal: true
+     };
+ }
+
+
+ async function consultarRawgLocal(caminho, parametros = {}) {
+     const banco = conexao.promise();
+
+     const rotaDetalhe = /^games\/(\d+)$/.exec(caminho);
+
+     // CARREGAR UM JOGO ESPECÍFICO
+     if (rotaDetalhe) {
+         const rawgId = Number(rotaDetalhe[1]);
+
+         const [registros] = await banco.query(`
+             SELECT rawg_id, titulo, imagem, desenvolvedor,
+                    genero, fonte_url
+             FROM jogos_oficiais
+             WHERE rawg_id = ?
+             LIMIT 1
+         `, [rawgId]);
+
+         if (!registros.length) {
+             const erro = new Error(
+                 "Jogo não cadastrado no catálogo local."
+             );
+
+             erro.statusRawg = 404;
+             throw erro;
+         }
+
+         return jogoLocalParaRawg(registros[0]);
+     }
+
+     if (caminho !== "games") {
+         const erro = new Error(
+             "Consulta indisponível no modo local."
+         );
+
+         erro.statusLocal = 503;
+         throw erro;
+     }
+
+
+     // LISTAR E PESQUISAR JOGOS SALVOS
+     const filtros = ["j.rawg_id IS NOT NULL"];
+     const valores = [];
+
+     const busca = String(parametros.search || "").trim();
+     const genero = String(parametros.genres || "").trim();
+
+     if (busca) {
+         filtros.push("j.titulo LIKE ?");
+         valores.push(`%${busca}%`);
+     }
+
+     if (genero) {
+         const mapaGeneros = {
+             "role-playing-games-rpg": "Role-playing",
+             shooter: "Shooter",
+             platformer: "Platformer"
+         };
+
+         filtros.push("j.genero LIKE ?");
+         valores.push(
+             `%${mapaGeneros[genero] || genero}%`
+         );
+     }
+
+     const onde = filtros.length
+         ? `WHERE ${filtros.join(" AND ")}`
+         : "";
+
+     const pagina = Math.max(
+         1,
+         Math.min(1000, Number(parametros.page) || 1)
+     );
+
+     const limite = Math.max(
+         1,
+         Math.min(50, Number(parametros.page_size) || 12)
+     );
+
+     const deslocamento = (pagina - 1) * limite;
+
+     const ordenacao = parametros.ordering === "name"
+         ? "j.titulo ASC"
+         : parametros.ordering === "-rating"
+             ? "media DESC, j.id DESC"
+             : "j.id DESC";
+
+
+     const [contagem] = await banco.query(`
+         SELECT COUNT(*) AS total
+         FROM jogos_oficiais j
+         ${onde}
+     `, valores);
+
+
+     const [registros] = await banco.query(`
+         SELECT
+             j.rawg_id,
+             j.titulo,
+             j.imagem,
+             j.desenvolvedor,
+             j.genero,
+             j.fonte_url,
+
+             (
+                 SELECT AVG(a.nota)
+                 FROM avaliacoes_oficiais a
+                 WHERE a.jogo_oficial_id = j.id
+             ) AS media
+
+         FROM jogos_oficiais j
+
+         ${onde}
+
+         ORDER BY ${ordenacao}
+
+         LIMIT ? OFFSET ?
+     `, [...valores, limite, deslocamento]);
+
+
+     const total = Number(contagem[0].total) || 0;
+
+     return {
+         count: total,
+         results: registros.map(jogoLocalParaRawg),
+         next: pagina * limite < total ? true : null,
+         previous: pagina > 1 ? true : null,
+         modoLocal: true
+     };
+ }
+
+
+ // FUNÇÃO PRINCIPAL: RAWG OU MYSQL
+ async function consultarRawg(caminho, parametros = {}) {
+
+     // Quando ativado, usa diretamente o MySQL
+     if (
+         process.env.RAWG_MODO_LOCAL === "1" ||
+         !process.env.RAWG_API_KEY ||
+         Date.now() < rawgIndisponivelAte
+     ) {
+         return consultarRawgLocal(caminho, parametros);
+     }
+
+     try {
+         return await consultarRawgRemota(
+             caminho,
+             parametros
+         );
+
+     } catch (erro) {
+
+         // Um jogo inexistente continua retornando 404
+         if (erro.statusRawg === 404) {
+             throw erro;
+         }
+
+         // Evita repetir requisições com erro a todo momento
+         rawgIndisponivelAte =
+             Date.now() + 2 * 60 * 1000;
+
+         console.warn(
+             "RAWG indisponível; usando MySQL:",
+             erro.message
+         );
+
+         return consultarRawgLocal(
+             caminho,
+             parametros
+         );
+     }
+ }
 
 
 // ==========================
@@ -1816,7 +2042,18 @@ app.get("/api/jogos-oficiais/:id", async (req, res) => {
 
     try {
 
-        const jogo = await consultarRawg(
+
+ // SE O JOGO VIER DA IGDB, RETORNA
+ // OS DADOS NO MESMO FORMATO DA PÁGINA OFICIAL
+
+    if (fonteOficialDaRequisicao(req) === "IGDB") {
+
+        const jogo = await obterJogoIGDBPadronizado(id);
+        return res.json({ jogo });
+ }
+
+
+    const jogo = await consultarRawg(
             `games/${id}`
         );
 
@@ -1856,7 +2093,7 @@ app.get("/api/jogos-oficiais/:id", async (req, res) => {
 
     } catch (erro) {
 
-        tratarErroRawg(res, erro);
+        tratarErroIntegracaoOficial(res, erro);
     }
 });
 
@@ -1873,6 +2110,221 @@ function validarIdJogoOficial(valor) {
         ? id
         : null;
 }
+
+
+ // ==========================================
+ // BREAK TEC > INTEGRAÇÃO RAWG + IGDB
+ // ==========================================
+
+ // Identifica a fonte internamente
+ // A interface continua mostrando JOGO OFICIAL
+
+ function fonteOficialDaRequisicao(req) {
+     return req.query.fonte === "igdb"
+         ? "IGDB"
+         : "RAWG";
+ }
+
+ function colunaIdOficial(req) {
+     return fonteOficialDaRequisicao(req) === "IGDB"
+         ? "igdb_id"
+         : "rawg_id";
+ }
+
+
+ // BUSCAR DETALHES DE UM JOGO NA IGDB
+
+ async function obterJogoIGDBPadronizado(id) {
+
+     const resultados = await consultarIGDB(`
+         fields id,name,slug,summary,storyline,
+                cover.image_id,artworks.image_id,
+                genres.name,first_release_date,
+                involved_companies.company.name,
+                involved_companies.developer,
+                involved_companies.publisher;
+
+         where id = ${id};
+         limit 1;
+     `);
+
+     const jogo = resultados[0];
+
+     if (!jogo || jogo.id !== id || !jogo.name) {
+         const erro = new Error(
+             "Jogo não encontrado na IGDB."
+         );
+         erro.status = 404;
+         throw erro;
+     }
+
+     const empresas = jogo.involved_companies || [];
+
+     return {
+         id_externo: id,
+         titulo: jogo.name,
+
+         descricao:
+             jogo.summary ||
+             jogo.storyline ||
+             "Descrição não disponível.",
+
+         imagem:
+             imagemIGDB(jogo.cover?.image_id, "cover_big") ||
+             imagemIGDB(
+                 jogo.artworks?.[0]?.image_id,
+                 "screenshot_big"
+             ),
+
+         genero: (jogo.genres || [])
+             .map(g => g.name)
+             .join(", "),
+
+         desenvolvedores: empresas
+             .filter(e => e.developer)
+             .map(e => e.company?.name)
+             .filter(Boolean),
+
+         publicadoras: empresas
+             .filter(e => e.publisher)
+             .map(e => e.company?.name)
+             .filter(Boolean),
+
+         lancamento: jogo.first_release_date
+             ? new Date(jogo.first_release_date * 1000)
+                 .toISOString()
+                 .slice(0, 10)
+             : null,
+
+         origem: "oficial",
+         fonte: "IGDB",
+
+         fonte_url: jogo.slug
+             ? `https://www.igdb.com/games/${encodeURIComponent(jogo.slug)}`
+             : "https://www.igdb.com/"
+     };
+ }
+
+
+ // SALVAR JOGO OFICIAL NO MYSQL  //
+ // FUNCIONA COM RAWG OU IGDB //
+
+ async function registrarJogoOficial(fonte, id) {
+
+     let jogo;
+
+     if (fonte === "IGDB") {
+
+         jogo = await obterJogoIGDBPadronizado(id);
+
+     } else {
+
+         const bruto = await consultarRawg(
+             `games/${id}`
+         );
+
+         if (!bruto || bruto.id !== id || !bruto.name) {
+             const erro = new Error(
+                 "Não foi possível validar o jogo."
+             );
+             erro.status = 502;
+             throw erro;
+         }
+
+         jogo = {
+             titulo: bruto.name,
+             imagem: bruto.background_image || null,
+
+             genero: (bruto.genres || [])
+                 .map(g => g.name)
+                 .join(", "),
+
+             desenvolvedores: (bruto.developers || [])
+                 .map(d => d.name),
+
+             fonte_url: linkRawg(bruto)
+         };
+     }
+
+     const banco = conexao.promise();
+
+     await banco.query(`
+         INSERT INTO jogos_oficiais (
+             rawg_id,
+             igdb_id,
+             titulo,
+             imagem,
+             desenvolvedor,
+             genero,
+             fonte_url
+         )
+         VALUES (?, ?, ?, ?, ?, ?, ?)
+
+         ON DUPLICATE KEY UPDATE
+             titulo = VALUES(titulo),
+             imagem = VALUES(imagem),
+             desenvolvedor = VALUES(desenvolvedor),
+             genero = VALUES(genero),
+             fonte_url = VALUES(fonte_url)
+     `, [
+         fonte === "RAWG" ? id : null,
+         fonte === "IGDB" ? id : null,
+
+         jogo.titulo.slice(0, 200),
+
+         jogo.imagem?.slice(0, 500) || null,
+
+         (jogo.desenvolvedores || [])
+             .join(", ")
+             .slice(0, 255),
+
+         (jogo.genero || "").slice(0, 255),
+
+         jogo.fonte_url?.slice(0, 500) || null
+     ]);
+
+     const coluna = fonte === "IGDB"
+         ? "igdb_id"
+         : "rawg_id";
+
+     const [registros] = await banco.query(`
+         SELECT id
+         FROM jogos_oficiais
+         WHERE ${coluna} = ?
+         LIMIT 1
+     `, [id]);
+
+     if (!registros.length) {
+         throw new Error(
+             "Não foi possível localizar o jogo no banco."
+         );
+     }
+
+     return registros[0].id;
+ }
+
+
+ // TRATAR ERROS DAS DUAS FONTES
+
+ function tratarErroIntegracaoOficial(res, erro) {
+
+     if (erro.statusRawg || erro.statusLocal) {
+         return tratarErroRawg(res, erro);
+     }
+
+     if (erro.status || erro.name === "TimeoutError") {
+         return erroConsultaIGDB(res, erro);
+     }
+
+     console.error(
+         "Erro ao processar jogo oficial:",
+         erro
+     );
+
+     return res.status(500).json({
+         mensagem: "Erro ao processar jogo oficial."
+     });
+ }
 
 
 // ==========================================
@@ -1894,6 +2346,28 @@ app.post("/api/jogos-oficiais/:id/avaliacoes", async (req, res) => {
             mensagem: "ID do jogo inválido."
         });
     }
+
+    const comentarioRecebido = req.body?.comentario;
+
+if (
+    comentarioRecebido !== undefined &&
+    typeof comentarioRecebido !== "string"
+) {
+    return res.status(400).json({
+        mensagem: "Comentário inválido."
+    });
+}
+
+const comentario =
+    typeof comentarioRecebido === "string"
+        ? comentarioRecebido.trim()
+        : null;
+
+if (comentario && comentario.length > 1000) {
+    return res.status(400).json({
+        mensagem: "O comentário deve ter até 1000 caracteres."
+    });
+}
 
     const categorias = [
         "jogabilidade",
@@ -1929,105 +2403,53 @@ app.post("/api/jogos-oficiais/:id/avaliacoes", async (req, res) => {
     );
 
 
-    // VERIFICA O JOGO NA RAWG
+    
+ // REGISTRA O JOGO OFICIAL NO MYSQL
+ // INDEPENDENTEMENTE DA API UTILIZADA
 
-    let jogo;
+ try {
 
-    try {
-        jogo = await consultarRawg(`games/${rawgId}`);
-    } catch (erro) {
-        return tratarErroRawg(res, erro);
-    }
+     const banco = conexao.promise();
 
-    if (!jogo || jogo.id !== rawgId || !jogo.name) {
-        return res.status(502).json({
-            mensagem: "Não foi possível validar o jogo."
-        });
-    }
+     const jogoOficialId = await registrarJogoOficial(
+         fonteOficialDaRequisicao(req),
+         rawgId
+     );
 
-
-    try {
-
-        const banco = conexao.promise();
-
-        // REGISTRA O JOGO NO MYSQL CASO AINDA NÃO EXISTA
-
-        await banco.query(`
-            INSERT INTO jogos_oficiais
-            (
-                rawg_id,
-                titulo,
-                imagem,
-                desenvolvedor,
-                genero,
-                fonte_url
-            )
-            VALUES (?, ?, ?, ?, ?, ?)
-
-            ON DUPLICATE KEY UPDATE
-                titulo = VALUES(titulo),
-                imagem = VALUES(imagem),
-                desenvolvedor = VALUES(desenvolvedor),
-                genero = VALUES(genero),
-                fonte_url = VALUES(fonte_url)
-        `, [
-            rawgId,
-            jogo.name.slice(0, 200),
-            jogo.background_image?.slice(0, 500) || null,
-            (jogo.developers || [])
-                .map(dev => dev.name)
-                .join(", ")
-                .slice(0, 255),
-            (jogo.genres || [])
-                .map(genero => genero.name)
-                .join(", ")
-                .slice(0, 255),
-            linkRawg(jogo)
-        ]);
-
-
-        // ENCONTRA O ID INTERNO DO JOGO
-
-        const [jogos] = await banco.query(`
-            SELECT id
-            FROM jogos_oficiais
-            WHERE rawg_id = ?
-            LIMIT 1
-        `, [rawgId]);
-
-        const jogoOficialId = jogos[0].id;
 
 
         // SALVA OU ATUALIZA A AVALIAÇÃO
 
-        await banco.query(`
-            INSERT INTO avaliacoes_oficiais
-            (
-                usuario_id,
-                jogo_oficial_id,
-                nota,
-                jogabilidade,
-                historia,
-                visual,
-                som,
-                originalidade
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+await banco.query(`
+    INSERT INTO avaliacoes_oficiais
+    (
+        usuario_id,
+        jogo_oficial_id,
+        nota,
+        jogabilidade,
+        historia,
+        visual,
+        som,
+        originalidade,
+        comentario
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 
-            ON DUPLICATE KEY UPDATE
-                nota = VALUES(nota),
-                jogabilidade = VALUES(jogabilidade),
-                historia = VALUES(historia),
-                visual = VALUES(visual),
-                som = VALUES(som),
-                originalidade = VALUES(originalidade)
-        `, [
-            req.session.usuario.id,
-            jogoOficialId,
-            notaGeral,
-            ...notas
-        ]);
-
+    ON DUPLICATE KEY UPDATE
+        nota = VALUES(nota),
+        jogabilidade = VALUES(jogabilidade),
+        historia = VALUES(historia),
+        visual = VALUES(visual),
+        som = VALUES(som),
+        originalidade = VALUES(originalidade),
+        comentario = COALESCE(VALUES(comentario), comentario)
+`, [
+    req.session.usuario.id,
+    jogoOficialId,
+    notaGeral,
+    ...notas,
+    comentario
+]);
 
         res.json({
             mensagem: "Avaliação salva com sucesso!",
@@ -2036,6 +2458,11 @@ app.post("/api/jogos-oficiais/:id/avaliacoes", async (req, res) => {
         });
 
     } catch (erro) {
+
+
+        if (erro.statusRawg || erro.statusLocal || erro.status) {
+        return tratarErroIntegracaoOficial(res, erro);
+    }
 
         console.error(
             "Erro ao salvar avaliação oficial:",
@@ -2082,7 +2509,7 @@ app.get("/api/jogos-oficiais/:id/dna", async (req, res) => {
             LEFT JOIN avaliacoes_oficiais a
                 ON a.jogo_oficial_id = j.id
 
-            WHERE j.rawg_id = ?
+            WHERE j.${colunaIdOficial(req)} = ?
         `, [rawgId]);
 
         const dna = resultados[0];
@@ -2135,21 +2562,22 @@ app.get(
 
             const [resultados] = await conexao.promise().query(`
                 SELECT
-                    a.jogabilidade,
-                    a.historia,
-                    a.visual,
-                    a.som,
-                    a.originalidade
+        a.jogabilidade,
+        a.historia,
+        a.visual,
+        a.som,
+        a.originalidade,
+        a.comentario
 
-                FROM avaliacoes_oficiais a
+    FROM avaliacoes_oficiais a
 
-                INNER JOIN jogos_oficiais j
-                    ON j.id = a.jogo_oficial_id
+    INNER JOIN jogos_oficiais j
+    ON j.id = a.jogo_oficial_id
 
-                WHERE j.rawg_id = ?
-                AND a.usuario_id = ?
+    WHERE j.${colunaIdOficial(req)} = ?
+    AND a.usuario_id = ?
 
-                LIMIT 1
+    LIMIT 1
             `, [
                 rawgId,
                 req.session.usuario.id
@@ -2390,8 +2818,7 @@ app.post("/api/jogos-oficiais/:id/favoritos", async (req, res) => {
                 ON j.id = f.jogo_oficial_id
 
             WHERE f.usuario_id = ?
-            AND j.rawg_id = ?
-
+            AND j.${colunaIdOficial(req)} = ?
             LIMIT 1
         `, [usuarioId, rawgId]);
 
@@ -2403,69 +2830,67 @@ app.post("/api/jogos-oficiais/:id/favoritos", async (req, res) => {
         }
 
 
-        // CONSULTAR INFORMAÇÕES DO JOGO NA RAWG
+       
+ // ==========================================
+ // REGISTRAR JOGO OFICIAL - RAWG OU IGDB
+ // ==========================================
 
-        const jogo = await consultarRawg(
-            `games/${rawgId}`
-        );
-
-        if (!jogo || jogo.id !== rawgId || !jogo.name) {
-            return res.status(502).json({
-                mensagem: "Não foi possível validar o jogo."
-            });
-        }
+    const jogoOficialId = await registrarJogoOficial(
+         fonteOficialDaRequisicao(req),
+         rawgId
+    );
 
 
-        // CADASTRAR O JOGO NO MYSQL, CASO NÃO EXISTA
+ // ==========================================
+ // ADICIONAR JOGO AOS FAVORITOS
+ // ==========================================
 
-        await banco.query(`
-            INSERT INTO jogos_oficiais
-            (
-                rawg_id,
-                titulo,
-                imagem,
-                desenvolvedor,
-                genero,
-                fonte_url
-            )
-            VALUES (?, ?, ?, ?, ?, ?)
+    const [resultado] = await banco.query(`
+        INSERT IGNORE INTO favoritos_oficiais
+            (usuario_id, jogo_oficial_id)
 
-            ON DUPLICATE KEY UPDATE
-                titulo = VALUES(titulo),
-                imagem = VALUES(imagem),
-                desenvolvedor = VALUES(desenvolvedor),
-                genero = VALUES(genero),
-                fonte_url = VALUES(fonte_url)
-        `, [
-            rawgId,
-            jogo.name.slice(0, 200),
-            jogo.background_image?.slice(0, 500) || null,
-
-            (jogo.developers || [])
-                .map(dev => dev.name)
-                .join(", ")
-                .slice(0, 255),
-
-            (jogo.genres || [])
-                .map(genero => genero.name)
-                .join(", ")
-                .slice(0, 255),
-
-            linkRawg(jogo)
-        ]);
+        VALUES (?, ?)
+    `, [
+         usuarioId,
+        jogoOficialId
+    ]);
 
 
-        // SALVAR O FAVORITO
+ // CONFIRMAR SE O FAVORITO FOI SALVO //
 
-        const [resultado] = await banco.query(`
-            INSERT IGNORE INTO favoritos_oficiais
-                (usuario_id, jogo_oficial_id)
+ const [confirmacaoFavorito] = await banco.query(`
+     SELECT f.id
+     FROM favoritos_oficiais f
 
-            SELECT ?, id
-            FROM jogos_oficiais
+     INNER JOIN jogos_oficiais j
+         ON j.id = f.jogo_oficial_id
 
-            WHERE rawg_id = ?
-        `, [usuarioId, rawgId]);
+     WHERE f.usuario_id = ?
+     AND j.${colunaIdOficial(req)} = ?
+
+     LIMIT 1
+ `, [
+     usuarioId,
+     rawgId
+ ]);
+
+ if (confirmacaoFavorito.length === 0) {
+
+     console.error(
+         "Favorito não encontrado após o salvamento:",
+         {
+             fonte: fonteOficialDaRequisicao(req),
+             idExterno: rawgId,
+             usuarioId
+         }
+     );
+
+     return res.status(500).json({
+         mensagem:
+             "O favorito não foi registrado corretamente no banco.",
+         favoritado: false
+     });
+ }
 
 
         res.status(resultado.affectedRows > 0 ? 201 : 200).json({
@@ -2477,10 +2902,9 @@ app.post("/api/jogos-oficiais/:id/favoritos", async (req, res) => {
 
     } catch (erro) {
 
-        if (erro.statusRawg || erro.statusLocal) {
-            return tratarErroRawg(res, erro);
+        if (erro.statusRawg || erro.statusLocal || erro.status) {
+            return tratarErroIntegracaoOficial(res, erro);
         }
-
         console.error(
             "Erro ao favoritar jogo oficial:",
             erro
@@ -2524,7 +2948,7 @@ app.get("/api/jogos-oficiais/:id/favoritos/status", async (req, res) => {
                 ON j.id = f.jogo_oficial_id
 
             WHERE f.usuario_id = ?
-            AND j.rawg_id = ?
+            AND j.${colunaIdOficial(req)} = ?
 
             LIMIT 1
         `, [
@@ -2581,7 +3005,7 @@ app.delete("/api/jogos-oficiais/:id/favoritos", async (req, res) => {
                 ON j.id = f.jogo_oficial_id
 
             WHERE f.usuario_id = ?
-            AND j.rawg_id = ?
+            AND j.${colunaIdOficial(req)} = ?
         `, [
             req.session.usuario.id,
             rawgId
@@ -2629,14 +3053,25 @@ app.get("/api/meus-favoritos-oficiais", async (req, res) => {
 
         const [resultados] = await conexao.promise().query(`
 
-            SELECT
-                j.id,
-                j.rawg_id AS id_externo,
-                j.titulo,
-                j.imagem,
-                j.desenvolvedor,
-                j.genero,
-                'oficial' AS origem
+            
+    SELECT
+         j.id,
+
+        COALESCE(j.rawg_id, j.igdb_id) AS id_externo,
+
+        CASE
+            WHEN j.igdb_id IS NOT NULL
+                AND j.rawg_id IS NULL
+            THEN 'IGDB'
+            ELSE 'RAWG'
+        END AS fonte,
+
+        j.titulo,
+        j.imagem,
+        j.desenvolvedor,
+        j.genero,
+
+        'oficial' AS origem
 
             FROM favoritos_oficiais f
 
@@ -2947,6 +3382,11 @@ app.get("/api/catalogo/oficiais", async (req, res) => {
 
 
     } catch (erro) {
+
+        console.error("ERRO NO CATÁLOGO DE EMERGÊNCIA:");
+        console.error("Código:", erro.code || "Sem código");
+        console.error("Mensagem:", erro.message);
+        console.error("Detalhes:", erro.stack);
 
         tratarErroRawg(res, erro);
 
@@ -3357,7 +3797,11 @@ const [usuarios] = await banco.execute(`
             await banco.execute(`
 
                 SELECT
-                    j.rawg_id AS jogo_id,
+                    COALESCE(j.rawg_id, j.igdb_id) AS jogo_id,
+                CASE
+                    WHEN j.rawg_id IS NULL THEN 'IGDB'
+                    ELSE 'RAWG'
+                END AS fonte,
                     j.titulo,
                     a.nota,
                     a.criado_em
@@ -3392,16 +3836,15 @@ const [usuarios] = await banco.execute(`
 
             })),
 
+            
             ...avaliacoesOficiais.map(item => ({
-
                 jogo_id: item.jogo_id,
                 titulo: item.titulo,
                 origem: "oficial",
+                fonte: item.fonte,
                 nota: Number(item.nota),
                 criado_em: item.criado_em
-
             }))
-
         ];
 
         // ORDENAR AS MAIS RECENTES PRIMEIRO
@@ -4781,6 +5224,472 @@ app.put("/api/configuracoes/senha", async (req, res) => {
     }
 
 });
+
+// ==========================================
+// COMENTÁRIOS DAS AVALIAÇÕES - BREAK TEC
+// ==========================================
+
+// Validar o ID recebido pela URL
+function validarIdComentario(valor) {
+    const id = Number(valor);
+
+    return Number.isSafeInteger(id) && id > 0
+        ? id
+        : null;
+}
+
+
+// LISTAR COMENTÁRIOS
+async function listarComentarios(req, res, tipo) {
+
+    const id = validarIdComentario(req.params.id);
+
+    if (!id) {
+        return res.status(400).json({
+            mensagem: "ID inválido."
+        });
+    }
+
+    const sql = tipo === "oficial" ? `
+        SELECT
+            a.usuario_id AS autor_id,
+            u.nome,
+            u.perfil_publico,
+            a.nota,
+            a.comentario,
+            a.criado_em
+        FROM avaliacoes_oficiais a
+        INNER JOIN jogos_oficiais j
+            ON j.id = a.jogo_oficial_id
+        INNER JOIN usuarios u
+            ON u.id = a.usuario_id
+        WHERE j.${colunaIdOficial(req)} = ?
+          AND a.comentario IS NOT NULL
+          AND a.comentario <> ''
+        ORDER BY a.criado_em DESC, a.id DESC
+        LIMIT 30
+    ` : `
+        SELECT
+            a.usuario_id AS autor_id,
+            u.nome,
+            u.perfil_publico,
+            a.nota,
+            a.comentario,
+            a.criado_em
+        FROM avaliacoes a
+        INNER JOIN usuarios u
+            ON u.id = a.usuario_id
+        WHERE a.projeto_id = ?
+          AND a.comentario IS NOT NULL
+          AND a.comentario <> ''
+        ORDER BY a.criado_em DESC, a.id DESC
+        LIMIT 30
+    `;
+
+    try {
+
+        const [registros] =
+            await conexao.promise().query(sql, [id]);
+
+        const meuId = Number(req.session.usuario?.id);
+
+        const comentarios = registros.map(item => ({
+            autor_id: item.autor_id,
+            nome: item.nome,
+            perfil_publico:
+                Number(item.perfil_publico) === 1,
+            nota: Number(item.nota),
+            comentario: item.comentario,
+            criado_em: item.criado_em,
+            meu: meuId === Number(item.autor_id)
+        }));
+
+        res.set("Cache-Control", "no-store");
+
+        res.json({ comentarios });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao listar comentários:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem: "Erro ao carregar comentários."
+        });
+    }
+}
+
+
+// LISTAR COMENTÁRIOS DE PROJETOS
+app.get("/api/projetos/:id/comentarios", (req, res) => {
+    listarComentarios(req, res, "projeto");
+});
+
+
+// LISTAR COMENTÁRIOS DE JOGOS OFICIAIS
+app.get("/api/jogos-oficiais/:id/comentarios", (req, res) => {
+    listarComentarios(req, res, "oficial");
+});
+
+
+// EXCLUIR SOMENTE O PRÓPRIO COMENTÁRIO
+async function excluirComentario(req, res, tipo) {
+
+    if (!req.session.usuario) {
+        return res.status(401).json({
+            mensagem: "Faça login para continuar."
+        });
+    }
+
+    const id = validarIdComentario(req.params.id);
+
+    if (!id) {
+        return res.status(400).json({
+            mensagem: "ID inválido."
+        });
+    }
+
+    const usuarioId = req.session.usuario.id;
+
+    const sql = tipo === "oficial" ? `
+        UPDATE avaliacoes_oficiais a
+        INNER JOIN jogos_oficiais j
+            ON j.id = a.jogo_oficial_id
+        SET a.comentario = NULL
+        WHERE j.${colunaIdOficial(req)} = ?
+        AND a.usuario_id = ?
+        AND a.comentario IS NOT NULL
+    ` : `
+        UPDATE avaliacoes
+        SET comentario = NULL
+        WHERE projeto_id = ?
+        AND usuario_id = ?
+        AND comentario IS NOT NULL
+    `;
+
+    try {
+
+        const [resultado] =
+            await conexao.promise().query(
+                sql,
+                [id, usuarioId]
+            );
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({
+                mensagem: "Comentário não encontrado."
+            });
+        }
+
+        res.json({
+            mensagem:
+                "Comentário excluído. Sua avaliação foi mantida."
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao excluir comentário:",
+            erro
+        );
+
+        res.status(500).json({
+            mensagem: "Erro ao excluir comentário."
+        });
+    }
+}
+
+
+// EXCLUIR COMENTÁRIO DE UM PROJETO
+app.delete("/api/projetos/:id/comentario", (req, res) => {
+    excluirComentario(req, res, "projeto");
+});
+
+
+// EXCLUIR COMENTÁRIO DE UM JOGO OFICIAL
+app.delete("/api/jogos-oficiais/:id/comentario", (req, res) => {
+    excluirComentario(req, res, "oficial");
+});
+
+
+ // ==========================================
+ // BREAK TEC - INTEGRAÇÃO COM IGDB
+ // ==========================================
+
+ let tokenIGDB = null;
+ let tokenIGDBExpira = 0;
+
+
+ // OBTER TOKEN AUTOMATICAMENTE PELA TWITCH
+ async function obterTokenIGDB() {
+
+     if (tokenIGDB && Date.now() < tokenIGDBExpira) {
+         return tokenIGDB;
+     }
+
+     const id = process.env.IGDB_CLIENT_ID;
+     const segredo = process.env.IGDB_CLIENT_SECRET;
+
+     if (!id || !segredo) {
+         const erro = new Error(
+             "IGDB_CLIENT_ID ou IGDB_CLIENT_SECRET ausente no .env"
+         );
+         erro.status = 503;
+         throw erro;
+     }
+
+     const resposta = await fetch(
+         "https://id.twitch.tv/oauth2/token",
+         {
+             method: "POST",
+
+             headers: {
+                 "Content-Type":
+                     "application/x-www-form-urlencoded"
+             },
+
+             body: new URLSearchParams({
+                 client_id: id,
+                 client_secret: segredo,
+                 grant_type: "client_credentials"
+             }),
+
+             signal: AbortSignal.timeout(12000)
+         }
+     );
+
+     if (!resposta.ok) {
+         const erro = new Error(
+             `Falha na autenticação Twitch (${resposta.status})`
+         );
+         erro.status = 502;
+         throw erro;
+     }
+
+     const dados = await resposta.json();
+
+     tokenIGDB = dados.access_token;
+
+     tokenIGDBExpira = Date.now() +
+         Math.max(60, dados.expires_in - 120) * 1000;
+
+     return tokenIGDB;
+ }
+
+
+ // ENVIAR REQUISIÇÕES À IGDB
+ async function consultarIGDB(consulta, repeticao = false) {
+
+     const token = await obterTokenIGDB();
+
+     const resposta = await fetch(
+         "https://api.igdb.com/v4/games",
+         {
+             method: "POST",
+
+             headers: {
+                 "Client-ID": process.env.IGDB_CLIENT_ID,
+                 Authorization: `Bearer ${token}`,
+                 "Content-Type": "text/plain",
+                 Accept: "application/json"
+             },
+
+             body: consulta,
+
+             signal: AbortSignal.timeout(12000)
+         }
+     );
+
+     // TOKEN EXPIRADO: SOLICITAR OUTRO
+     if (resposta.status === 401 && !repeticao) {
+         tokenIGDB = null;
+         tokenIGDBExpira = 0;
+         return consultarIGDB(consulta, true);
+     }
+
+     if (!resposta.ok) {
+         const erro = new Error(
+             `IGDB respondeu com HTTP ${resposta.status}`
+         );
+
+         erro.status = resposta.status === 429 ? 503 : 502;
+         throw erro;
+     }
+
+     return resposta.json();
+ }
+
+
+ // CONSTRUIR URL DA CAPA
+ function imagemIGDB(imageId, tamanho = "cover_big") {
+
+     return imageId
+         ? `https://images.igdb.com/igdb/image/upload/t_${tamanho}/${imageId}.jpg`
+         : null;
+ }
+
+
+ // PADRONIZAR INFORMAÇÕES DO JOGO
+ function resumirJogoIGDB(jogo) {
+
+     return {
+         id_externo: jogo.id,
+         titulo: jogo.name,
+
+         imagem: imagemIGDB(
+             jogo.cover?.image_id
+         ),
+
+         genero: (jogo.genres || [])
+             .map(g => g.name)
+             .join(", "),
+
+         lancamento: jogo.first_release_date
+             ? new Date(
+                 jogo.first_release_date * 1000
+               ).toISOString().slice(0, 10)
+             : null,
+
+         origem: "oficial",
+         fonte: "IGDB",
+
+         fonte_url: jogo.slug
+             ? `https://www.igdb.com/games/${encodeURIComponent(jogo.slug)}`
+             : "https://www.igdb.com/",
+
+         total_avaliacoes: 0,
+         break_score: null
+     };
+ }
+
+
+ // TRATAMENTO DE ERROS
+ function erroConsultaIGDB(res, erro) {
+
+     console.error("Erro na IGDB:", erro.message);
+
+     res.status(
+         erro.status ||
+         (erro.name === "TimeoutError" ? 504 : 502)
+     ).json({
+         mensagem:
+             "Não foi possível consultar a IGDB agora."
+     });
+ }
+
+
+ // ==========================================
+ // PESQUISAR JOGOS NA IGDB
+ // ==========================================
+
+ app.get("/api/igdb/buscar", async (req, res) => {
+
+     const busca = typeof req.query.busca === "string"
+         ? req.query.busca.trim()
+         : "";
+
+     if (busca.length < 2 || busca.length > 80) {
+         return res.status(400).json({
+             mensagem: "Pesquise de 2 a 80 caracteres."
+         });
+     }
+
+     const termo = busca
+         .replace(/[;{}]/g, " ")
+         .replace(/[\\"]/g, "\\$&");
+
+     try {
+
+         const resultados = await consultarIGDB(`
+             search "${termo}";
+             fields id,name,slug,cover.image_id,
+                    genres.name,first_release_date;
+             where version_parent = null;
+             limit 12;
+         `);
+
+         res.json({
+             jogos: resultados.map(resumirJogoIGDB),
+             fonte: "IGDB"
+         });
+
+     } catch (erro) {
+         erroConsultaIGDB(res, erro);
+     }
+ });
+
+
+
+// CONSULTAR DETALHES DE UM JOGO DA IGDB
+// =======================================
+
+ app.get("/api/igdb/jogos/:id", async (req, res) => {
+
+     const id = Number(req.params.id);
+
+     if (!Number.isSafeInteger(id) || id <= 0) {
+         return res.status(400).json({
+             mensagem: "ID de jogo inválido."
+         });
+     }
+
+     try {
+
+         const resultados = await consultarIGDB(`
+             fields id,name,slug,summary,storyline,
+                    cover.image_id,artworks.image_id,
+                    genres.name,
+                    involved_companies.company.name,
+                    involved_companies.developer,
+                    involved_companies.publisher,
+                    first_release_date;
+
+             where id = ${id};
+             limit 1;
+         `);
+
+         if (!resultados.length) {
+             return res.status(404).json({
+                 mensagem: "Jogo não encontrado na IGDB."
+             });
+         }
+
+         const jogo = resultados[0];
+
+         const empresas = jogo.involved_companies || [];
+
+         res.json({
+             jogo: {
+                 ...resumirJogoIGDB(jogo),
+
+                 descricao:
+                     jogo.summary ||
+                     jogo.storyline ||
+                     "Descrição não disponível.",
+
+                 imagem: imagemIGDB(
+                     jogo.artworks?.[0]?.image_id,
+                     "screenshot_big"
+                 ) || imagemIGDB(jogo.cover?.image_id),
+
+                 desenvolvedores: empresas
+                     .filter(e => e.developer)
+                     .map(e => e.company?.name)
+                     .filter(Boolean),
+
+                 publicadoras: empresas
+                     .filter(e => e.publisher)
+                     .map(e => e.company?.name)
+                     .filter(Boolean)
+             }
+         });
+
+     } catch (erro) {
+         erroConsultaIGDB(res, erro);
+     }
+ });
 
 
 //========================

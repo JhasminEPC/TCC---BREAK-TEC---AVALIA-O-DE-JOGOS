@@ -920,3 +920,176 @@ body {
     font-size: 12px;
     line-height: 1.5;
 }
+
+
+/* ==========================================
+   BREAK TEC - COMENTÁRIOS
+========================================== */
+
+.comentarios-breaktec {
+    margin: 35px 0;
+    padding: 28px;
+    background: #160f0d;
+    border: 1px solid #553126;
+    border-radius: 14px;
+    color: #fff;
+}
+
+.comentarios-breaktec h2 {
+    margin: 10px 0;
+    font-size: 24px;
+}
+
+.comentarios-breaktec > p {
+    color: #bba9a3;
+    line-height: 1.6;
+}
+
+.comentarios-breaktec-lista {
+    display: grid;
+    gap: 15px;
+    margin-top: 22px;
+}
+
+.comentarios-breaktec-card {
+    min-width: 0;
+    padding: 20px;
+    background: #201411;
+    border: 1px solid #4b2c22;
+    border-radius: 12px;
+}
+
+.comentarios-breaktec-cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.comentarios-breaktec-avatar {
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #933322;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.comentarios-breaktec-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.comentarios-breaktec-avatar span[hidden] {
+    display: none;
+}
+
+.comentarios-breaktec-autor {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.comentarios-breaktec-autor strong,
+.comentarios-breaktec-autor a {
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.comentarios-breaktec-autor small {
+    color: #aa9993;
+    font-size: 12px;
+}
+
+.comentarios-breaktec-nota {
+    display: inline-block;
+    margin-top: 15px;
+    color: #ffad55;
+    font-weight: bold;
+}
+
+.comentarios-breaktec-texto {
+    margin-top: 10px;
+    color: #e6d9d5;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.comentarios-breaktec-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 17px;
+}
+
+.comentarios-breaktec-acoes button {
+    padding: 9px 13px;
+    color: white;
+    background: #663327;
+    border: 1px solid #925141;
+    border-radius: 7px;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.comentarios-breaktec-acoes button.excluir {
+    color: #ffb29b;
+    background: transparent;
+}
+
+.comentarios-breaktec-acoes button:hover {
+    border-color: #ff8d74;
+}
+
+.comentarios-breaktec-vazio,
+.comentarios-breaktec-aviso {
+    color: #bdaaa3;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* CAMPO DO FORMULÁRIO */
+
+.comentario-avaliacao-label {
+    display: block;
+    margin: 18px 0 9px;
+    color: #e6cfca;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.comentario-avaliacao-campo {
+    display: block;
+    width: 100%;
+    min-height: 100px;
+    padding: 13px;
+    color: white;
+    background: #140e0c;
+    border: 1px solid #7d493b;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.comentario-avaliacao-campo:focus {
+    outline: 2px solid #ff8068;
+}
+
+@media (max-width: 600px) {
+    .comentarios-breaktec {
+        padding: 18px;
+    }
+}
