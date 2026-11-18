@@ -22,6 +22,37 @@ async function carregarProjeto() {
 
         const projeto = dados.projeto;
 
+        // ==========================
+// CARREGAR IMAGEM DO PROJETO
+// ==========================
+
+const areaImagem =
+    document.getElementById("jogoImagem");
+
+areaImagem.replaceChildren();
+
+if (projeto.imagem) {
+
+    const imagem = document.createElement("img");
+
+    imagem.src = `/api/projetos/${projetoId}/imagem`;
+
+    imagem.alt = `Imagem do projeto ${projeto.titulo}`;
+
+    imagem.classList.add("imagem-projeto-detalhe");
+
+    imagem.onerror = function () {
+        areaImagem.textContent = "Imagem indisponível.";
+    };
+
+    areaImagem.appendChild(imagem);
+
+} else {
+
+    areaImagem.textContent = "Imagem do projeto";
+
+}
+
         document.getElementById("jogoTitulo").textContent =
             projeto.titulo;
 

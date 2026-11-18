@@ -164,6 +164,7 @@ cancelarProjeto.addEventListener(
     }
 );
 
+
 formProjeto.addEventListener(
     "submit",
     async function (event) {
@@ -171,7 +172,6 @@ formProjeto.addEventListener(
         event.preventDefault();
 
         mensagemProjeto.textContent = "";
-
 
         const titulo =
             document
@@ -191,59 +191,92 @@ formProjeto.addEventListener(
                 .value
                 .trim();
 
-
         try {
 
-           let url = "/api/projetos";
-           let metodo = "POST";
+            let url = "/api/projetos";
+            let metodo = "POST";
 
-        if (projetoEmEdicao !== null) {
-           url =
-        `/api/projetos/${projetoEmEdicao}`;
+            if (projetoEmEdicao !== null) {
 
-        metodo = "PUT";
-}
+                url = `/api/projetos/${projetoEmEdicao}`;
+                metodo = "PUT";
 
-        const resposta =
-          await fetch(url, {
+            }
 
-        method: metodo,
+            let resposta;
 
-        headers: {
-            "Content-Type":
-                "application/json"
-        },
+            // CRIAR PROJETO COM IMAGEM
 
-        body: JSON.stringify({
-            titulo,
-            descricao,
-            categoria
-        })
+            if (metodo === "POST") {
 
-    });
+                const dadosProjeto = new FormData();
 
-        const dados =
-        await resposta.json();
+                dadosProjeto.append("titulo", titulo);
+                dadosProjeto.append("descricao", descricao);
+                dadosProjeto.append("categoria", categoria);
 
-        mensagemProjeto.textContent =
-        dados.mensagem;
+                const imagemProjeto =
+                    document.getElementById("imagemProjeto");
 
+                if (
+                    imagemProjeto &&
+                    imagemProjeto.files.length > 0
+                ) {
 
-        if (!resposta.ok) {
-        return;
-}
+                    dadosProjeto.append(
+                        "imagem",
+                        imagemProjeto.files[0]
+                    );
 
-        formProjeto.reset();
+                }
+console.log("Arquivo selecionado:", imagemProjeto.files[0]);
+console.log("Dados enviados:", [...dadosProjeto.entries()]);
+                resposta = await fetch(url, {
+                    method: metodo,
+                    body: dadosProjeto
+                });
 
-        projetoEmEdicao = null;
+            } else {
 
-        formProjetoArea.hidden = true;
+                // EDITAR PROJETO
 
-     carregarEstatisticas();
-     carregarMeusProjetos();
+                resposta = await fetch(url, {
 
-     alert(dados.mensagem);
+                    method: metodo,
 
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        titulo,
+                        descricao,
+                        categoria
+                    })
+
+                });
+
+            }
+
+            const dados = await resposta.json();
+
+            mensagemProjeto.textContent =
+                dados.mensagem;
+
+            if (!resposta.ok) {
+                return;
+            }
+
+            formProjeto.reset();
+
+            projetoEmEdicao = null;
+
+            formProjetoArea.hidden = true;
+
+            carregarEstatisticas();
+            carregarMeusProjetos();
+
+            alert(dados.mensagem);
 
         } catch (erro) {
 
@@ -259,6 +292,7 @@ formProjeto.addEventListener(
 
     }
 );
+
 
 // ==========================
 // CARREGAR MEUS PROJETOS

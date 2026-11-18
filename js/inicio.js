@@ -1200,6 +1200,18 @@ const projetosGrid =
 const verTodosProjetos =
     document.getElementById("verTodosProjetos");
 
+// MODAL CRIAR PROJETO
+const modalProjeto = document.getElementById("modalProjeto");
+const botaoFecharModal = document.getElementById("fecharModalProjeto");
+const botaoCancelarModal = document.getElementById("cancelarModalProjeto");
+
+function abrirModalProjeto() {
+    modalProjeto.hidden = false;
+}
+
+function fecharModalProjeto() {
+    modalProjeto.hidden = true;
+}
 
 // ========================================
 // PROJETOS E JOGOS OFICIAIS EM DESTAQUE
@@ -1463,21 +1475,17 @@ async function carregarProjetos() {
         }
 
 
-        projetosGrid.replaceChildren();
+        
+       projetosGrid.replaceChildren();
 
+if (destaques.length === 0) {
+    const vazio = document.createElement("div");
 
-        // NENHUM RESULTADO
+    vazio.className = "projetos-vazio";
+    vazio.textContent = "Nenhum jogo ou projeto disponível.";
 
-        if (destaques.length === 0) {
-
-            projetosGrid.innerHTML = `
-                <div class="projetos-vazio">
-                    Nenhum jogo ou projeto disponível.
-                </div>
-            `;
-
-            return;
-        }
+    projetosGrid.appendChild(vazio);
+}
 
 
         // MOSTRAR OS CARDS
@@ -1492,7 +1500,31 @@ async function carregarProjetos() {
 
         });
 
+   
+// CARD CRIAR PROJETO
+const cardCriar = document.createElement("article");
 
+cardCriar.className = "card-criar-projeto";
+
+cardCriar.innerHTML = `
+    <div class="criar-projeto-conteudo">
+        <span class="criar-projeto-icone">+</span>
+
+        <h3>Criar projeto</h3>
+
+        <p>Compartilhe seu jogo com a comunidade Break Tec.</p>
+
+        <span class="criar-projeto-link">
+            Começar agora →
+        </span>
+    </div>
+`;
+
+projetosGrid.appendChild(cardCriar);
+cardCriar.addEventListener("click", abrirModalProjeto);
+
+botaoFecharModal.addEventListener("click", fecharModalProjeto);
+botaoCancelarModal.addEventListener("click", fecharModalProjeto);
     } catch (erro) {
 
         console.error(
@@ -1509,8 +1541,6 @@ async function carregarProjetos() {
 }
 // Carrega os projetos ao abrir a Home
 carregarProjetos();
-
-
 // ==========================================
 // BOTÃO VER TODOS - CATÁLOGO
 // ==========================================

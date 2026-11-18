@@ -39,6 +39,25 @@ const receberFoto = multer({
     }
 }).single("foto");
 
+// ==========================================
+// CONFIGURAÇÃO DAS IMAGENS DOS PROJETOS
+// ==========================================
+
+const pastaImagensProjetos = path.resolve(
+    __dirname,
+    "..",
+    "breaktec-uploads",
+    "projects"
+);
+
+const receberImagemProjeto = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024,
+        files: 1
+    }
+}).single("imagem");
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -475,6 +494,7 @@ app.get("/api/perfil/estatisticas", (req, res) => {
 
 });
 
+
 // ==========================
 // CRIAR PROJETO
 // ==========================
@@ -489,81 +509,149 @@ app.post("/api/projetos", (req, res) => {
 
     }
 
+    receberImagemProjeto(req, res, async erroUpload => {
 
-    const {
-        titulo,
-        descricao,
-        categoria
-    } = req.body;
+        if (erroUpload) {
 
+            return res.status(400).json({
+                mensagem:
+                    "A imagem deve ser JPG, PNG ou WebP e ter até 5 MB."
+            });
 
-    if (!titulo) {
+        }
 
-        return res.status(400).json({
-            mensagem: "Informe o título do projeto."
-        });
-
-    }
-
-
-    const usuarioId =
-        req.session.usuario.id;
-
-
-    const sql = `
-        INSERT INTO projetos
-        (
+        const {
             titulo,
             descricao,
-            categoria,
-            usuario_id
-        )
-        VALUES (?, ?, ?, ?)
-    `;
+            categoria
+        } = req.body;
 
+        if (!titulo || !titulo.trim()) {
 
-    conexao.query(
-        sql,
-        [
-            titulo,
-            descricao || null,
-            categoria || null,
-            usuarioId
-        ],
+            return res.status(400).json({
+                mensagem: "Informe o título do projeto."
+            });
 
-        (erro, resultado) => {
+        }
 
-            if (erro) {
+        let caminhoImagem = null;
+        let arquivoCriado = false;
 
-                console.error(
-                    "Erro ao criar projeto:",
-                    erro
+        try {
+
+            let nomeArquivo = null;
+
+            // PROCESSAR IMAGEM, CASO TENHA SIDO ENVIADA
+
+            if (req.file) {
+
+                const metadados = await sharp(
+                    req.file.buffer,
+                    { limitInputPixels: 16000000 }
+                ).metadata();
+
+                if (!["jpeg", "png", "webp"].includes(metadados.format)) {
+
+                    return res.status(400).json({
+                        mensagem:
+                            "Formato inválido. Envie JPG, PNG ou WebP."
+                    });
+
+                }
+
+                const imagemProcessada = await sharp(
+                    req.file.buffer,
+                    { limitInputPixels: 16000000 }
+                )
+                    .rotate()
+                    .resize(1280, 720, {
+                        fit: "inside",
+                        withoutEnlargement: true
+                    })
+                    .webp({ quality: 82 })
+                    .toBuffer();
+
+                await fs.mkdir(
+                    pastaImagensProjetos,
+                    { recursive: true }
                 );
 
-                return res.status(500).json({
-                    mensagem:
-                        "Erro ao publicar projeto."
-                });
+                nomeArquivo = `${randomUUID()}.webp`;
+
+                caminhoImagem = path.join(
+                    pastaImagensProjetos,
+                    nomeArquivo
+                );
+
+                await fs.writeFile(
+                    caminhoImagem,
+                    imagemProcessada,
+                    { flag: "wx" }
+                );
+
+                arquivoCriado = true;
 
             }
 
+            // SALVAR PROJETO NO BANCO
+
+            const usuarioId = req.session.usuario.id;
+
+            const [resultado] = await conexao.promise().execute(
+                `INSERT INTO projetos
+                (
+                    titulo,
+                    descricao,
+                    categoria,
+                    imagem,
+                    usuario_id
+                )
+                VALUES (?, ?, ?, ?, ?)`,
+                [
+                    titulo.trim(),
+                    descricao || null,
+                    categoria || null,
+                    nomeArquivo,
+                    usuarioId
+                ]
+            );
 
             res.status(201).json({
 
-                mensagem:
-                    "Projeto publicado com sucesso!",
+                mensagem: "Projeto publicado com sucesso!",
 
                 projeto: {
                     id: resultado.insertId,
-                    titulo,
+                    titulo: titulo.trim(),
                     descricao,
-                    categoria
+                    categoria,
+                    imagem: nomeArquivo
                 }
 
             });
 
+        } catch (erro) {
+
+            console.error(
+                "Erro ao criar projeto:",
+                erro
+            );
+
+            // APAGAR ARQUIVO SE O CADASTRO FALHAR
+
+            if (arquivoCriado && caminhoImagem) {
+
+                await fs.unlink(caminhoImagem).catch(() => {});
+
+            }
+
+            res.status(500).json({
+                mensagem: "Erro ao publicar projeto."
+            });
+
         }
-    );
+
+    });
 
 });
 
@@ -612,6 +700,66 @@ app.get("/api/projetos/:id", (req, res) => {
         });
 
     });
+
+});
+
+// ==========================
+// ENTREGAR IMAGEM DO PROJETO
+// ==========================
+
+app.get("/api/projetos/:id/imagem", async (req, res) => {
+
+    const projetoId = Number(req.params.id);
+
+    if (!Number.isSafeInteger(projetoId) || projetoId <= 0) {
+        return res.status(404).end();
+    }
+
+    try {
+
+        const [projetos] = await conexao.promise().execute(
+            `SELECT imagem
+             FROM projetos
+             WHERE id = ?
+             LIMIT 1`,
+            [projetoId]
+        );
+
+        if (!projetos.length) {
+            return res.status(404).end();
+        }
+
+        const arquivo = projetos[0].imagem || "";
+
+        if (!/^[a-f0-9-]{36}\.webp$/.test(arquivo)) { 
+            return res.status(404).end();
+        }
+
+        res.type("webp");
+
+        res.sendFile(
+            path.join(pastaImagensProjetos, arquivo),
+            erro => {
+
+                if (erro && !res.headersSent) {
+                    res.status(404).end();
+                }
+
+            }
+        );
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao entregar imagem do projeto:",
+            erro
+        );
+
+        if (!res.headersSent) {
+            res.status(500).end();
+        }
+
+    }
 
 });
 
