@@ -89,117 +89,139 @@
 
         <!-- APRESENTAÇÃO DO USUÁRIO -->
 
-        <section class="perfil-cabecalho">
+<section class="perfil-cabecalho" id="configuracoes">
 
-            
-        <div class="perfil-avatar">
+    <!-- =====================================
+         FOTO DE PERFIL INTERATIVA
+    ====================================== -->
 
-    <!-- FOTO ENVIADA PELO USUÁRIO -->
-
-        <img
-            id="perfilFoto"
-            alt="Minha foto de perfil"
-            hidden>
-
-    <!-- AVATAR PADRÃO -->
-
-        <span id="perfilInicial">
-            U
-        </span>
-
-    </div>
-
-
-
-            <div class="perfil-identidade">
-
-                <p class="perfil-label">
-                    PERFIL
-                </p>
-
-                <h1 id="perfilNome">
-                    Usuário
-                </h1>
-
-                <p id="perfilEmail">
-                    email@exemplo.com
-                </p>
-                
-<!-- ==========================================
-     PERSONALIZAÇÃO DA FOTO
-========================================== -->
-
-        <div class="perfil-foto-controles" id="configuracoes">
-
-        <label for="perfilFotoArquivo">
-        Escolher foto de perfil
-        </label>
-
-        <input
-            type="file"
-            id="perfilFotoArquivo"
-            accept="image/jpeg,image/png,image/webp">
-
-        <div class="perfil-foto-botoes">
+    <div class="perfil-foto-area">
 
         <button
             type="button"
-            id="perfilFotoSalvar"
-            disabled>
-            Salvar foto
+            class="perfil-avatar"
+            id="perfilFotoAbrir"
+            aria-label="Abrir opções da foto de perfil"
+            aria-expanded="false"
+            aria-controls="perfilFotoMenu"
+            aria-haspopup="true">
+
+            <img
+                id="perfilFoto"
+                alt=""
+                hidden>
+
+            <span id="perfilInicial">
+                U
+            </span>
+
         </button>
 
-        <button
-            type="button"
-            id="perfilFotoRemover"
+
+        <!-- MENU DE EDIÇÃO DA FOTO -->
+
+        <div
+            class="perfil-foto-controles perfil-foto-menu"
+            id="perfilFotoMenu"
             hidden>
-            Remover foto
-        </button>
 
-    </div>
+            <input
+                type="file"
+                id="perfilFotoArquivo"
+                accept="image/jpeg,image/png,image/webp"
+                hidden>
 
-      <p
-        id="perfilFotoMensagem"
-        role="status"
-        aria-live="polite"
-    ></p>
+            <div class="perfil-foto-botoes">
 
-</div>
+                <button
+                    type="button"
+                    id="perfilFotoEditar">
+                    Editar
+                </button>
 
+                <button
+                    type="button"
+                    id="perfilFotoSalvar"
+                    disabled>
+                    Salvar
+                </button>
+
+                <button
+                    type="button"
+                    id="perfilFotoRemover"
+                    hidden>
+                    Excluir
+                </button>
+
+            </div>
+
+            <p
+                id="perfilFotoMensagem"
+                role="status"
+                aria-live="polite"
+            ></p>
 
         </div>
 
-            
-<!-- VISIBILIDADE AO LADO DO USUÁRIO -->
-
-<div class="perfil-visibilidade-resumo">
-
-    <span
-        id="perfilVisibilidadeEstado"
-        class="perfil-visibilidade-estado">
-        Verificando...
-    </span>
-
-    <button
-        type="button"
-        id="perfilVisibilidadeBotao"
-        class="perfil-visibilidade-botao"
-        aria-pressed="false"
-        disabled>
-        Carregando...
-    </button>
-
-    <p
-        id="perfilVisibilidadeMensagem"
-        class="perfil-visibilidade-mensagem"
-        role="status"
-        aria-live="polite">
-    </p>
-
-</div>
+    </div>
 
 
-    </section>
+    <!-- =====================================
+         IDENTIDADE DO USUÁRIO
+    ====================================== -->
+
+    <div class="perfil-identidade">
+
+        <p class="perfil-label">
+            PERFIL
+        </p>
+
+        <h1 id="perfilNome">
+            Usuário
+        </h1>
+
+        <p id="perfilEmail">
+            email@exemplo.com
+        </p>
+
+    </div>
+
+
+    <!-- =====================================
+         CONTROLES ANTIGOS DE PRIVACIDADE
+         OCULTOS PARA COMPATIBILIDADE
+    ====================================== -->
+
+    <div
+        class="perfil-visibilidade-resumo"
+        hidden>
+
+        <span
+            id="perfilVisibilidadeEstado"
+            class="perfil-visibilidade-estado">
+            Verificando...
+        </span>
+
+        <button
+            type="button"
+            id="perfilVisibilidadeBotao"
+            class="perfil-visibilidade-botao"
+            aria-pressed="false"
+            disabled>
+            Carregando...
+        </button>
+
+        <p
+            id="perfilVisibilidadeMensagem"
+            class="perfil-visibilidade-mensagem"
+            role="status"
+            aria-live="polite">
+        </p>
+
+    </div>
+
+</section>
+
 
         
 <!-- ==========================================

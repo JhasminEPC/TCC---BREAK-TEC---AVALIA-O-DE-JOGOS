@@ -3726,3 +3726,104 @@ body.catalog-sidebar-aberta {
     position: relative;
     z-index: 2;
 }
+
+
+
+
+/* ==========================================
+   PRIVACIDADE - ÍCONE AO LADO DO NOME
+========================================== */
+
+.menu-usuario-nome-privacidade {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 7px;
+    width: fit-content;
+    max-width: 100%;
+}
+
+/* ÍCONE PEQUENO, SEM ESTILO DE BOTÃO GRANDE */
+#menuUsuario #menuPrivacidade {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 25px;
+
+    width: 25px;
+    height: 25px;
+    min-width: 25px;
+    min-height: 25px;
+    max-width: 25px;
+    max-height: 25px;
+
+    padding: 0;
+    margin: 0;
+
+    color: #ffffff;
+    background: transparent;
+
+    border: none;
+    border-radius: 50%;
+
+    font-size: 15px;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+/* EFEITO DISCRETO AO PASSAR O MOUSE */
+#menuUsuario #menuPrivacidade:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ACESSIBILIDADE POR TECLADO */
+#menuUsuario #menuPrivacidade:focus-visible {
+    outline: 2px solid #ff705b;
+    outline-offset: 2px;
+}
+
+#menuUsuario #menuPrivacidade:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+#menuUsuario #menuPrivacidade[hidden] {
+    display: none !important;
+}
+
+
+/* ==========================================
+   ALINHAMENTO HORIZONTAL DO MENU
+========================================== */
+
+/* NOME DO USUÁRIO + ÍCONE DE PRIVACIDADE */
+
+.menu-usuario-nome-privacidade {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ÍCONES + TEXTOS DAS OPÇÕES */
+
+#menuUsuario a,
+#menuUsuario button:not(#menuPrivacidade) {
+    display: flex;
+    align-items: center;
+    column-gap: 14px;
+}
+
+/* PADRONIZAR A LARGURA DOS ÍCONES */
+
+#menuUsuario a > i,
+#menuUsuario a > svg,
+#menuUsuario a > .icone,
+#menuUsuario button > i,
+#menuUsuario button > svg,
+#menuUsuario button > .icone {
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+}

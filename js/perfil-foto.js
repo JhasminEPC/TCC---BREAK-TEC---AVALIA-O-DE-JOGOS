@@ -37,9 +37,88 @@ document.addEventListener("DOMContentLoaded", () => {
     let fotoEditada = null;
 
 
-    // ======================================
-    // MOSTRAR OU ESCONDER IMAGEM
-    // ======================================
+    // MENU DE EDIÇÃO DA FOTO //
+
+    const botaoAbrirFoto =
+        document.getElementById("perfilFotoAbrir");
+
+    const menuFoto =
+        document.getElementById("perfilFotoMenu");
+
+    const botaoEditarFoto =
+        document.getElementById("perfilFotoEditar");
+
+
+    function fecharMenuFoto() {
+
+        menuFoto.hidden = true;
+
+        botaoAbrirFoto.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+    }
+
+
+    botaoAbrirFoto.addEventListener("click", () => {
+
+        const abrir = menuFoto.hidden;
+
+        menuFoto.hidden = !abrir;
+
+        botaoAbrirFoto.setAttribute(
+            "aria-expanded",
+            String(abrir)
+        );
+
+    });
+
+
+    // EDITAR ABRE O SELETOR DE IMAGEM EXISTENTE
+
+    botaoEditarFoto.addEventListener("click", () => {
+
+        arquivo.click();
+
+    });
+
+
+    // FECHAR AO CLICAR FORA
+
+    document.addEventListener("click", evento => {
+
+        const area = document.querySelector(
+            ".perfil-foto-area"
+        );
+
+        if (
+            !menuFoto.hidden &&
+            !area.contains(evento.target)
+        ) {
+            fecharMenuFoto();
+        }
+
+    });
+
+
+    // FECHAR COM ESCAPE
+
+    document.addEventListener("keydown", evento => {
+
+        if (
+            evento.key === "Escape" &&
+            !menuFoto.hidden
+        ) {
+
+            fecharMenuFoto();
+            botaoAbrirFoto.focus();
+
+        }
+
+    });
+
+
+    // MOSTRAR OU ESCONDER IMAGEM //
 
     function mostrarFoto(url) {
 
@@ -68,10 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
-
-    // ======================================
-    // LIMPAR PRÉVIA TEMPORÁRIA
-    // ======================================
+    // LIMPAR PRÉVIA TEMPORÁRIA //
 
     function limparPrevia() {
 
@@ -82,10 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-
-    // ======================================
-    // CONTROLAR BOTÕES
-    // ======================================
+    // CONTROLAR BOTÕES //
 
     function atualizarBotoes() {
 
@@ -100,9 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    // ======================================
-    // CARREGAR FOTO SALVA
-    // ======================================
+    // CARREGAR FOTO SALVA //
 
     async function carregarFoto() {
 
@@ -141,10 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-
-    // ======================================
-    // VISUALIZAR FOTO ESCOLHIDA
-    // ======================================
+    // VISUALIZAR FOTO ESCOLHIDA //
 
     
 arquivo.addEventListener("change", async () => {

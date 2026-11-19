@@ -2239,3 +2239,201 @@ if (
     );
 
 }
+
+
+  // BREAK TEC - PRIVACIDADE NO MENU DA CONTA //
+
+(function configurarPrivacidadeNoMenu() {
+
+    const menu = document.getElementById("menuUsuario");
+
+    if (!menu) return;
+
+    // EVITA CRIAR O BOTÃO DUAS VEZES
+
+    if (document.getElementById("menuPrivacidade")) {
+        return;
+    }
+
+    const botao = document.createElement("button");
+
+    botao.type = "button";
+    botao.id = "menuPrivacidade";
+    botao.className = "menu-usuario-privacidade-icone";
+    botao.hidden = true;
+
+    let perfilPublico = null;
+
+
+    // ATUALIZAR ÍCONE DE PRIVACIDADE
+
+    
+    function atualizarIconePrivacidade() {
+
+    // MOSTRAR APENAS O SÍMBOLO
+
+    botao.textContent = perfilPublico
+        ? "🌐"
+        : "🔒";
+
+    // DESCRIÇÃO APENAS PARA LEITORES DE TELA
+
+    botao.setAttribute(
+        "aria-label",
+        perfilPublico
+            ? "Perfil público. Ativar perfil privado."
+            : "Perfil privado. Ativar perfil público."
+    );
+
+    botao.setAttribute(
+        "aria-pressed",
+        String(perfilPublico)
+    );
+
+    // NÃO EXIBIR TOOLTIP AO PASSAR O MOUSE
+
+    botao.removeAttribute("title");
+}
+
+
+    // CONSULTAR VISIBILIDADE ATUAL //
+
+    async function consultarPrivacidade() {
+
+        try {
+
+            const resposta = await fetch(
+                "/api/perfil/visibilidade",
+                { credentials: "same-origin" }
+            );
+
+            if (!resposta.ok) {
+                botao.hidden = true;
+                return;
+            }
+
+            const dados = await resposta.json();
+
+            perfilPublico = Boolean(dados.publico);
+
+            atualizarIconePrivacidade();
+
+            botao.hidden = false;
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao consultar privacidade:",
+                erro
+            );
+
+            botao.hidden = true;
+        }
+    }
+
+    // ALTERAR PRIVACIDADE //
+
+    botao.addEventListener("click", async () => {
+
+        if (perfilPublico === null) return;
+
+        const novaVisibilidade = !perfilPublico;
+
+        const confirmado = confirm(
+            novaVisibilidade
+                ? "Deseja tornar seu perfil público?"
+                : "Deseja tornar seu perfil privado?"
+        );
+
+        if (!confirmado) return;
+
+        botao.disabled = true;
+
+        try {
+
+            const resposta = await fetch(
+                "/api/perfil/visibilidade",
+                {
+                    method: "PUT",
+                    credentials: "same-origin",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        publico: novaVisibilidade
+                    })
+                }
+            );
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(
+                    dados.mensagem ||
+                    "Não foi possível alterar a privacidade."
+                );
+            }
+
+            perfilPublico = Boolean(dados.publico);
+
+            atualizarIconePrivacidade();
+
+        } catch (erro) {
+
+            console.error(erro);
+            alert(erro.message);
+
+        } finally {
+
+            botao.disabled = false;
+        }
+
+    });
+
+    // POSICIONAR O ÍCONE AO LADO DO NOME //
+
+    const nomeUsuario =
+        document.getElementById("nomeMenuUsuario");
+
+    if (nomeUsuario) {
+
+        const linhaNome =
+            document.createElement("span");
+
+        linhaNome.className =
+            "menu-usuario-nome-privacidade";
+
+        nomeUsuario.before(linhaNome);
+
+        linhaNome.append(
+            nomeUsuario,
+            botao
+        );
+
+    } else {
+
+        menu.prepend(botao);
+
+    }
+
+    // ATUALIZAR ESTADO SEMPRE QUE O MENU ABRIR
+
+    const abrirMenu =
+        document.getElementById("botaoMenuUsuario");
+
+    if (abrirMenu) {
+
+        abrirMenu.addEventListener("click", () => {
+
+            if (!menu.hidden) {
+                consultarPrivacidade();
+            }
+
+        });
+    }
+
+    consultarPrivacidade();
+
+})();

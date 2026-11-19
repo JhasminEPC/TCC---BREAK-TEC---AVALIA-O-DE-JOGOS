@@ -2384,3 +2384,132 @@ body {
     position: relative;
     z-index: 2;
 }
+
+
+/* ==========================================
+   BREAK TEC - MENU DA FOTO DE PERFIL
+========================================== */
+
+.perfil-foto-area {
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* A PRÓPRIA FOTO É UM BOTÃO */
+.perfil-foto-area .perfil-avatar {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    padding: 0;
+    border: 2px solid #87382c;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.perfil-foto-area .perfil-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.perfil-foto-area .perfil-avatar [hidden] {
+    display: none !important;
+}
+
+/* INDICA QUE A FOTO PODE SER EDITADA */
+.perfil-foto-area .perfil-avatar::after {
+    content: "Editar foto";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+
+.perfil-foto-area .perfil-avatar:hover::after,
+.perfil-foto-area .perfil-avatar:focus-visible::after {
+    opacity: 1;
+}
+
+/* MENU ABERTO AO CLICAR NA FOTO */
+.perfil-foto-area .perfil-foto-menu {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    z-index: 50;
+
+    width: min(265px, 85vw);
+    padding: 14px;
+
+    background: #1b1110;
+    border: 1px solid #593027;
+    border-radius: 12px;
+
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+.perfil-foto-area .perfil-foto-menu[hidden] {
+    display: none !important;
+}
+
+/* TRÊS AÇÕES SIMPLES */
+.perfil-foto-area .perfil-foto-botoes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.perfil-foto-area .perfil-foto-botoes button {
+    min-height: 36px;
+    padding: 7px 5px;
+
+    background: #30201c;
+    color: #fff;
+
+    border: 1px solid #65372e;
+    border-radius: 7px;
+
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.perfil-foto-area .perfil-foto-botoes button:hover:not(:disabled) {
+    background: #a52b1e;
+}
+
+.perfil-foto-area .perfil-foto-botoes button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.perfil-foto-area #perfilFotoRemover[hidden] {
+    display: none !important;
+}
+
+.perfil-foto-area #perfilFotoMensagem {
+    margin-top: 10px;
+    color: #c6a49b;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* DEIXAR VISÍVEL O FOCO DO TECLADO */
+.perfil-foto-area .perfil-avatar:focus-visible {
+    outline: 3px solid #ff5038;
+    outline-offset: 4px;
+}
+
+/* REMOVER OS CONTROLES ANTIGOS DO CABEÇALHO */
+.perfil-cabecalho .perfil-visibilidade-resumo {
+    display: none !important;
+}

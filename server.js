@@ -5,6 +5,7 @@ const mysql = require("mysql2");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
+const MySQLStore = require("express-mysql-session")(session);
 const multer = require("multer");
 const sharp = require("sharp");
 const fs = require("fs/promises");
@@ -22,12 +23,19 @@ const app = express();
 
 // Pasta fora da área pública do site
 
-const pastaFotos = path.resolve(
-    __dirname,
-    "..",
-    "breaktec-uploads",
-    "avatars"
-);
+
+const pastaFotos = process.env.RAILWAY_VOLUME_MOUNT_PATH
+    ? path.join(
+        process.env.RAILWAY_VOLUME_MOUNT_PATH,
+        "avatars"
+    )
+    : path.resolve(
+        __dirname,
+        "..",
+        "breaktec-uploads",
+        "avatars"
+    );
+
 
 // Receber uma imagem com limite de 3 MB
 
@@ -61,30 +69,139 @@ const receberImagemProjeto = multer({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+// BREAK TEC - SESSÕES PERSISTENTES //
+
+// ARMAZENAMENTO DAS SESSÕES NO MYSQL
+//------------------------------------
+
+const sessionStore = new MySQLStore({
+
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT) || 3306,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    createDatabaseTable: true,
+    clearExpired: true,
+
+    expiration: 1000 * 60 * 60 * 24 * 7
+
+});
+
+
+// VERIFICAR A CONEXÃO DO ARMAZENAMENTO //
+
+sessionStore.onReady()
+    .then(() => {
+        console.log("Armazenamento de sessões MySQL pronto!");
+    })
+    .catch(erro => {
+        console.error(
+            "Erro no armazenamento de sessões:",
+            erro
+        );
+    });
+
+
+// CONFIGURAÇÃO PARA HOSPEDAGEM HTTPS //
+
+if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+}
+
+
+// CONFIGURAR SESSÕES //
+
 app.use(
     session({
+
+        store: sessionStore,
+
         secret: process.env.SESSION_SECRET,
 
         resave: false,
+
         saveUninitialized: false,
 
+        rolling: true,
+
         cookie: {
+
             maxAge: 1000 * 60 * 60 * 24 * 7,
+
             httpOnly: true,
-            sameSite: "lax"
+
+            sameSite: "lax",
+
+            secure: process.env.NODE_ENV === "production"
+
         }
+
     })
 );
 
-// Permite acessar HTML, CSS, JS e imagens do projeto
-app.use(express.static(__dirname));
+    // BREAK TEC - ARQUIVOS PÚBLICOS //
+
+    const opcoesEstaticas = {
+        dotfiles: "deny",
+        index: false
+    };
+
+    // ESTILOS
+    app.use(
+        "/css",
+        express.static(
+            path.join(__dirname, "css"),
+            opcoesEstaticas
+        )
+    );
+
+    // JAVASCRIPT DO SITE
+    app.use(
+        "/js",
+        express.static(
+            path.join(__dirname, "js"),
+            opcoesEstaticas
+        )
+    );
+
+    // IMAGENS E RECURSOS VISUAIS
+    app.use(
+        "/assets",
+        express.static(
+            path.join(__dirname, "assets"),
+            opcoesEstaticas
+        )
+    );
+
+    // PÁGINAS HTML
+    app.use(
+        "/Pages",
+        express.static(
+            path.join(__dirname, "Pages"),
+            opcoesEstaticas
+        )
+    );
+
+    // COMPATIBILIDADE COM LINKS EM MINÚSCULAS
+    app.use(
+        "/pages",
+        express.static(
+            path.join(__dirname, "Pages"),
+            opcoesEstaticas
+        )
+    );
+
 
 const conexao = mysql.createConnection({
     host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT) || 3306,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
 });
+
 
 conexao.connect((erro) => {
     if (erro) {
@@ -102,6 +219,17 @@ app.get("/", (req, res) => {
     res.sendFile(
         path.join(__dirname, "index.html")
     );
+});
+
+
+// ACESSO DIRETO À PÁGINA INICIAL
+
+app.get("/index.html", (req, res) => {
+
+    res.sendFile(
+        path.join(__dirname, "index.html")
+    );
+
 });
 
 
@@ -5769,9 +5897,202 @@ app.delete("/api/jogos-oficiais/:id/comentario", (req, res) => {
  });
 
 
+ // ==========================================
+ // BREAK TEC - CATÁLOGO COMPLETO DA IGDB   ==
+ // ==========================================
 
-// CONSULTAR DETALHES DE UM JOGO DA IGDB
-// =======================================
+ app.get("/api/catalogo/igdb", async (req, res) => {
+
+     const pagina = Number(req.query.pagina || 1);
+
+     const genero = String(req.query.genero || "todos");
+
+     const ordenacao = String(
+         req.query.ordenacao || "popularidade"
+     );
+
+     const busca = typeof req.query.busca === "string"
+         ? req.query.busca.trim()
+         : "";
+
+     const generos = {
+         todos: null,
+         action: [4, 5, 8, 25, 33],
+         adventure: [31],
+         "role-playing-games-rpg": [12],
+         shooter: [5],
+         strategy: [11, 15, 16],
+         simulation: [13],
+         puzzle: [9],
+         platformer: [8],
+         racing: [10]
+     };
+
+     const ordens = {
+         popularidade: "sort total_rating_count desc;",
+         recentes: "sort first_release_date desc;",
+         avaliacao: "sort total_rating desc;",
+         nome: "sort name asc;"
+     };
+
+     if (
+         !Number.isSafeInteger(pagina) ||
+         pagina < 1 ||
+         pagina > 1000 ||
+         busca.length > 80 ||
+         !Object.hasOwn(generos, genero) ||
+         !Object.hasOwn(ordens, ordenacao)
+     ) {
+         return res.status(400).json({
+             mensagem: "Filtros inválidos."
+         });
+     }
+
+     try {
+
+         const filtros = ["version_parent = null"];
+
+         if (generos[genero]) {
+             filtros.push(
+                 `genres = (${generos[genero].join(",")})`
+             );
+         }
+
+         const termoSeguro = busca
+             .replace(/[;{}\u0000-\u001f]/g, " ")
+             .replace(/\\/g, "\\\\")
+             .replace(/"/g, '\\"');
+
+         // MONTAR A CONSULTA À IGDB \\
+
+         const consulta = [
+             "fields id,name,slug,cover.image_id,genres.name,first_release_date;",
+
+             termoSeguro
+                 ? `search "${termoSeguro}";`
+                 : "",
+
+             `where ${filtros.join(" & ")};`,
+
+             termoSeguro ? "" : ordens[ordenacao],
+
+             "limit 7;",
+
+             `offset ${(pagina - 1) * 6};`
+
+         ].filter(Boolean).join("\n");
+
+
+         // CONSULTAR JOGOS \\
+
+         const resultados = await consultarIGDB(consulta);
+
+         // EXIBIR ATÉ 6 POR PÁGINA \\
+
+         const jogos = resultados.slice(0, 6).map(jogo => ({
+             ...resumirJogoIGDB(jogo),
+             desenvolvedor: null,
+             descricao: null
+         }));
+
+
+         // RECUPERAR BREAK SCORE SALVO NO MYSQL \\
+
+         const ids = jogos
+             .map(jogo => Number(jogo.id_externo))
+             .filter(id =>
+                 Number.isSafeInteger(id) && id > 0
+             );
+
+         if (ids.length > 0) {
+
+             try {
+
+                 const marcadores = ids
+                     .map(() => "?")
+                     .join(",");
+
+                 const [linhas] = await conexao.promise().query(`
+                     SELECT
+                         j.igdb_id,
+                         j.desenvolvedor,
+
+                         COUNT(a.id) AS total_avaliacoes,
+
+                         ROUND(AVG(a.nota) * 2, 1)
+                             AS break_score
+
+                     FROM jogos_oficiais j
+
+                     LEFT JOIN avaliacoes_oficiais a
+                         ON a.jogo_oficial_id = j.id
+
+                     WHERE j.igdb_id IN (${marcadores})
+
+                     GROUP BY
+                         j.id,
+                         j.igdb_id,
+                         j.desenvolvedor
+                 `, ids);
+
+                 const mapa = new Map(
+                     linhas.map(registro => [
+                         Number(registro.igdb_id),
+                         registro
+                     ])
+                 );
+
+                 jogos.forEach(jogo => {
+
+                     const salvo = mapa.get(
+                         Number(jogo.id_externo)
+                     );
+
+                     if (!salvo) return;
+
+                     jogo.desenvolvedor =
+                         salvo.desenvolvedor || null;
+
+                     jogo.total_avaliacoes =
+                         Number(salvo.total_avaliacoes) || 0;
+
+                     jogo.break_score =
+                         salvo.break_score == null
+                             ? null
+                             : Number(salvo.break_score);
+                 });
+
+             } catch (erro) {
+
+                 console.error(
+                     "Erro ao consultar avaliações IGDB:",
+                     erro
+                 );
+             }
+         }
+
+
+         // RETORNAR CATÁLOGO E PAGINAÇÃO \\
+
+         return res.json({
+             jogos,
+             pagina,
+             temProxima: resultados.length > 6
+         });
+
+     } catch (erro) {
+
+         console.error(
+             "Erro no catálogo IGDB:",
+             erro.message
+         );
+
+         return erroConsultaIGDB(res, erro);
+     }
+ });
+
+
+// CONSULTAR DETALHES DE UM JOGO DA IGDB //
 
  app.get("/api/igdb/jogos/:id", async (req, res) => {
 
@@ -5841,10 +6162,17 @@ app.delete("/api/jogos-oficiais/:id/comentario", (req, res) => {
 
 
 //========================
-//NAO MEXER ESTA PARTE
+//NAO MEXER ESTA PARTE ==
 //========================
-app.listen(3000, () => {
+
+// INICIALIZAÇÃO DO SERVIDOR - BREAK TEC
+
+const PORT = Number(process.env.PORT) || 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+
     console.log(
-        "Servidor rodando em http://localhost:3000"
+        `Servidor Break Tec rodando na porta ${PORT}`
     );
+
 });

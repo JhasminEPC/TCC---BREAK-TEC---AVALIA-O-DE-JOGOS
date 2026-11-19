@@ -491,6 +491,27 @@ async function carregarCatalogo() {
         : Promise.resolve(null);
 
 
+ // CONSULTAR TAMBÉM A IGDB //
+
+    const requisicaoIGDB = buscarOficiais
+
+        ? fetch(
+            `/api/catalogo/igdb?${parametros}`,
+            { signal: sinal }
+        ).then(async resposta => {
+
+            if (!resposta.ok) {
+                throw new Error(
+                    "Erro ao consultar jogos na IGDB."
+                );
+            }
+
+            return resposta.json();
+        })
+
+        : Promise.resolve(null);
+
+
     const requisicaoComunidade = buscarComunidade
 
         ? fetch(
@@ -515,7 +536,9 @@ async function carregarCatalogo() {
 
         requisicaoOficiais,
 
-        requisicaoComunidade
+        requisicaoComunidade,
+        
+        requisicaoIGDB
 
     ]);
 
@@ -526,10 +549,7 @@ async function carregarCatalogo() {
         return;
     }
 
-
-    // =====================================
     // RESULTADOS OFICIAIS
-    // =====================================
 
     const oficiaisDisponiveis =
         resultados[0].status === "fulfilled";
@@ -538,16 +558,61 @@ async function carregarCatalogo() {
         ? resultados[0].value
         : null;
 
-    const oficiais = Array.isArray(
-        dadosOficiais?.jogos
-    )
+    // RESULTADOS DA RAWG
+
+    const jogosRawg = Array.isArray(dadosOficiais?.jogos)
         ? dadosOficiais.jogos
         : [];
 
+    // RESULTADOS DA IGDB
 
-    // =====================================
+    const igdbDisponivel =
+        resultados[2].status === "fulfilled";
+
+    const dadosIGDB = igdbDisponivel
+        ? resultados[2].value
+        : null;
+
+    const jogosIGDB = Array.isArray(dadosIGDB?.jogos)
+        ? dadosIGDB.jogos
+        : [];
+
+    // UNIFICAR JOGOS OFICIAIS
+
+    const oficiais = [];
+
+    const titulosExibidos = new Set();
+
+    const adicionarJogoOficial = jogo => {
+
+    const chave = normalizarTexto(jogo.titulo);
+
+        if (!chave || titulosExibidos.has(chave)) 
+            { return;}
+
+        titulosExibidos.add(chave);
+
+        oficiais.push(jogo);
+    };
+
+    // ALTERNAR RAWG E IGDB NA LISTA
+
+    for (
+        let i = 0;
+        i < Math.max(jogosRawg.length, jogosIGDB.length);
+        i++
+    ) {
+
+    if (jogosRawg[i]) {
+         adicionarJogoOficial(jogosRawg[i]);
+     }
+
+    if (jogosIGDB[i]) {
+         adicionarJogoOficial(jogosIGDB[i]);
+     }
+ }
+
     // RESULTADOS DA COMUNIDADE
-    // =====================================
 
     const comunidadeDisponivel =
         resultados[1].status === "fulfilled";
@@ -564,15 +629,6 @@ async function carregarCatalogo() {
         )
     );
 
-
-    // PROJETOS POR PÁGINA
-
-    // Na aba Todos: até 3 projetos e
-    // 12 jogos oficiais por página.
-    //
-    // Na aba Comunidade: 12 projetos
-    // por página.
-
     const projetosPorPagina =
         tipoAtual === "todos" ? 3 : 12;
 
@@ -583,11 +639,6 @@ async function carregarCatalogo() {
         inicio,
         inicio + projetosPorPagina
     );
-
-
-    // =====================================
-    // MISTURAR OS RESULTADOS
-    // =====================================
 
     const itens = [];
 
@@ -639,10 +690,7 @@ async function carregarCatalogo() {
         });
     }
 
-
-    // =====================================
     // EXIBIR OS CARDS
-    // =====================================
 
     catalogoGrid.replaceChildren();
 
@@ -665,9 +713,7 @@ async function carregarCatalogo() {
     });
 
 
-    // =====================================
     // MENSAGEM DE CATÁLOGO VAZIO
-    // =====================================
 
     if (totalExibido === 0) {
 
@@ -681,16 +727,15 @@ async function carregarCatalogo() {
         catalogoGrid.appendChild(vazio);
     }
 
-
-    // =====================================
     // AVISO DE ERROS PARCIAIS
-    // =====================================
 
-    const falhaOficial =
-        buscarOficiais && !oficiaisDisponiveis;
+    const falhaOficial = buscarOficiais &&
+        !oficiaisDisponiveis &&
+        !igdbDisponivel;
 
     const falhaComunidade =
-        buscarComunidade && !comunidadeDisponivel;
+        buscarComunidade && 
+        !comunidadeDisponivel;
 
     if (falhaOficial || falhaComunidade) {
 
@@ -704,11 +749,6 @@ async function carregarCatalogo() {
         catalogoGrid.appendChild(aviso);
     }
 
-
-    // =====================================
-    // QUANTIDADE DE JOGOS
-    // =====================================
-
     catalogoQuantidade.textContent =
         `${totalExibido} ${
             totalExibido === 1
@@ -716,20 +756,17 @@ async function carregarCatalogo() {
                 : "jogos nesta página"
         }`;
 
-
-    // =====================================
     // PAGINAÇÃO
-    // =====================================
 
     const totalPaginasComunidade =
         Math.ceil(
             projetos.length / projetosPorPagina
         );
 
-    const proximaOficial =
-        buscarOficiais &&
-        oficiaisDisponiveis &&
-        Boolean(dadosOficiais?.temProxima);
+    const proximaOficial = buscarOficiais && (
+    Boolean(dadosOficiais?.temProxima) ||
+    Boolean(dadosIGDB?.temProxima)
+);
 
     const proximaComunidade =
         buscarComunidade &&
@@ -750,10 +787,7 @@ async function carregarCatalogo() {
         `Página ${paginaAtual}`;
 }
 
-
-// ==========================================
 // ATUALIZAR OS BOTÕES DE TIPO
-// ==========================================
 
 function atualizarTipoCatalogo() {
 
@@ -772,10 +806,7 @@ function atualizarTipoCatalogo() {
     });
 }
 
-
-// ==========================================
 // ATUALIZAR URL
-// ==========================================
 
 function atualizarURLCatalogo() {
 
@@ -795,10 +826,7 @@ function atualizarURLCatalogo() {
     );
 }
 
-
-// ==========================================
 // ALTERAR TIPO DE CATÁLOGO
-// ==========================================
 
 botoesTipo.forEach(botao => {
 
@@ -818,10 +846,7 @@ botoesTipo.forEach(botao => {
 
 });
 
-
-// ==========================================
 // PESQUISA COM PEQUENO INTERVALO
-// ==========================================
 
 catalogoPesquisa.addEventListener("input", () => {
 
@@ -847,10 +872,7 @@ catalogoPesquisa.addEventListener("input", () => {
 
 });
 
-
-// ==========================================
 // FILTROS DE GÊNERO E ORDENAÇÃO
-// ==========================================
 
 [catalogoGenero, catalogoOrdenacao].forEach(campo => {
 
@@ -866,10 +888,7 @@ catalogoPesquisa.addEventListener("input", () => {
 
 });
 
-
-// ==========================================
 // PAGINAÇÃO
-// ==========================================
 
 catalogoAnterior.addEventListener("click", () => {
 
@@ -912,10 +931,7 @@ catalogoProximo.addEventListener("click", () => {
 
 });
 
-
-// ==========================================
-// INICIAR CATÁLOGO
-// ==========================================
+// INICIAR CATÁLOGO //
 
 atualizarTipoCatalogo();
 
