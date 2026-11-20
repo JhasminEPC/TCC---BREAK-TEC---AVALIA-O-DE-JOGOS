@@ -5689,16 +5689,13 @@ app.delete("/api/jogos-oficiais/:id/comentario", (req, res) => {
     excluirComentario(req, res, "oficial");
 });
 
-
- // ==========================================
- // BREAK TEC - INTEGRAÇÃO COM IGDB
- // ==========================================
+ // BREAK TEC - INTEGRAÇÃO COM IGDB //
 
  let tokenIGDB = null;
  let tokenIGDBExpira = 0;
 
 
- // OBTER TOKEN AUTOMATICAMENTE PELA TWITCH
+ // OBTEM TOKEN AUTOMATICAMENTE PELA TWITCH
  async function obterTokenIGDB() {
 
      if (tokenIGDB && Date.now() < tokenIGDBExpira) {
