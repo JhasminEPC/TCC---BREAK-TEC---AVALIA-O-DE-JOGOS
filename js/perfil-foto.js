@@ -197,6 +197,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
             mostrarFoto(fotoSalva);
 
+            // Aguarda também a imagem terminar de carregar antes de mostrar o perfil.
+            if (fotoSalva) {
+                try {
+                    await imagem.decode();
+                } catch (erroImagem) {
+                    // O evento "error" já apresenta a inicial como alternativa.
+                    console.warn("Foto indisponível; exibindo avatar alternativo.");
+                }
+            }
+
         } catch (erro) {
 
             console.error(
@@ -209,6 +219,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         atualizarBotoes();
+
+        // Mesmo sem foto, libera a exibição da identidade do perfil.
+        window.dispatchEvent(new Event("breaktec:foto-pronta"));
 
     }
 

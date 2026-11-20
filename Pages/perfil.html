@@ -89,7 +89,8 @@
 
         <!-- APRESENTAÇÃO DO USUÁRIO -->
 
-<section class="perfil-cabecalho" id="configuracoes">
+<p id="perfilCarregando" role="status" aria-live="polite">Carregando seu perfil...</p>
+<section class="perfil-cabecalho" id="configuracoes" style="visibility: hidden;">
 
     <!-- =====================================
          FOTO DE PERFIL INTERATIVA
@@ -988,6 +989,38 @@
 
 </dialog>
 
+
+    <!-- Mostra o cabeçalho quando a identidade e o avatar estiverem prontos. -->
+    <script>
+        (() => {
+            let identidadePronta = false;
+            let fotoPronta = false;
+            const cabecalho = document.querySelector(".perfil-cabecalho");
+            const aviso = document.getElementById("perfilCarregando");
+
+            function revelarPerfil() {
+                if (!identidadePronta || !fotoPronta) return;
+                cabecalho.style.visibility = "visible";
+                aviso.hidden = true;
+            }
+
+            window.addEventListener("breaktec:identidade-pronta", () => {
+                identidadePronta = true;
+                revelarPerfil();
+            });
+
+            window.addEventListener("breaktec:foto-pronta", () => {
+                fotoPronta = true;
+                revelarPerfil();
+            });
+
+            // Se a foto demorar demais, mostra o perfil com o avatar alternativo.
+            setTimeout(() => {
+                fotoPronta = true;
+                revelarPerfil();
+            }, 8000);
+        })();
+    </script>
 
     <script src="../js/perfil.js"></script>
     <script src="../js/perfil-publico.js"></script>

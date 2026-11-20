@@ -48,6 +48,9 @@ async function carregarPerfil() {
                 .charAt(0)
                 .toUpperCase();
 
+        // Sinaliza que os dados essenciais do usuário estão prontos.
+        window.dispatchEvent(new Event("breaktec:identidade-pronta"));
+
     } catch (erro) {
 
         console.error(
