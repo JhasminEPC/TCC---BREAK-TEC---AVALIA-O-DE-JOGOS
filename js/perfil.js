@@ -156,6 +156,30 @@ botaoNovoProjeto.addEventListener(
     }
 );
 
+// ==========================
+// ABRIR FORMULÁRIO VINDO DA HOME
+// ==========================
+
+const parametros = new URLSearchParams(
+    window.location.search
+);
+
+if (parametros.get("abrirProjeto") === "1") {
+
+    botaoNovoProjeto.click();
+
+    formProjetoArea.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
+    window.history.replaceState(
+        {},
+        "",
+        window.location.pathname
+    );
+
+}
 
 cancelarProjeto.addEventListener(
     "click",

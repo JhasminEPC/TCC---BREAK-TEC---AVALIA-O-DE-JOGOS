@@ -1200,18 +1200,6 @@ const projetosGrid =
 const verTodosProjetos =
     document.getElementById("verTodosProjetos");
 
-// MODAL CRIAR PROJETO
-const modalProjeto = document.getElementById("modalProjeto");
-const botaoFecharModal = document.getElementById("fecharModalProjeto");
-const botaoCancelarModal = document.getElementById("cancelarModalProjeto");
-
-function abrirModalProjeto() {
-    modalProjeto.hidden = false;
-}
-
-function fecharModalProjeto() {
-    modalProjeto.hidden = true;
-}
 
 // ========================================
 // PROJETOS E JOGOS OFICIAIS EM DESTAQUE
@@ -1312,8 +1300,11 @@ function criarCardDestaque(jogo) {
         : `Pages/jogos.html?id=${id}`;
 
 
-    const imagem = imagemSegura(jogo.imagem);
-
+   const imagem = oficial
+    ? imagemSegura(jogo.imagem)
+    : jogo.imagem
+        ? `/api/projetos/${id}/imagem`
+        : "";
     const card = document.createElement("article");
 
     card.className = "projeto-home-card card-clicavel";
@@ -1521,10 +1512,10 @@ cardCriar.innerHTML = `
 `;
 
 projetosGrid.appendChild(cardCriar);
-cardCriar.addEventListener("click", abrirModalProjeto);
 
-botaoFecharModal.addEventListener("click", fecharModalProjeto);
-botaoCancelarModal.addEventListener("click", fecharModalProjeto);
+cardCriar.addEventListener("click", () => {
+    window.location.href = "Pages/perfil.html?abrirProjeto=1";
+});
     } catch (erro) {
 
         console.error(
